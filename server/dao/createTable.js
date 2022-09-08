@@ -10,11 +10,66 @@ var connection = mysql.createConnection({
 connection.connect();
 console.log("database connection is been created");
 
-function createTable()  {
+function create_table() {
     connection.query('CREATE TABLE IF NOT EXISTS facturacion(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, nombre_articulo VARCHAR(80) NOT NULL, precio DOUBLE NOT NULL, fecha DATE, dni VARCHAR(100), nombre_y_apellido VARCHAR(400) NOT NULL);', function (err, rows, fields) {
         if (err) throw err("No se pudo crear la tabla de facturacion");
     });
 }
+
+function create_factura(factura) {
+    connection.query('INSERT INTO facturacion (nombre_articulo, precio, fecha, dni, nombre_y_apellido) VALUES' + '(' + convert_to_string(factura.nombre_articulo_cliente) + ',' + convert_to_string(factura.precio_venta) + ',' + convert_to_string(get_date()) + ',' + convert_to_string(factura.dni_cliente) + ',' + convert_to_string(factura.nombre_y_apellido_cliente) + ');', function (err, rows, fields) {
+        console.log(err)
+        console.log(fields);
+    });
+}
+
+function get_all_facturas() {
+    connection.query('SELECT * FROM facturacion;', function (err, rows, fields) {
+        return rows;
+    });
+}
+
+function get_facturas_between(start_date, end_date){
+    connection.query('SELECT * FROM facturacion WHERE fecha >= ' + convert_to_string(start_date) + 'AND fecha <=' + convert_to_string(end_date) + ';', function (err, rows, fields) {
+        return rows;
+    });
+}
+
+
+
+
+
+//Auxiliar Functions
+
+function convert_to_string(value){
+    if(!value){
+        value = "";
+    }
+    return "\'" + value + "\'";     
+}
+
+function get_date(){
+    const date = new Date();
+    let day = date.getDate();
+    let month = date.getMonth() + 1;
+    if(day < 10){
+        day = "0" + day;
+    }
+    if(month < 10){
+        month = "0" + month;
+    }
+
+    console.log(day + "/" + month + "/" + date.getFullYear())
+    return date.getFullYear() + "/"  + month + "/" + day;
+}
+
+
+
+
 module.exports = {
-    createTable
+    create_table,
+    create_factura,
+    get_all_facturas,
+    get_facturas_like,
+    get_facturas_between
 }
