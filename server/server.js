@@ -1,27 +1,20 @@
 var express = require('express');
+var cors = require('cors');
 const database_connection = require('./dao/createTable');
 
+database_connection.create_table()
 //create connection database
+const dao = database_connection;
 
-database_connection.create_table();
-var app = express();
-
-/*
-database_connection.create_factura({
-    nombre_articulo_cliente: "2840 negro",
-    precio_venta: 321239.2,
-    dni_cliente: "4539958949",
-    nombre_y_apellido_cliente: "Jose luis"
-});
-
-**/
-
+const app = express();
+app.use(cors());
+app.use(express.json());
 
 var PORT = 3000;
 
-app.post('/save_bill', function (req, res) {
-
-    res.send('Hello world');
+app.post('/guardar_factura', function (req, res) {
+    dao.create_factura(req.body);
+    res.send();
 });
 
 app.listen(PORT, function () {
