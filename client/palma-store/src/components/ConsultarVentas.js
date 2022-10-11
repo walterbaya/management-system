@@ -116,9 +116,4 @@ class Consultar extends Component{
     }
 }
 
-
-
-
-
-
 export default Consultar;

@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route, Link, Routes } from "react-router-dom";
 import Registrar from "./components/RegistrarVenta";
 import Consultar from "./components/ConsultarVentas";
 import Disponibilidad from "./components/DisponibilidadArticulo";
+import AgregarArticulo from "./components/AgregarArticulo";
 
 class App extends Component {
   render() {
@@ -21,6 +22,9 @@ class App extends Component {
               <Link className="btn-main my-1" to={`/`}>
                 Consultar Disponibilidad de Artículo
               </Link>
+              <Link className="btn-main my-1" to={`/agregar_articulo`}>
+                Agregar Articulo - Modificar Articulo
+              </Link>
               <Link className="btn-main my-1" to="/registrar">
                 Registrar Venta
               </Link>
@@ -34,6 +38,7 @@ class App extends Component {
               <Routes>
                 <Route path="/registrar" element=<Registrar /> />
                 <Route path="/consultar_ventas" element=<Consultar /> />
+                <Route path="/agregar_articulo" element=<AgregarArticulo /> />
                 <Route path="/" element=<Disponibilidad /> />
               </Routes>
             </switch>

@@ -22,6 +22,16 @@ app.post("/guardar_factura", function (req, res) {
   }
 });
 
+app.post("/agregar_articulo", function (req, res) {
+  const validacion = validarFormularioArticulo(req.body);
+  if (validacion == "ok") {
+    dao.create_articulo(req.body);
+    res.send("success");
+  } else {
+    res.send(validacion);
+  }
+});
+
 app.listen(PORT, function () {
   console.log("Server is running on PORT:", PORT);
 });
@@ -38,6 +48,17 @@ function validarFormulario(factura) {
   }
   if (!factura.nombre_y_apellido_cliente) {
     return "Error, se debe ingresar el nombre y apellido del cliente";
+  }
+
+  return "ok";
+}
+
+function validarFormularioArticulo(factura) {
+  if (!factura.nombre_articulo_cliente) {
+    return "Error, se debe ingresar el nombre del articulo";
+  }
+  if (!factura.precio_venta || factura.precio_venta <= 0) {
+    return "Error, se debe ingresar el precio  y debe ser mayor o igual a 0";
   }
 
   return "ok";

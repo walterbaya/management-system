@@ -19,6 +19,15 @@ function create_table() {
       console.log(rows);
     }
   );
+
+  connection.query(
+    "CREATE TABLE IF NOT EXISTS articulos(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, nombre_articulo VARCHAR(80) NOT NULL, precio DOUBLE NOT NULL);",
+    function (err, rows, fields) {
+      console.log(err);
+      console.log(fields);
+      console.log(rows);
+    }
+  );
 }
 
 function create_factura(factura) {
@@ -43,6 +52,22 @@ function create_factura(factura) {
   );
 }
 
+function create_articulo(factura) {
+  connection.query(
+    "INSERT INTO articulos (nombre_articulo, precio) VALUES" +
+      "(" +
+      convert_to_string(factura.nombre_articulo_cliente) +
+      "," +
+      factura.precio_venta +
+      ");",
+    function (err, rows, fields) {
+      console.log(err);
+      console.log(fields);
+      console.log(rows);
+    }
+  );
+}
+
 function get_all_facturas() {
   connection.query("SELECT * FROM facturacion;", function (err, rows, fields) {
     return rows;
@@ -55,6 +80,19 @@ function get_facturas_between(start_date, end_date) {
       convert_to_string(start_date) +
       "AND fecha <=" +
       convert_to_string(end_date) +
+      ";",
+    function (err, rows, fields) {
+      console.log(fields);
+      console.log(err);
+      return rows;
+    }
+  );
+}
+
+function get_articulo(article_name) {
+  connection.query(
+    "SELECT * FROM articulos WHERE nombre = " +
+      convert_to_string(article_name) + 
       ";",
     function (err, rows, fields) {
       console.log(fields);
@@ -94,4 +132,6 @@ module.exports = {
   get_all_facturas,
   //get_facturas_like,
   get_facturas_between,
+  get_articulo,
+  create_articulo
 };
