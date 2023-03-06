@@ -70,6 +70,6 @@ module.exports = {
     create_table,
     create_factura,
     get_all_facturas,
-    get_facturas_like,
+    //get_facturas_like,
     get_facturas_between
 }
