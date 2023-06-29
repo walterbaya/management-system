@@ -129,7 +129,7 @@ class Registrar extends Component {
             />{" "}
           </div>{" "}
           <div className="form-group mt-3">
-            <label className="pb-2"> DNI Cliente </label>{" "}
+            <label className="pb-2"> DNI Cliente (Opcional) </label>{" "}
             <input
               type="text"
               className="form-control"
@@ -138,7 +138,7 @@ class Registrar extends Component {
             />{" "}
           </div>{" "}
           <div className="form-group mt-3">
-            <label className="pb-2"> Nombre y Apellido Cliente </label>{" "}
+            <label className="pb-2"> Nombre y Apellido Cliente (Opcional) </label>{" "}
             <input
               type="text"
               className="form-control"

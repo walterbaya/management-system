@@ -1,5 +1,7 @@
 import { Component } from "react";
+import LoadExcel from "./Utilities/LoadExcel";
 const axios = require("axios");
+
 
 function validarFormulario(factura) {
     if (!factura.nombre_articulo) {
@@ -39,21 +41,17 @@ class AgregarArticulo extends Component {
 
     cambiar_nombre_articulo(event) {
         this.setState({ nombre_articulo: event.target.value });
-        this.exito = "";
     }
 
     cambiar_color(event) {
         this.setState({ color: event.target.value });
-        this.exito = "";
     }
 
     cambiar_talle(event) {
         this.setState({ talle: event.target.value });
-        this.exito = "";
     }
     cambiar_cantidad(event) {
         this.setState({ cantidad: event.target.value });
-        this.exito = "";
     }
 
 
@@ -72,7 +70,7 @@ class AgregarArticulo extends Component {
                 .post("http://localhost:3000/agregar_articulo", factura)
                 .then((response) => {
                         console.log(response.data);
-                        this.state.exito = "Articulo guardado con exito";
+                        this.setState({exito: "Articulo guardado con exito"})
                     }
 
                 )
@@ -135,23 +133,18 @@ class AgregarArticulo extends Component {
 
 
 
-            <
-            div className = "form-group mt-3" >
-            <
-            label className = "pb-2" > Color < /label> <
-            input type = "text"
-            className = "form-control"
-            value = { this.state.color }
-            onChange = { this.cambiar_color }
-            /> < /
-            div >
-            <
-            button className = "btn btn-primary mt-3"
-            onClick = { this.enviar_formulario } >
-            Agregar Artículo <
-            /button> < /
-            form > <
-            /div>
+            <div className = "form-group mt-3" >
+                <label className = "pb-2" > Color < /label> 
+                <input type = "text" className = "form-control" value = { this.state.color } onChange = { this.cambiar_color }/> 
+                </div>
+                <button className = "btn btn-primary mt-3" onClick = { this.enviar_formulario } >Agregar Artículo </button>
+                <button type="button" className="btn btn-primary mt-3 mx-3" data-bs-toggle="modal" data-bs-target="#loadExcel">
+                Cargar Excel con Artículos</button>
+            </form >
+
+            <LoadExcel/>
+             
+            </div>
         );
     }
 }
