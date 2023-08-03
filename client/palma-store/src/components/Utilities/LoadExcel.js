@@ -1,12 +1,18 @@
 import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+import * as XLSX from "xlsx";
 
-function Example() {
+function LoadExcel() {
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+
+  const handleFileUpload = () => {
+
+  };
+
 
   return (
     <>
@@ -25,7 +31,12 @@ function Example() {
         </Modal.Header>
         <Modal.Body>
           Todos los articulos anteriormente cargados serán eliminados y reemplazados por la información que se suministre en este Excel.
+
+          <input type='file' accept='.xlsx, .xls' onChange={handleFileUpload}/>
         </Modal.Body>
+
+
+
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
             Cerrar
@@ -36,4 +47,4 @@ function Example() {
   );
 }
 
-export default Example;
+export default LoadExcel;
