@@ -34,7 +34,20 @@ app.post("/agregar_articulo", function (req, res) {
   }
 });
 
-app.get("/get_articulos", async function (req, res) {
+app.post("/registrar_articulos", function (req, res) {
+  const validacion = validarArticulos(req.body);
+  if (validacion == "ok") {
+    let articulos = req.body;
+    articulos.forEach(articulo => {
+      dao.create_articulo(articulo);  
+    });
+    res.send("success");
+  } else {
+    res.send(validacion);
+  }
+});
+
+app.get("/get_articulos", function (req, res) {
   console.log(dao.get_all_articulos());
   res.send(dao.get_all_articulos());
 });
@@ -74,5 +87,9 @@ function validarFormularioArticulo(factura) {
     return "Error, se debe ingresar el color ";
   }
 
+  return "ok";
+}
+
+function validarArticulos(articulos){
   return "ok";
 }

@@ -13,6 +13,7 @@
     "react-bootstrap": "^2.8.0",
     "react-bootstrap-typeahead": "^6.2.2",
     "react-dom": "^18.2.0",
+    "react-drag-drop-files": "^2.3.10",
     "react-router-dom": "^6.4.1-pre.0",
     "react-scripts": "5.0.1",
     "react-spreadsheet-import": "^4.1.1",

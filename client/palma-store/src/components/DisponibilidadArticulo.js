@@ -15,12 +15,9 @@ class Disponibilidad extends Component {
   }
 
 
-  enviar_formulario() {
-    const consulta = {
-      nombre_articulo: this.state.nombre_articulo,
-    };
+  show_complete_stock() {
     axios
-      .post("http://localhost:3000/consulta_facturas", consulta)
+      .post("http://localhost:3000/get_articulos")
       .then((response) => console.log(response.data))
       .catch((error) => console.log(error));
   }
@@ -46,7 +43,16 @@ class Disponibilidad extends Component {
             className="btn btn-primary mt-3"
             onClick={this.enviar_formulario}
           >
-            Obtener Ventas Registradas
+            Mostrar Stock del Artículo Indicado
+          </button>
+
+
+
+          <button
+            className="btn btn-primary mt-3 ms-3"
+            onClick={this.show_complete_stock}
+          >
+            Mostrar Stock Actual Completo
           </button>
         </form>
       </div>

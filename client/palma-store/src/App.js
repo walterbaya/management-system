@@ -19,14 +19,14 @@ class App extends Component {
         <section className="d-flex flex-row">
           <div className="main-buttons-container">
             <div id="main-buttons" className="main-buttons">
-              <Link className="btn-main my-1" to={`/`}>
-                Consultar Disponibilidad de Artículo
-              </Link>
               <Link className="btn-main my-1" to={`/agregar_articulo`}>
                 Agregar Articulo - Modificar Articulo
               </Link>
               <Link className="btn-main my-1" to="/registrar">
                 Registrar Venta
+              </Link>
+              <Link className="btn-main my-1" to={`/`}>
+                Consultar Stock
               </Link>
               <Link className="btn-main my-1" to={`/consultar_ventas`}>
                 Consultar Ventas

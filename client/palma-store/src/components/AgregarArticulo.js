@@ -136,15 +136,14 @@ class AgregarArticulo extends Component {
             <div className = "form-group mt-3" >
                 <label className = "pb-2" > Color < /label> 
                 <input type = "text" className = "form-control" value = { this.state.color } onChange = { this.cambiar_color }/> 
-                </div>
-                <button className = "btn btn-primary mt-3" onClick = { this.enviar_formulario } >Agregar Artículo </button>
-                <button type="button" className="btn btn-primary mt-3 mx-3" data-bs-toggle="modal" data-bs-target="#loadExcel">
-                Cargar Excel con Artículos</button>
-            </form >
-
-            <LoadExcel/>
-             
             </div>
+            <div className="form-group mt-3 d-flex">
+            <button className = "btn btn-primary mt-3" onClick = { this.enviar_formulario } >Agregar Artículo </button>
+            <div className="mt-3 ms-3"><LoadExcel/></div>
+                
+            </div>          
+        </form >             
+    </div>
         );
     }
 }
