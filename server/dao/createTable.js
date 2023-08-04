@@ -90,7 +90,7 @@ function get_facturas_between(start_date, end_date) {
     function (err, rows, fields) {
       console.log(fields);
       console.log(err);
-      return rows;
+      console.log(rows);
     }
   );
 }
@@ -109,13 +109,11 @@ function get_articulo(article_name) {
 }
 
 function get_all_articulos() {
-  connection.query("SELECT * FROM articulos",
-    function (err, rows, fields) {
-      console.log(fields);
-      console.log(err);
-      return rows;
-    }
-  );
+  var res = [];
+  var query = connection.query("SELECT * FROM articulos;");
+  query.on('result', function (fields) {
+    res = fields;
+  });
 }
 
 //Auxiliar Functions

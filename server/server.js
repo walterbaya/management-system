@@ -39,7 +39,7 @@ app.post("/registrar_articulos", function (req, res) {
   if (validacion == "ok") {
     let articulos = req.body;
     articulos.forEach(articulo => {
-      dao.create_articulo(articulo);  
+      dao.create_articulo(articulo);
     });
     res.send("success");
   } else {
@@ -48,8 +48,7 @@ app.post("/registrar_articulos", function (req, res) {
 });
 
 app.get("/get_articulos", function (req, res) {
-  console.log(dao.get_all_articulos());
-  res.send(dao.get_all_articulos());
+  res.send(dao.get_all_articulos(res));
 });
 
 app.listen(PORT, function () {
@@ -90,6 +89,6 @@ function validarFormularioArticulo(factura) {
   return "ok";
 }
 
-function validarArticulos(articulos){
+function validarArticulos(articulos) {
   return "ok";
 }

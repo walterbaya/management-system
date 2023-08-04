@@ -17,8 +17,8 @@ class Disponibilidad extends Component {
 
   show_complete_stock() {
     axios
-      .post("http://localhost:3000/get_articulos")
-      .then((response) => console.log(response.data))
+      .get("http://localhost:3000/get_articulos")
+      .then((response) => console.log(response))
       .catch((error) => console.log(error));
   }
 
