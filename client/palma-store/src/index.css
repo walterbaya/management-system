@@ -85,7 +85,7 @@ body{
     display: flex;
     flex-direction: column;
     width: 50%;
-    height: 600px;
+    height: 500px;
     background-color: #2b6777;
     padding: 1em;
     justify-content: space-evenly;
@@ -102,10 +102,17 @@ body{
 
 .explanation-text-main{
     width: 50%;
-    height: 600px;
+    height: 500px;
     padding: 1em;
     background-color: #c8d8e4;
 }
+
+.fixed_height{
+    overflow: auto;
+    max-height: 14rem;
+}
+
+
 
 .drop_zone{
     min-height: 200px;

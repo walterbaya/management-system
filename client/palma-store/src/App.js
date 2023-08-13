@@ -34,14 +34,12 @@ class App extends Component {
             </div>
           </div>
           <div className="explanation-text-main">
-            <switch>
-              <Routes>
-                <Route path="/registrar" element=<Registrar /> />
-                <Route path="/consultar_ventas" element=<Consultar /> />
-                <Route path="/agregar_articulo" element=<AgregarArticulo /> />
-                <Route path="/" element=<Disponibilidad /> />
-              </Routes>
-            </switch>
+            <Routes>
+              <Route path="/registrar" element=<Registrar /> />
+              <Route path="/consultar_ventas" element=<Consultar /> />
+              <Route path="/agregar_articulo" element=<AgregarArticulo /> />
+              <Route path="/" element=<Disponibilidad /> />
+            </Routes>
           </div>
         </section>
         <footer>

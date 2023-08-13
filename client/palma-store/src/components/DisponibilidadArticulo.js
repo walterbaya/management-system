@@ -2,10 +2,11 @@ import { Component } from "react";
 import Table from "react-bootstrap/Table";
 const axios = require("axios");
 
-function Row(props) {
-  let res = <tr></tr>;
-  if (typeof(props.articulos) !== "undefined" && props.articulos.length > 0) {
-    res = props.articulos.map((articulo) => (
+function TableArticulos(props) {
+  let rows = <tr></tr>;
+  let res = <div className="fixed_height p-4"></div>;
+  if (typeof props.articulos !== "undefined" && props.articulos.length > 0) {
+    rows = props.articulos.map((articulo) => (
       <tr key={articulo.id}>
         <td>{articulo.nombre_articulo}</td>
         <td>{articulo.talle}</td>
@@ -16,6 +17,25 @@ function Row(props) {
         <td>{articulo.cantidad}</td>
       </tr>
     ));
+
+    res = (
+      <div className="fixed_height p-4">
+        <Table className="table table-bordered hover" size="sm">
+          <thead  class="table-primary text-center">
+            <tr>
+              <th scope="col">Nombre Artículo</th>
+              <th scope="col">Talle</th>
+              <th scope="col">Color</th>
+              <th scope="col">Cuero</th>
+              <th scope="col">Tipo</th>
+              <th scope="col">Genero</th>
+              <th scope="col">Cantidad</th>
+            </tr>
+          </thead>
+          <tbody>{rows}</tbody>
+        </Table>
+      </div>
+    );
   }
 
   return res;
@@ -47,7 +67,7 @@ class Disponibilidad extends Component {
 
   render() {
     return (
-      <div className="bg-white">
+      <div className="bg-white h-100">
         <form className="p-4" onSubmit={(event) => event.preventDefault()}>
           <h1>Consultar Ventas</h1>
           <div className="form-group mt-3">
@@ -73,21 +93,7 @@ class Disponibilidad extends Component {
             Mostrar Stock Actual Completo
           </button>
         </form>
-
-        <Table striped bordered hover size="sm">
-          <thead>
-            <tr>
-              <th>Nombre Artículo</th>
-              <th>Talle</th>
-              <th>Color</th>
-              <th>Cuero</th>
-              <th>Tipo</th>
-              <th>Genero</th>
-              <th>Cantidad</th>
-            </tr>
-          </thead>
-          <tbody><Row articulos={this.state.articulos}/></tbody>
-        </Table>
+        <TableArticulos articulos={this.state.articulos} />
       </div>
     );
   }
