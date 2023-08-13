@@ -1,9 +1,41 @@
-import { useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
+import { useState } from "react";
+import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
 import * as XLSX from "xlsx";
 import { FileUploader } from "react-drag-drop-files";
 const axios = require("axios");
+
+function get_list_articulos(sheet) {
+  let res = [];
+
+  sheet.forEach((sheet_obj) => {
+    Object.keys(sheet_obj).forEach((key) => {
+      const obj = {
+        nombre_articulo: "",
+        talle: "",
+        color: "",
+        cuero: "",
+        tipo: "",
+        genero: "",
+        cantidad: "",
+      };
+      const talle = parseInt(key);
+      if (talle <= 46 && talle >= 35) {
+        obj.nombre_articulo = sheet_obj.ARTICULO;
+        obj.talle = talle;
+        obj.color = sheet_obj.COLOR;
+        obj.cuero = sheet_obj.CUERO;
+        obj.tipo = sheet_obj.TIPO;
+        obj.genero = false;//sheet_obj.GENERO;
+        obj.cantidad = sheet_obj[key];
+        console.log(obj);
+        res.push(obj);
+      }
+    });
+  });
+
+  return res;
+}
 
 function LoadExcel() {
   const [show, setShow] = useState(false);
@@ -19,14 +51,15 @@ function LoadExcel() {
       const workbook = XLSX.read(data, { type: "binary" });
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
-  
-      axios
-      .post("http://localhost:3000/registrar_articulos", XLSX.utils.sheet_to_json(sheet))
-      .then((response) => console.log(response.data))
-      .catch((error) => console.log(error));
-    }
-  };
+      const xlsx_sheet = XLSX.utils.sheet_to_json(sheet);
+      const json = get_list_articulos(xlsx_sheet);
 
+      axios
+        .post("http://localhost:3000/registrar_articulos", json)
+        .then((response) => console.log(response.data))
+        .catch((error) => console.log(error));
+    };
+  };
 
   return (
     <>
@@ -44,15 +77,18 @@ function LoadExcel() {
           <Modal.Title>Cargar Excel con Datos</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          <p>
+            Todos los articulos anteriormente cargados serán eliminados y
+            reemplazados por la información que se suministre en este Excel.
+          </p>
 
-          <p>Todos los articulos anteriormente cargados serán eliminados y reemplazados por la información que se suministre en este Excel.</p>
-
-          <FileUploader classes="drop_zone" handleChange={handleFileUpload} name="file"
+          <FileUploader
+            classes="drop_zone"
+            handleChange={handleFileUpload}
+            name="file"
             hoverTitle=" "
           />
         </Modal.Body>
-
-
 
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>

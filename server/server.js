@@ -48,7 +48,7 @@ app.post("/registrar_articulos", function (req, res) {
 });
 
 app.get("/get_articulos", function (req, res) {
-  res.send(dao.get_all_articulos(res));
+  dao.get_all_articulos().then(data => res.send(data));
 });
 
 app.listen(PORT, function () {

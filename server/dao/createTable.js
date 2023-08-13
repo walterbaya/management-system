@@ -21,7 +21,7 @@ function create_table() {
   );
 
   connection.query(
-    "CREATE TABLE IF NOT EXISTS articulos(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, nombre_articulo VARCHAR(80) NOT NULL, talle DOUBLE NOT NULL, color VARCHAR(80) NOT NULL, cantidad DOUBLE NOT NULL);",
+    "CREATE TABLE IF NOT EXISTS articulos(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, nombre_articulo VARCHAR(80) NOT NULL, talle DOUBLE NOT NULL, color VARCHAR(80) NOT NULL, cuero VARCHAR(80) NOT NULL, tipo VARCHAR(80) NOT NULL, genero BOOLEAN NOT NULL, cantidad DOUBLE NOT NULL);",
     function (err, rows, fields) {
       console.log(err);
       console.log(fields);
@@ -33,19 +33,19 @@ function create_table() {
 function create_factura(factura) {
   connection.query(
     "INSERT INTO facturacion (nombre_articulo, precio, fecha, dni, nombre_y_apellido, cantidad) VALUES" +
-    "(" +
-    convert_to_string(factura.nombre_articulo_cliente) +
-    "," +
-    factura.precio_venta +
-    "," +
-    convert_to_string(get_date()) +
-    "," +
-    convert_to_string(factura.dni_cliente) +
-    "," +
-    convert_to_string(factura.nombre_y_apellido_cliente) +
-    "," +
-    factura.cantidad +
-    ");",
+      "(" +
+      convert_to_string(factura.nombre_articulo_cliente) +
+      "," +
+      factura.precio_venta +
+      "," +
+      convert_to_string(get_date()) +
+      "," +
+      convert_to_string(factura.dni_cliente) +
+      "," +
+      convert_to_string(factura.nombre_y_apellido_cliente) +
+      "," +
+      factura.cantidad +
+      ");",
     function (err, rows, fields) {
       console.log(err);
       console.log(fields);
@@ -54,18 +54,24 @@ function create_factura(factura) {
   );
 }
 
-function create_articulo(factura) {
+function create_articulo(articulo) {
   connection.query(
-    "INSERT INTO articulos (nombre_articulo, talle, color, cantidad) VALUES" +
-    "(" +
-    convert_to_string(factura.nombre_articulo) +
-    "," +
-    convert_to_string(factura.talle) +
-    "," +
-    convert_to_string(factura.color) +
-    "," +
-    convert_to_string(factura.cantidad) +
-    ");",
+    "INSERT INTO articulos (nombre_articulo, talle, color, cuero, tipo, genero, cantidad) VALUES" +
+      "(" +
+      convert_to_string(articulo.nombre_articulo) +
+      "," +
+      convert_to_string(articulo.talle) +
+      "," +
+      convert_to_string(articulo.color) +
+      "," +
+      convert_to_string(articulo.cuero) +
+      "," +
+      convert_to_string(articulo.tipo) +
+      "," +
+      articulo.genero +
+      "," +
+      convert_to_string(articulo.cantidad) +
+      ");",
     function (err, rows, fields) {
       console.log(err);
       console.log(fields);
@@ -83,10 +89,10 @@ function get_all_facturas() {
 function get_facturas_between(start_date, end_date) {
   connection.query(
     "SELECT * FROM facturacion WHERE fecha >= " +
-    convert_to_string(start_date) +
-    "AND fecha <=" +
-    convert_to_string(end_date) +
-    ";",
+      convert_to_string(start_date) +
+      "AND fecha <=" +
+      convert_to_string(end_date) +
+      ";",
     function (err, rows, fields) {
       console.log(fields);
       console.log(err);
@@ -98,8 +104,8 @@ function get_facturas_between(start_date, end_date) {
 function get_articulo(article_name) {
   connection.query(
     "SELECT * FROM articulos WHERE nombre = " +
-    convert_to_string(article_name) +
-    ";",
+      convert_to_string(article_name) +
+      ";",
     function (err, rows, fields) {
       console.log(fields);
       console.log(err);
@@ -108,15 +114,23 @@ function get_articulo(article_name) {
   );
 }
 
-function get_all_articulos() {
-  var res = [];
-  var query = connection.query("SELECT * FROM articulos;");
-  query.on('result', function (fields) {
-    res = fields;
-  });
+async function get_all_articulos() {
+  const res = await aux();
+  return res;
 }
 
 //Auxiliar Functions
+
+function aux() {
+  return new Promise((resolve) => {
+    connection.query(
+      "SELECT * FROM articulos;",
+      function (error, results, fields) {
+        resolve(results);
+      }
+    );
+  });
+}
 
 function convert_to_string(value) {
   if (!value) {
