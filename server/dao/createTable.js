@@ -58,19 +58,19 @@ function create_articulo(articulo) {
   connection.query(
     "INSERT INTO articulos (nombre_articulo, talle, color, cuero, tipo, genero, cantidad) VALUES" +
       "(" +
-      convert_to_string(articulo.nombre_articulo) +
+      convert_to_string(articulo.nombre_articulo).trim() +
       "," +
-      convert_to_string(articulo.talle) +
+      convert_to_string(articulo.talle).trim() +
       "," +
-      convert_to_string(articulo.color) +
+      convert_to_string(articulo.color).trim() +
       "," +
-      convert_to_string(articulo.cuero) +
+      convert_to_string(articulo.cuero).trim() +
       "," +
-      convert_to_string(articulo.tipo) +
+      convert_to_string(articulo.tipo).trim() +
       "," +
       articulo.genero +
       "," +
-      convert_to_string(articulo.cantidad) +
+      convert_to_string(articulo.cantidad).trim() +
       ");",
     function (err, rows, fields) {
       console.log(err);
@@ -116,6 +116,13 @@ function get_articulo(article_name) {
 
 async function get_all_articulos() {
   const res = await aux();
+  res.forEach(element => {
+    element.talle = element.talle.toString().toUpperCase().trim();
+    element.cuero = element.cuero.toString().toUpperCase().trim();
+    element.color = element.color.toString().toUpperCase().trim();
+    element.tipo = element.tipo.toString().toUpperCase().trim();
+    element.nombre_articulo = element.nombre_articulo.toString().toUpperCase().trim();
+  });
   return res;
 }
 
