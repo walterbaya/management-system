@@ -6,7 +6,7 @@ const axios = require("axios");
 function TableArticulos(props) {
   let rows = <tr></tr>;
   let res = <div className="fixed_height p-4"></div>;
-  if (props.mostrar_articulos) {
+  if (props.articulos !== undefined && props.articulos.length > 0) {
     rows = props.articulos.map((articulo) => (
       <tr key={articulo.id}>
         <td>{articulo.nombre_articulo}</td>
@@ -16,13 +16,21 @@ function TableArticulos(props) {
         <td>{articulo.tipo}</td>
         <td>{articulo.genero}</td>
         <td>{articulo.cantidad}</td>
+        <td>{articulo.precio}</td>
+        <td>{articulo.credito}</td>
+        <td>{articulo.valor_cada_cuota}</td>
+        <td><select class="form-select" aria-label="Default select example">
+          <option selected value="1">1</option>
+          <option value="3">3</option>
+          <option value="6">6</option>
+        </select></td>
       </tr>
     ));
 
     res = (
       <div className="fixed_height p-4">
         <Table className="table table-bordered hover" size="sm">
-          <thead class="table-primary text-center">
+          <thead className="table-primary text-center">
             <tr>
               <th scope="col">Nombre Artículo</th>
               <th scope="col">Talle</th>
@@ -31,6 +39,10 @@ function TableArticulos(props) {
               <th scope="col">Tipo</th>
               <th scope="col">Genero</th>
               <th scope="col">Cantidad</th>
+              <th scope="col">Precio Débito, Efectivo o Transferencia</th>
+              <th scope="col">Precio Crédito</th>
+              <th scope="col">Valor Cuota</th>
+              <th scope="col">Cantidad de Cuotas</th>
             </tr>
           </thead>
           <tbody>{rows}</tbody>
@@ -48,7 +60,7 @@ class Disponibilidad extends Component {
     this.state = {
       nombre_articulo: [],
       articulos: [],
-      mostrar_articulos: false,
+      articulos_typehead: []
     };
     this.cambiar_nombre_articulo = this.cambiar_nombre_articulo.bind(this);
     this.mostrar_articulo = this.mostrar_articulo.bind(this);
@@ -63,31 +75,34 @@ class Disponibilidad extends Component {
     axios
       .get("http://localhost:3000/get_articulos")
       .then((response) => {
-        this.setState({ articulos: response.data });
+        this.setState({ articulos_typehead: response.data });
       })
       .catch((error) => console.log(error));
   }
 
-  mostrar_articulo(event) {
-    console.log(event.target)
-    this.setState({ mostrar_articulos: false });
-    this.setState({ articulos: event.target.value });
+  mostrar_articulo(selected) {
+    this.setState({ articulos: selected });
   }
 
   show_complete_stock() {
-    this.setState({ mostrar_articulos: true });
+    axios
+      .get("http://localhost:3000/get_articulos")
+      .then((response) => {
+        this.setState({ articulos: response.data });
+      })
+      .catch((error) => console.log(error));
   }
 
   render() {
     return (
       <div className="bg-white h-100">
         <form className="p-4" onSubmit={(event) => event.preventDefault()}>
-          <h1>Consultar Ventas</h1>
+          <h1>Consultar Stock</h1>
           <div className="form-group mt-3">
             <Typeahead
+              id="typeahead-articulos"
               onChange={this.mostrar_articulo}
-              selected={this.state.nombre_articulo}
-              options={this.state.articulos}
+              options={this.state.articulos_typehead}
               filterBy={[
                 "nombre_articulo",
                 "tipo",
@@ -98,18 +113,11 @@ class Disponibilidad extends Component {
               labelKey={(option) =>
                 `${option.nombre_articulo} ${option.tipo} ${option.cuero} ${option.color} ${option.talle}`
               }
-              id="typeahead-articulos"
+
             />
           </div>
           <button
             className="btn btn-primary mt-3"
-            onClick={this.enviar_formulario}
-          >
-            Mostrar Stock del Artículo Indicado
-          </button>
-
-          <button
-            className="btn btn-primary mt-3 ms-3"
             onClick={this.show_complete_stock}
           >
             Mostrar Stock Actual Completo
