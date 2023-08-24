@@ -32,6 +32,7 @@ class AgregarArticulo extends Component {
       cuero: "",
       genero: "",
       tipo: "",
+      precio: 0,
     };
 
     this.enviar_formulario = this.enviar_formulario.bind(this);
@@ -42,6 +43,7 @@ class AgregarArticulo extends Component {
     this.cambiar_cuero = this.cambiar_cuero.bind(this);
     this.cambiar_genero = this.cambiar_genero.bind(this);
     this.cambiar_tipo = this.cambiar_tipo.bind(this);
+    this.cambiar_precio = this.cambiar_precio.bind(this);
   }
 
   cambiar_nombre_articulo(event) {
@@ -71,6 +73,10 @@ class AgregarArticulo extends Component {
     this.setState({ genero: event.target.value });
   }
 
+  cambiar_precio(event) {
+    this.setState({ precio: event.target.value });
+  }
+
   enviar_formulario() {
     const factura = {
       nombre_articulo: this.state.nombre_articulo,
@@ -79,9 +85,8 @@ class AgregarArticulo extends Component {
       color: this.state.color,
       exito: this.state.exito,
       cuero: this.state.cuero,
-      genero: false,//this.state.genero,
+      genero: false, //this.state.genero,
       tipo: this.state.tipo,
-
     };
 
     const validacion = validarFormulario(factura);
@@ -127,15 +132,26 @@ class AgregarArticulo extends Component {
           className="bg-white p-4 h-100"
           onSubmit={(event) => event.preventDefault()}
         >
-          <h1> Agregar Articulo </h1>{" "}
-          <div className="form-group mt-3">
-            <label className="pb-2"> Nombre de Artículo </label>{" "}
-            <input
-              type="text"
-              className="form-control"
-              value={this.state.nombre_articulo}
-              onChange={this.cambiar_nombre_articulo}
-            />{" "}
+          <h1> Agregar Articulo </h1>
+          <div className="form-group row mt-3">
+            <div class="col-6">
+              <label className="pb-2"> Nombre de Articulo </label>{" "}
+              <input
+                type="number"
+                className="form-control"
+                value={this.state.nombre_articulo}
+                onChange={this.cambiar_nombre_articulo}
+              />
+            </div>
+            <div className="col-6">
+              <label className="pb-2"> Genero </label>
+              <input
+                type="text"
+                className="form-control"
+                value={this.state.genero}
+                onChange={this.cambiar_genero}
+              />
+            </div>
           </div>{" "}
           <div class="row align-items-center mt-3">
             <div class="col-6">
@@ -147,14 +163,15 @@ class AgregarArticulo extends Component {
                 onChange={this.cambiar_talle}
               />{" "}
             </div>
-            <div class="col-6">
-              <label className="pb-2"> Cantidad </label>{" "}
+
+            <div className="col-6">
+              <label className="pb-2"> Tipo </label>
               <input
-                type="number"
+                type="text"
                 className="form-control"
-                value={this.state.cantidad}
-                onChange={this.cambiar_cantidad}
-              />{" "}
+                value={this.state.tipo}
+                onChange={this.cambiar_tipo}
+              />
             </div>
           </div>
           <div class="row align-items-center mt-3">
@@ -178,23 +195,23 @@ class AgregarArticulo extends Component {
             </div>
           </div>
           <div class="row align-items-center mt-3">
-            <div className="col-6">
-              <label className="pb-2"> Tipo </label>
+            <div class="col-6">
+              <label className="pb-2"> Cantidad </label>{" "}
               <input
-                type="text"
+                type="number"
                 className="form-control"
-                value={this.state.tipo}
-                onChange={this.cambiar_tipo}
-              />
+                value={this.state.cantidad}
+                onChange={this.cambiar_cantidad}
+              />{" "}
             </div>
-            <div className="col-6">
-              <label className="pb-2"> Genero </label>
+            <div class="col-6">
+              <label className="pb-2"> Precio </label>{" "}
               <input
-                type="text"
+                type="number"
                 className="form-control"
-                value={this.state.genero}
-                onChange={this.cambiar_genero}
-              />
+                value={this.state.precio}
+                onChange={this.cambiar_precio}
+              />{" "}
             </div>
           </div>
           <div className="form-group mt-3 d-flex">

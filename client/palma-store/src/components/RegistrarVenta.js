@@ -99,7 +99,7 @@ class Registrar extends Component {
           className="bg-white p-4 h-100"
           onSubmit={(event) => event.preventDefault()}
         >
-          <h1> Registrar Factura </h1>{" "}
+          <h1> Registrar Venta </h1>{" "}
           <div className="form-group mt-3">
             <label className="pb-2"> Nombre de Artículo </label>{" "}
             <Typeahead

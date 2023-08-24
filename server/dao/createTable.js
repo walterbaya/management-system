@@ -31,6 +31,8 @@ function create_table() {
 }
 
 function create_factura(factura) {
+  //p_debito = (5200*0.04) + (5200*0.035)*(0.21)   
+  
   connection.query(
     "INSERT INTO facturacion (nombre_articulo, precio, fecha, dni, nombre_y_apellido, cantidad) VALUES" +
       "(" +

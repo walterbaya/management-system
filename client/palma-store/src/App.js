@@ -20,7 +20,7 @@ class App extends Component {
           <div className="main-buttons-container">
             <div id="main-buttons" className="main-buttons">
               <Link className="btn-main my-1" to={`/agregar_articulo`}>
-                Agregar Articulo - Modificar Articulo
+                Agregar Articulo Modificar Articulo
               </Link>
               <Link className="btn-main my-1" to="/registrar">
                 Registrar Venta
