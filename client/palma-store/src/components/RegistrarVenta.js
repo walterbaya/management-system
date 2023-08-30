@@ -1,5 +1,6 @@
 import { Component } from "react";
 import { Typeahead } from "react-bootstrap-typeahead"; // ES2015
+import Table from "react-bootstrap/Table";
 const axios = require("axios");
 
 function validarFormulario(factura) {
@@ -16,6 +17,59 @@ function validarFormulario(factura) {
   return "ok";
 }
 
+
+function TableArticulos(props) {
+  let rows = <tr></tr>;
+  let res = <div className="fixed_height p-4"></div>;
+  if (props.articulos !== undefined && props.articulos.length > 0) {
+    rows = props.articulos.map((articulo) => (
+      <tr key={articulo.id}>
+        <td>{articulo.nombre_articulo}</td>
+        <td>{articulo.talle}</td>
+        <td>{articulo.color}</td>
+        <td>{articulo.cuero}</td>
+        <td>{articulo.tipo}</td>
+        <td>{articulo.genero}</td>
+        <td>{articulo.cantidad}</td>
+        <td>{articulo.precio}</td>
+        <td>{articulo.credito}</td>
+        <td>{articulo.valor_cada_cuota}</td>
+        <td><select class="form-select" aria-label="Default select example">
+          <option selected value="1">1</option>
+          <option value="3">3</option>
+          <option value="6">6</option>
+        </select></td>
+      </tr>
+    ));
+
+    res = (
+      <div className="fixed_height">
+        <Table className="table table-bordered hover" size="sm">
+          <thead className="table-primary text-center">
+            <tr>
+              <th scope="col">Nombre Artículo</th>
+              <th scope="col">Talle</th>
+              <th scope="col">Color</th>
+              <th scope="col">Cuero</th>
+              <th scope="col">Tipo</th>
+              <th scope="col">Genero</th>
+              <th scope="col">Cantidad</th>
+              <th scope="col">Precio Débito, Efectivo o Transferencia</th>
+              <th scope="col">Precio Crédito</th>
+              <th scope="col">Valor Cuota</th>
+              <th scope="col">Cantidad de Cuotas</th>
+            </tr>
+          </thead>
+          <tbody>{rows}</tbody>
+        </Table>
+      </div>
+    );
+  }
+
+  return res;
+}
+
+
 class Registrar extends Component {
   constructor(props) {
     super(props);
@@ -26,10 +80,10 @@ class Registrar extends Component {
       nombre_apellido: "",
       cantidad: 1,
       error: "",
-      articulos: axios
-        .get("http://localhost:3000/get_articulos")
-        .then((response) => console.log(response))
-        .catch((error) => console.log(error)),
+      articulo: "",
+      forma_pago: 0,  //0 no seleccionado, 1 efectivo, 2 credito
+      carrito: [],
+      articulos_typehead: []
     };
 
     this.enviar_formulario = this.enviar_formulario.bind(this);
@@ -38,7 +92,43 @@ class Registrar extends Component {
     this.cambiar_dni_cliente = this.cambiar_dni_cliente.bind(this);
     this.cambiar_nombre_apellido = this.cambiar_nombre_apellido.bind(this);
     this.cambiar_cantidad = this.cambiar_cantidad.bind(this);
+    this.traer_articulo = this.traer_articulo.bind(this);
+    this.agregar_al_carrito = this.agregar_al_carrito.bind(this);
+    this.seleccionar_forma_pago = this.seleccionar_forma_pago.bind(this);
   }
+
+
+  agregar_al_carrito() {
+    //Hay que solucionarlo con el setState
+    let json = this.state.articulo;
+    //json.cantidad = this.state.cantidad;
+    //json.dni_cliente = this.state.dni_cliente;
+    //json.nombre_apellido = this.state.nombre_apellido;
+    //this.state.carrito.push(json);
+    
+  }
+
+  seleccionar_forma_pago() {
+
+  }
+
+
+  traer_articulo(selected) {
+    if (selected[0] !== undefined) {
+      this.setState({ articulo: selected[0] });
+    }
+  }
+
+  componentDidMount() {
+    axios
+      .get("http://localhost:3000/get_articulos")
+      .then((response) => {
+        this.setState({ articulos_typehead: response.data });
+      })
+      .catch((error) => console.log(error));
+  }
+
+
 
   cambiar_id_articulo(event) {
     this.setState({ id_articulo: event.target.value });
@@ -85,74 +175,107 @@ class Registrar extends Component {
     if (this.state.error) {
       message = (
         <div className="alert alert-warning" role="alert">
-          {" "}
-          {this.state.error}{" "}
+
+          {this.state.error}
         </div>
       );
     }
 
     return (
-      <div>
-        {" "}
-        {message}{" "}
-        <form
-          className="bg-white p-4 h-100"
-          onSubmit={(event) => event.preventDefault()}
-        >
-          <h1> Registrar Venta </h1>{" "}
-          <div className="form-group mt-3">
-            <label className="pb-2"> Nombre de Artículo </label>{" "}
-            <Typeahead
-              onChange={(selected) => {
-                this.setState({ selected });
-              }}
-              options={[{ id: 1000, label: "nombre" }]}
-              selected={this.state.id_articulo}
-            />{" "}
-          </div>{" "}
-          <div className="form-group mt-3">
-            <label className="pb-2"> Precio </label>{" "}
-            <input
-              type="number"
-              className="form-control"
-              value={this.state.precio}
-              onChange={this.cambiar_precio}
-            />{" "}
-          </div>{" "}
-          <div className="form-group mt-3">
-            <label className="pb-2"> Cantidad </label>{" "}
-            <input
-              type="number"
-              className="form-control"
-              value={this.state.cantidad}
-              onChange={this.cambiar_cantidad}
-            />{" "}
-          </div>{" "}
-          <div className="form-group mt-3">
-            <label className="pb-2"> DNI Cliente (Opcional) </label>{" "}
-            <input
-              type="text"
-              className="form-control"
-              value={this.state.dni_cliente}
-              onChange={this.cambiar_dni_cliente}
-            />{" "}
-          </div>{" "}
-          <div className="form-group mt-3">
-            <label className="pb-2"> Nombre y Apellido Cliente (Opcional) </label>{" "}
-            <input
-              type="text"
-              className="form-control"
-              value={this.state.nombre_apellido}
-              onChange={this.cambiar_nombre_apellido}
-            />{" "}
-          </div>{" "}
-          <button
-            className="btn btn-primary mt-3"
-            onClick={this.enviar_formulario}
-          >
-            Cargar Factura{" "}
-          </button>{" "}
-        </form>{" "}
+      <div className="container">
+        <div className="row">
+          {message}
+          <div className="col-4">
+            <form
+              className="bg-white p-3"
+              onSubmit={(event) => event.preventDefault()}
+            >
+              <h1> Registrar Venta </h1>
+              <div className="form-group mt-3">
+
+
+                <label className="pb-2"> Nombre de Artículo </label>
+                <Typeahead
+                  id="typeahead-articulos"
+                  onChange={this.traer_articulo}
+                  options={this.state.articulos_typehead}
+                  filterBy={[
+                    "nombre_articulo",
+                    "tipo",
+                    "cuero",
+                    "color",
+                    "talle",
+                  ]}
+                  labelKey={(option) =>
+                    `${option.nombre_articulo} ${option.tipo} ${option.cuero} ${option.color} ${option.talle}`
+                  }
+
+                />
+              </div>
+
+              <div className="form-group mt-3">
+                <label className="pb-2"> Precio </label>
+
+                <select className="form-select mb-3" onChange={this.seleccionar_forma_pago} aria-label="Default select example">
+                  <option value="0" >Seleccionar forma de pago</option>
+                  <option value="1">Efectivo / Debito</option>
+                  <option value="2">Credito</option>
+                </select>
+
+                <input
+                  type="number"
+                  className="form-control"
+                  value={this.state.precio}
+                  onChange={this.cambiar_precio}
+                />
+              </div>
+              <div className="form-group mt-3">
+                <label className="pb-2"> Cantidad </label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={this.state.cantidad}
+                  onChange={this.cambiar_cantidad}
+                />
+              </div>
+              <div className="form-group mt-3">
+                <label className="pb-2"> DNI Cliente (Opcional) </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={this.state.dni_cliente}
+                  onChange={this.cambiar_dni_cliente}
+                />
+              </div>
+              <div className="form-group mt-3">
+                <label className="pb-2"> Nombre y Apellido Cliente (Opcional) </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={this.state.nombre_apellido}
+                  onChange={this.cambiar_nombre_apellido}
+                />
+              </div>
+              <button
+                className="btn btn-primary mt-3"
+                onClick={this.agregar_al_carrito}
+              >
+                Agregar al Carrito
+              </button>
+            </form>
+          </div>
+          <div className="col-8 p-2 bg-white">
+            <h1>Carrito</h1>
+            <TableArticulos articulos={this.state.carrito} />
+
+            <button
+              className="btn btn-primary mt-2"
+              onClick={this.cargar_factura}
+            >
+              Cargar Factura
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
