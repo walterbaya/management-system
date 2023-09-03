@@ -16,30 +16,32 @@ class App extends Component {
           </h1>
         </header>
 
-        <section className="d-flex flex-row">
-          <div className="main-buttons-container">
-            <div id="main-buttons" className="main-buttons">
-              <Link className="btn-main my-1" to={`/agregar_articulo`}>
-                Agregar Articulo Modificar Articulo
-              </Link>
-              <Link className="btn-main my-1" to="/registrar">
-                Registrar Venta
-              </Link>
-              <Link className="btn-main my-1" to={`/`}>
-                Consultar Stock
-              </Link>
-              <Link className="btn-main my-1" to={`/consultar_ventas`}>
-                Consultar Ventas
-              </Link>
+        <section className="container-fluid">
+          <div className="row">
+            <div className="main-buttons-container col-2 justify-content-start">
+              <div id="main-buttons" className="main-buttons">
+                <Link className="btn-main my-1" to={`/agregar_articulo`}>
+                  Agregar Articulo Modificar Articulo
+                </Link>
+                <Link className="btn-main my-1" to="/registrar">
+                  Registrar Venta
+                </Link>
+                <Link className="btn-main my-1" to={`/`}>
+                  Consultar Stock
+                </Link>
+                <Link className="btn-main my-1" to={`/consultar_ventas`}>
+                  Consultar Ventas
+                </Link>
+              </div>
             </div>
-          </div>
-          <div className="explanation-text-main">
-            <Routes>
-              <Route path="/registrar" element=<Registrar /> />
-              <Route path="/consultar_ventas" element=<Consultar /> />
-              <Route path="/agregar_articulo" element=<AgregarArticulo /> />
-              <Route path="/" element=<Disponibilidad /> />
-            </Routes>
+            <div className="explanation-text-main col-10">
+              <Routes>
+                <Route path="/registrar" element=<Registrar /> />
+                <Route path="/consultar_ventas" element=<Consultar /> />
+                <Route path="/agregar_articulo" element=<AgregarArticulo /> />
+                <Route path="/" element=<Disponibilidad /> />
+              </Routes>
+            </div>
           </div>
         </section>
         <footer>
@@ -53,7 +55,6 @@ class App extends Component {
       </Router>
     );
   }
-  
 }
 
 export default App;

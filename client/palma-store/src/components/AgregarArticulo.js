@@ -129,7 +129,7 @@ class AgregarArticulo extends Component {
         {" "}
         {message}{" "}
         <form
-          className="bg-white p-4 h-100"
+          className="bg-white p-4"
           onSubmit={(event) => event.preventDefault()}
         >
           <h1> Agregar Articulo </h1>
