@@ -179,7 +179,7 @@ class Registrar extends Component {
       <div className="container-fluid">
         <div className="row">
           {message}
-          <div className="col-4 col-md-6">
+          <div className="col-5">
             <form
               className="bg-white p-3 rounded"
               onSubmit={(event) => event.preventDefault()}
@@ -270,7 +270,7 @@ class Registrar extends Component {
               </button>
             </form>
           </div>
-          <div className="col-8 col-md-6 p-3  bg-white rounded">
+          <div className="col-7  p-3  bg-white rounded">
             <h1>Carrito</h1>
             <TableArticulos articulos={this.state.carrito} />
 

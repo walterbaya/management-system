@@ -109,8 +109,8 @@ class AgregarArticulo extends Component {
     if (this.state.error) {
       message = (
         <div className="alert alert-warning" role="alert">
-          {" "}
-          {this.state.error}{" "}
+          
+          {this.state.error}
         </div>
       );
     }
@@ -118,16 +118,16 @@ class AgregarArticulo extends Component {
     if (this.state.exito) {
       message = (
         <div className="alert alert-success" role="alert">
-          {" "}
-          {this.state.exito}{" "}
+          
+          {this.state.exito}
         </div>
       );
     }
 
     return (
       <div>
-        {" "}
-        {message}{" "}
+        
+        {message}
         <form
           className="bg-white p-4"
           onSubmit={(event) => event.preventDefault()}
@@ -135,7 +135,7 @@ class AgregarArticulo extends Component {
           <h1> Agregar Articulo </h1>
           <div className="form-group row mt-3">
             <div class="col-6">
-              <label className="pb-2"> Nombre de Articulo </label>{" "}
+              <label className="pb-2"> Nombre de Articulo </label>
               <input
                 type="number"
                 className="form-control"
@@ -152,19 +152,10 @@ class AgregarArticulo extends Component {
                 onChange={this.cambiar_genero}
               />
             </div>
-          </div>{" "}
-          <div class="row align-items-center mt-3">
-            <div class="col-6">
-              <label className="pb-2"> Talle </label>{" "}
-              <input
-                type="number"
-                className="form-control"
-                value={this.state.talle}
-                onChange={this.cambiar_talle}
-              />{" "}
-            </div>
 
-            <div className="col-6">
+          </div>
+          <div class="row align-items-center mt-3">
+            <div className="col-4">
               <label className="pb-2"> Tipo </label>
               <input
                 type="text"
@@ -173,9 +164,7 @@ class AgregarArticulo extends Component {
                 onChange={this.cambiar_tipo}
               />
             </div>
-          </div>
-          <div class="row align-items-center mt-3">
-            <div className="col-6">
+            <div className="col-4">
               <label className="pb-2"> Color </label>
               <input
                 type="text"
@@ -184,7 +173,7 @@ class AgregarArticulo extends Component {
                 onChange={this.cambiar_color}
               />
             </div>
-            <div className="col-6">
+            <div className="col-4">
               <label className="pb-2"> Cuero </label>
               <input
                 type="text"
@@ -195,31 +184,42 @@ class AgregarArticulo extends Component {
             </div>
           </div>
           <div class="row align-items-center mt-3">
-            <div class="col-6">
-              <label className="pb-2"> Cantidad </label>{" "}
+            <div class="col-4">
+              <label className="pb-2"> Cantidad </label>
               <input
                 type="number"
                 className="form-control"
                 value={this.state.cantidad}
                 onChange={this.cambiar_cantidad}
-              />{" "}
+              />
             </div>
-            <div class="col-6">
-              <label className="pb-2"> Precio </label>{" "}
+            
+            <div class="col-4">
+              <label className="pb-2"> Talle </label>
+              <input
+                type="number"
+                className="form-control"
+                value={this.state.talle}
+                onChange={this.cambiar_talle}
+              />
+            </div>
+            <div class="col-4">
+              <label className="pb-2"> Precio </label>
               <input
                 type="number"
                 className="form-control"
                 value={this.state.precio}
                 onChange={this.cambiar_precio}
-              />{" "}
+              />
             </div>
+
           </div>
           <div className="form-group mt-3 d-flex">
             <button
               className="btn btn-primary mt-3"
               onClick={this.enviar_formulario}
             >
-              Agregar Artículo{" "}
+              Agregar Artículo
             </button>
             <div className="mt-3 ms-3">
               <LoadExcel />

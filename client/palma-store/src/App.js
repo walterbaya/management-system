@@ -18,8 +18,8 @@ class App extends Component {
 
         <section className="container-fluid">
           <div className="row">
-            <div className="main-buttons-container col-2 justify-content-start">
-              <div id="main-buttons" className="main-buttons">
+            <div className="main-buttons-container col-md-2 col-sm-12 justify-content-start">
+              <div id="main-buttons" className="main-buttons d-flex justify-content-start flex-md-column flex-sm-row">
                 <Link className="btn-main my-1" to={`/agregar_articulo`}>
                   Agregar Articulo Modificar Articulo
                 </Link>
@@ -34,7 +34,7 @@ class App extends Component {
                 </Link>
               </div>
             </div>
-            <div className="explanation-text-main col-10">
+            <div className="explanation-text-main col-md-10 col-sm-12">
               <Routes>
                 <Route path="/registrar" element=<Registrar /> />
                 <Route path="/consultar_ventas" element=<Consultar /> />
