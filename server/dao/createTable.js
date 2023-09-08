@@ -73,6 +73,8 @@ function create_articulo(articulo) {
       articulo.genero +
       "," +
       convert_to_string(articulo.cantidad).trim() +
+      "," +
+      convert_to_string(articulo.precio).trim() + 
       ");",
     function (err, rows, fields) {
       console.log(err);

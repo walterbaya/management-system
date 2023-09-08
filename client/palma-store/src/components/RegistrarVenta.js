@@ -179,7 +179,7 @@ class Registrar extends Component {
       <div className="container-fluid">
         <div className="row">
           {message}
-          <div className="col-5">
+          <div className="col-md-5 col-12">
             <form
               className="bg-white p-3 rounded"
               onSubmit={(event) => event.preventDefault()}
@@ -253,7 +253,9 @@ class Registrar extends Component {
 
               <div className="row mt-3">
                 <div className="form-group col-12">
-                  <label className="pb-2">Nombre y Apellido del Cliente(Opcional)</label>
+                  <label className="pb-2">
+                    Nombre y Apellido del Cliente(Opcional)
+                  </label>
                   <input
                     type="text"
                     className="form-control"
@@ -270,16 +272,18 @@ class Registrar extends Component {
               </button>
             </form>
           </div>
-          <div className="col-7  p-3  bg-white rounded">
-            <h1>Carrito</h1>
-            <TableArticulos articulos={this.state.carrito} />
+          <div className="col-md-7 col-12 my-2 m-md-0">
+            <div class="p-3 bg-white rounded">
+              <h1>Carrito</h1>
+              <TableArticulos articulos={this.state.carrito} />
 
-            <button
-              className="btn btn-primary mt-2"
-              onClick={this.cargar_factura}
-            >
-              Cargar Factura
-            </button>
+              <button
+                className="btn btn-primary mt-2"
+                onClick={this.cargar_factura}
+              >
+                Cargar Factura
+              </button>
+            </div>
           </div>
         </div>
       </div>
