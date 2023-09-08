@@ -19,17 +19,17 @@ class App extends Component {
         <section className="container-fluid">
           <div className="row">
             <div className="main-buttons-container col-md-2 col-sm-12 justify-content-start">
-              <div id="main-buttons" className="main-buttons d-flex justify-content-start flex-md-column flex-sm-row">
-                <Link className="btn-main my-1" to={`/agregar_articulo`}>
+              <div id="main-buttons" className="main-buttons d-flex justify-content-start  flex-md-column flex-sm-row">
+                <Link className="btn-main m-1" to={`/agregar_articulo`}>
                   Agregar Articulo Modificar Articulo
                 </Link>
-                <Link className="btn-main my-1" to="/registrar">
+                <Link className="btn-main m-1" to="/registrar">
                   Registrar Venta
                 </Link>
-                <Link className="btn-main my-1" to={`/`}>
+                <Link className="btn-main m-1" to={`/`}>
                   Consultar Stock
                 </Link>
-                <Link className="btn-main my-1" to={`/consultar_ventas`}>
+                <Link className="btn-main m-1" to={`/consultar_ventas`}>
                   Consultar Ventas
                 </Link>
               </div>
