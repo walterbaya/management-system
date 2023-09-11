@@ -31,7 +31,7 @@ class AgregarArticulo extends Component {
       error: "",
       exito: "",
       cuero: "",
-      genero: false,
+      genero: "mujer",
       tipo: "",
       precio: 0,
       articulos_typehead: [],
@@ -73,8 +73,7 @@ class AgregarArticulo extends Component {
   }
 
   cambiar_genero(event) {
-    const value = event.target.value;
-    this.setState({ genero: value == "hombre" ? true : false });
+    this.setState({ genero: event.target.value});
   }
 
   cambiar_precio(event) {
@@ -98,7 +97,7 @@ class AgregarArticulo extends Component {
       color: this.state.color,
       exito: this.state.exito,
       cuero: this.state.cuero,
-      genero: this.state.genero,
+      genero: this.state.genero === "mujer" ? false : true,
       tipo: this.state.tipo,
       precio: this.state.precio,
     };
