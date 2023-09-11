@@ -1,5 +1,6 @@
 import { Component } from "react";
 import LoadExcel from "./Utilities/LoadExcel";
+import { Typeahead } from "react-bootstrap-typeahead"; // ES2015
 const axios = require("axios");
 
 function validarFormulario(factura) {
@@ -30,9 +31,10 @@ class AgregarArticulo extends Component {
       error: "",
       exito: "",
       cuero: "",
-      genero: "",
+      genero: false,
       tipo: "",
       precio: 0,
+      articulos_typehead: [],
     };
 
     this.enviar_formulario = this.enviar_formulario.bind(this);
@@ -44,6 +46,7 @@ class AgregarArticulo extends Component {
     this.cambiar_genero = this.cambiar_genero.bind(this);
     this.cambiar_tipo = this.cambiar_tipo.bind(this);
     this.cambiar_precio = this.cambiar_precio.bind(this);
+    this.traer_articulo = this.traer_articulo.bind(this);
   }
 
   cambiar_nombre_articulo(event) {
@@ -70,11 +73,21 @@ class AgregarArticulo extends Component {
   }
 
   cambiar_genero(event) {
-    this.setState({ genero: event.target.value });
+    const value = event.target.value;
+    this.setState({ genero: value == "hombre" ? true : false });
   }
 
   cambiar_precio(event) {
     this.setState({ precio: event.target.value });
+  }
+
+  componentDidMount() {
+    axios
+      .get("http://localhost:3000/get_articulos")
+      .then((response) => {
+        this.setState({ articulos_typehead: response.data });
+      })
+      .catch((error) => console.log(error));
   }
 
   enviar_formulario() {
@@ -85,8 +98,9 @@ class AgregarArticulo extends Component {
       color: this.state.color,
       exito: this.state.exito,
       cuero: this.state.cuero,
-      genero: false, //this.state.genero,
+      genero: this.state.genero,
       tipo: this.state.tipo,
+      precio: this.state.precio,
     };
 
     const validacion = validarFormulario(factura);
@@ -97,10 +111,31 @@ class AgregarArticulo extends Component {
         .then((response) => {
           console.log(response.data);
           this.setState({ exito: "Articulo guardado con exito" });
+          axios
+            .get("http://localhost:3000/get_articulos")
+            .then((response) => {
+              this.setState({ articulos_typehead: response.data });
+            })
+            .catch((error) => console.log(error));
         })
         .catch((error) => console.log(error));
     } else {
       this.setState({ error: validacion });
+    }
+  }
+
+  traer_articulo(selected) {
+    if (selected[0] !== undefined) {
+      const articulo = selected[0];
+      this.setState({ nombre_articulo: articulo.nombre_articulo });
+      this.setState({ color: articulo.color });
+      this.setState({ cantidad: articulo.cantidad });
+      this.setState({ talle: articulo.talle });
+      this.setState({ cuero: articulo.cuero });
+      this.setState({ genero: articulo.genero });
+      this.setState({ tipo: articulo.tipo });
+      this.setState({ precio: articulo.precio });
+      
     }
   }
 
@@ -109,7 +144,6 @@ class AgregarArticulo extends Component {
     if (this.state.error) {
       message = (
         <div className="alert alert-warning" role="alert">
-          
           {this.state.error}
         </div>
       );
@@ -118,7 +152,6 @@ class AgregarArticulo extends Component {
     if (this.state.exito) {
       message = (
         <div className="alert alert-success" role="alert">
-          
           {this.state.exito}
         </div>
       );
@@ -126,35 +159,52 @@ class AgregarArticulo extends Component {
 
     return (
       <div>
-        
         {message}
         <form
           className="bg-white p-4"
           onSubmit={(event) => event.preventDefault()}
         >
-          <h1> Agregar Articulo </h1>
+          <h1> Agregar Articulo / Modificar Articulo </h1>
           <div className="form-group row mt-3">
-            <div class="col-6">
-              <label className="pb-2"> Nombre de Articulo </label>
-              <input
-                type="number"
-                className="form-control"
-                value={this.state.nombre_articulo}
-                onChange={this.cambiar_nombre_articulo}
-              />
-            </div>
-            <div className="col-6">
-              <label className="pb-2"> Genero </label>
-              <input
-                type="text"
-                className="form-control"
-                value={this.state.genero}
-                onChange={this.cambiar_genero}
+            <div className="form-group col-6">
+              <label className="pb-2"> Nombre de Artículo </label>
+              <Typeahead
+                id="typeahead-articulos"
+                onInputChange={(text) =>
+                  this.setState({ nombre_articulo: text })
+                }
+                onChange={this.traer_articulo}
+                options={this.state.articulos_typehead}
+                filterBy={[
+                  "nombre_articulo",
+                  "tipo",
+                  "cuero",
+                  "color",
+                  "talle",
+                ]}
+                labelKey={(option) =>
+                  `${option.nombre_articulo} ${option.tipo} ${option.cuero} ${option.color} ${option.talle}`
+                }
               />
             </div>
 
+            <div className="col-6">
+              <label className="pb-2"> Genero </label>
+
+              <select
+                className="form-select"
+                aria-label="Default select example"
+                value={this.state.genero}
+                onChange={this.cambiar_genero}
+              >
+                <option defaultValue value="mujer">
+                  Mujer
+                </option>
+                <option value="hombre">Hombre</option>
+              </select>
+            </div>
           </div>
-          <div class="row align-items-center mt-3">
+          <div className="row align-items-center mt-3">
             <div className="col-4">
               <label className="pb-2"> Tipo </label>
               <input
@@ -183,8 +233,8 @@ class AgregarArticulo extends Component {
               />
             </div>
           </div>
-          <div class="row align-items-center mt-3">
-            <div class="col-4">
+          <div className="row align-items-center mt-3">
+            <div className="col-4">
               <label className="pb-2"> Cantidad </label>
               <input
                 type="number"
@@ -193,8 +243,8 @@ class AgregarArticulo extends Component {
                 onChange={this.cambiar_cantidad}
               />
             </div>
-            
-            <div class="col-4">
+
+            <div className="col-4">
               <label className="pb-2"> Talle </label>
               <input
                 type="number"
@@ -203,7 +253,7 @@ class AgregarArticulo extends Component {
                 onChange={this.cambiar_talle}
               />
             </div>
-            <div class="col-4">
+            <div className="col-4">
               <label className="pb-2"> Precio </label>
               <input
                 type="number"
@@ -212,7 +262,6 @@ class AgregarArticulo extends Component {
                 onChange={this.cambiar_precio}
               />
             </div>
-
           </div>
           <div className="form-group mt-3 d-flex">
             <button

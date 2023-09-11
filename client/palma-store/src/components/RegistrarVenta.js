@@ -34,7 +34,7 @@ function TableArticulos(props) {
         <td>{articulo.credito}</td>
         <td>{articulo.valor_cada_cuota}</td>
         <td>
-          <select class="form-select" aria-label="Default select example">
+          <select className="form-select" aria-label="Default select example">
             <option selected value="1">
               1
             </option>
@@ -83,7 +83,7 @@ class Registrar extends Component {
       cantidad: 1,
       error: "",
       articulo: "",
-      forma_pago: 0, //0 no seleccionado, 1 efectivo, 2 credito
+      forma_pago: "efectivo", 
       carrito: [],
       articulos_typehead: [],
     };
@@ -112,7 +112,14 @@ class Registrar extends Component {
 
   traer_articulo(selected) {
     if (selected[0] !== undefined) {
-      this.setState({ articulo: selected[0] });
+      const articulo = selected[0];
+      this.setState({ nombre_articulo: articulo.nombre_articulo });
+      this.setState({ color: articulo.color });
+      this.setState({ talle: articulo.talle });
+      this.setState({ cuero: articulo.cuero });
+      this.setState({ genero: articulo.genero });
+      this.setState({ tipo: articulo.tipo });
+      this.setState({ precio: articulo.precio });
     }
   }
 
@@ -214,9 +221,8 @@ class Registrar extends Component {
                     onChange={this.seleccionar_forma_pago}
                     aria-label="Default select example"
                   >
-                    <option value="0">Forma de pago</option>
-                    <option value="1">Efectivo / Debito</option>
-                    <option value="2">Credito</option>
+                    <option value="efectivo">Efectivo / Debito</option>
+                    <option value="credito">Credito</option>
                   </select>
                 </div>
                 <div className="form-group col-6">
@@ -273,7 +279,7 @@ class Registrar extends Component {
             </form>
           </div>
           <div className="col-md-7 col-12 my-2 m-md-0">
-            <div class="p-3 bg-white rounded">
+            <div className="p-3 bg-white rounded">
               <h1>Carrito</h1>
               <TableArticulos articulos={this.state.carrito} />
 
