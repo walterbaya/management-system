@@ -3,7 +3,7 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import * as XLSX from "xlsx";
 import { FileUploader } from "react-drag-drop-files";
-const axios = require("axios");
+import axios from "axios";
 
 function get_list_articulos(sheet) {
   let res = [];

@@ -1,7 +1,7 @@
 import { Component } from "react";
 import LoadExcel from "./Utilities/LoadExcel";
 import { Typeahead } from "react-bootstrap-typeahead"; // ES2015
-const axios = require("axios");
+import axios from "axios";
 
 function validarFormulario(factura) {
   if (!factura.nombre_articulo) {
@@ -73,7 +73,7 @@ class AgregarArticulo extends Component {
   }
 
   cambiar_genero(event) {
-    this.setState({ genero: event.target.value});
+    this.setState({ genero: event.target.value });
   }
 
   cambiar_precio(event) {
@@ -134,7 +134,6 @@ class AgregarArticulo extends Component {
       this.setState({ genero: articulo.genero });
       this.setState({ tipo: articulo.tipo });
       this.setState({ precio: articulo.precio });
-      
     }
   }
 

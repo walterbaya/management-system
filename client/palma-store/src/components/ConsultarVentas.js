@@ -1,5 +1,5 @@
 import {Component} from "react";
-const axios = require("axios");
+import axios from "axios";
 
 
 function validarFormulario(consulta) {

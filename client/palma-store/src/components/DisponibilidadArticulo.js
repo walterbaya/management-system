@@ -1,7 +1,7 @@
 import { Component } from "react";
 import Table from "react-bootstrap/Table";
 import { Typeahead } from "react-bootstrap-typeahead";
-const axios = require("axios");
+import axios from "axios";
 
 function TableArticulos(props) {
   let rows = <tr></tr>;
@@ -19,7 +19,7 @@ function TableArticulos(props) {
         <td>{articulo.precio}</td>
         <td>{articulo.credito}</td>
         <td>{articulo.valor_cada_cuota}</td>
-        <td><select class="form-select" aria-label="Default select example">
+        <td><select className="form-select" aria-label="Default select example">
           <option selected value="1">1</option>
           <option value="3">3</option>
           <option value="6">6</option>

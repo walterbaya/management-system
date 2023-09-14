@@ -1,13 +1,14 @@
 import { Component } from "react";
 import { Typeahead } from "react-bootstrap-typeahead"; // ES2015
 import Table from "react-bootstrap/Table";
-const axios = require("axios");
+import axios from "axios";
 
 function validarFormulario(factura) {
-  if (!factura.nombre_articulo_cliente) {
+  console.log(factura);
+  if (!factura.nombre_articulo) {
     return "Error, se debe ingresar el nombre del articulo";
   }
-  if (!factura.precio_venta || factura.precio_venta <= 0) {
+  if (!factura.precio || factura.precio <= 0) {
     return "Error, se debe ingresar el precio de venta y debe ser mayor o igual a 0";
   }
   if (!factura.cantidad) {
@@ -35,9 +36,7 @@ function TableArticulos(props) {
         <td>{articulo.valor_cada_cuota}</td>
         <td>
           <select className="form-select" aria-label="Default select example">
-            <option selected value="1">
-              1
-            </option>
+            <option value="1">1</option>
             <option value="3">3</option>
             <option value="6">6</option>
           </select>
@@ -83,12 +82,15 @@ class Registrar extends Component {
       cantidad: 1,
       error: "",
       articulo: "",
-      forma_pago: "efectivo", 
+      credito: 0,
+      porcentaje: 15,
+      valor_cada_cuota: 0,
+      forma_pago: "efectivo",
       carrito: [],
       articulos_typehead: [],
     };
 
-    this.enviar_formulario = this.enviar_formulario.bind(this);
+    this.cargar_factura = this.cargar_factura.bind(this);
     this.cambiar_id_articulo = this.cambiar_id_articulo.bind(this);
     this.cambiar_precio = this.cambiar_precio.bind(this);
     this.cambiar_dni_cliente = this.cambiar_dni_cliente.bind(this);
@@ -100,19 +102,52 @@ class Registrar extends Component {
   }
 
   agregar_al_carrito() {
-    //Hay que solucionarlo con el setState
-    let json = this.state.articulo;
-    //json.cantidad = this.state.cantidad;
-    //json.dni_cliente = this.state.dni_cliente;
-    //json.nombre_apellido = this.state.nombre_apellido;
-    //this.state.carrito.push(json);
+    let carrito = this.state.carrito;
+    let articulos_encontrados = carrito.filter(
+      (elem) => elem.id === this.state.id_articulo
+    );
+    if (articulos_encontrados.length !== 0) {
+      carrito = carrito.filter((elem) => elem.id !== this.state.id_articulo);
+      articulos_encontrados[0].cantidad =
+        parseInt(articulos_encontrados[0].cantidad) +
+        parseInt(this.state.cantidad);
+      carrito.push(articulos_encontrados[0]);
+    } else {
+      const json = {
+        id: this.state.id_articulo,
+        nombre_articulo: this.state.nombre_articulo,
+        color: this.state.color,
+        talle: this.state.talle,
+        cuero: this.state.cuero,
+        genero: this.state.tipo,
+        precio: this.state.credito !==0 ? this.state.credito : this.state.precio,
+        cantidad: this.state.cantidad,
+        dni_cliente: this.state.dni_cliente,
+      };
+
+      carrito.push(json);
+    }
+
+    this.setState({ carrito: carrito });
   }
 
-  seleccionar_forma_pago() {}
+  seleccionar_forma_pago(event) {
+    this.setState({ forma_pago: event.target.value });
+    if (this.state.forma_pago !== "efectivo") {
+      this.setState({ credito: 0 });
+    } else {
+      this.setState({
+        credito:
+          parseInt(parseFloat(this.state.precio) +
+          (parseFloat(this.state.precio) * this.state.porcentaje) / 100),
+      });
+    }
+  }
 
   traer_articulo(selected) {
     if (selected[0] !== undefined) {
       const articulo = selected[0];
+      this.setState({ id_articulo: articulo.id });
       this.setState({ nombre_articulo: articulo.nombre_articulo });
       this.setState({ color: articulo.color });
       this.setState({ talle: articulo.talle });
@@ -130,6 +165,15 @@ class Registrar extends Component {
         this.setState({ articulos_typehead: response.data });
       })
       .catch((error) => console.log(error));
+
+    /*
+    axios
+      .get("http://localhost:3000/get_variables")
+      .then((response) => {
+        this.setState({ porcentaje: response.data });
+      })
+      .catch((error) => console.log(error));
+      */
   }
 
   cambiar_id_articulo(event) {
@@ -151,25 +195,19 @@ class Registrar extends Component {
     this.setState({ nombre_apellido: event.target.value });
   }
 
-  enviar_formulario() {
-    const factura = {
-      id: this.state.id_articulo,
-      precio_venta: this.state.precio,
-      dni_cliente: this.state.dni_cliente,
-      nombre_y_apellido_cliente: this.state.nombre_apellido,
-      cantidad: this.state.cantidad,
-    };
+  cargar_factura() {
+    this.state.carrito.forEach((factura) => {
+      const validacion = validarFormulario(factura);
 
-    const validacion = validarFormulario(factura);
-
-    if (validacion === "ok") {
-      axios
-        .post("http://localhost:3000/guardar_factura", factura)
-        .then((response) => console.log(response.data))
-        .catch((error) => console.log(error));
-    } else {
-      this.setState({ error: validacion });
-    }
+      if (validacion === "ok") {
+        axios
+          .post("http://localhost:3000/guardar_factura", factura)
+          .then((response) => console.log(response.data))
+          .catch((error) => console.log(error));
+      } else {
+        this.setState({ error: validacion });
+      }
+    });
   }
 
   render() {
@@ -186,14 +224,14 @@ class Registrar extends Component {
       <div className="container-fluid">
         <div className="row">
           {message}
-          <div className="col-md-5 col-12">
+          <div className="col-12">
             <form
               className="bg-white p-3 rounded"
               onSubmit={(event) => event.preventDefault()}
             >
               <h1 className="row px-2"> Registrar Venta </h1>
               <div className="row mt-3">
-                <div className="form-group col-12">
+                <div className="form-group col-6">
                   <label className="pb-2"> Nombre de Artículo </label>
                   <Typeahead
                     id="typeahead-articulos"
@@ -211,13 +249,11 @@ class Registrar extends Component {
                     }
                   />
                 </div>
-              </div>
-
-              <div className="row mt-3">
-                <div className="form-group col-6">
+                <div className="form-group col-3">
                   <label className="pb-2">Forma de Pago</label>
                   <select
                     className="form-select"
+                    value={this.state.forma_pago}
                     onChange={this.seleccionar_forma_pago}
                     aria-label="Default select example"
                   >
@@ -225,19 +261,23 @@ class Registrar extends Component {
                     <option value="credito">Credito</option>
                   </select>
                 </div>
-                <div className="form-group col-6">
+                <div className="form-group col-3">
                   <label className="pb-2"> Precio </label>
                   <input
                     type="number"
                     className="form-control"
-                    value={this.state.precio}
+                    value={
+                      this.state.credito !== 0
+                        ? this.state.credito
+                        : this.state.precio
+                    }
                     onChange={this.cambiar_precio}
                   />
                 </div>
               </div>
 
               <div className="row mt-3">
-                <div className="form-group col-6">
+                <div className="form-group col-2">
                   <label className="pb-2"> Cantidad </label>
                   <input
                     type="number"
@@ -246,7 +286,7 @@ class Registrar extends Component {
                     onChange={this.cambiar_cantidad}
                   />
                 </div>
-                <div className="form-group col-6">
+                <div className="form-group col-5">
                   <label className="pb-2"> DNI del Cliente (Opcional) </label>
                   <input
                     type="text"
@@ -255,10 +295,7 @@ class Registrar extends Component {
                     onChange={this.cambiar_dni_cliente}
                   />
                 </div>
-              </div>
-
-              <div className="row mt-3">
-                <div className="form-group col-12">
+                <div className="form-group col-5">
                   <label className="pb-2">
                     Nombre y Apellido del Cliente(Opcional)
                   </label>
@@ -278,7 +315,7 @@ class Registrar extends Component {
               </button>
             </form>
           </div>
-          <div className="col-md-7 col-12 my-2 m-md-0">
+          <div className="col-12 my-2">
             <div className="p-3 bg-white rounded">
               <h1>Carrito</h1>
               <TableArticulos articulos={this.state.carrito} />
