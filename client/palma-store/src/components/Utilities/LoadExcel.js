@@ -18,6 +18,7 @@ function get_list_articulos(sheet) {
         tipo: "",
         genero: "",
         cantidad: "",
+        precio: "",
       };
       const talle = parseInt(key);
       if (talle <= 46 && talle >= 35) {
@@ -26,14 +27,16 @@ function get_list_articulos(sheet) {
         obj.color = sheet_obj.COLOR;
         obj.cuero = sheet_obj.CUERO;
         obj.tipo = sheet_obj.TIPO;
-        obj.genero = false;//sheet_obj.GENERO;
+        obj.genero = sheet_obj.GENERO === "M" ? true : false;
         obj.cantidad = sheet_obj[key];
+        obj.precio = sheet_obj.PRECIO;
         console.log(obj);
         res.push(obj);
       }
     });
   });
 
+  console.log(res);
   return res;
 }
 

@@ -31,16 +31,9 @@ function TableArticulos(props) {
         <td>{articulo.tipo}</td>
         <td>{articulo.genero}</td>
         <td>{articulo.cantidad}</td>
-        <td>{articulo.precio}</td>
-        <td>{articulo.credito}</td>
-        <td>{articulo.valor_cada_cuota}</td>
-        <td>
-          <select className="form-select" aria-label="Default select example">
-            <option value="1">1</option>
-            <option value="3">3</option>
-            <option value="6">6</option>
-          </select>
-        </td>
+        <td>{articulo.nombre_apellido}</td>
+        <td>{articulo.dni_cliente}</td>
+        <td>{articulo.precio * articulo.cantidad}</td>
       </tr>
     ));
 
@@ -56,10 +49,9 @@ function TableArticulos(props) {
               <th scope="col">Tipo</th>
               <th scope="col">Genero</th>
               <th scope="col">Cantidad</th>
-              <th scope="col">Precio Débito, Efectivo o Transferencia</th>
-              <th scope="col">Precio Crédito</th>
-              <th scope="col">Valor Cuota</th>
-              <th scope="col">Cantidad de Cuotas</th>
+              <th scope="col">Nombre y Apellido</th>
+              <th scope="col">Dni Cliente</th>
+              <th scope="col">Precio</th>
             </tr>
           </thead>
           <tbody>{rows}</tbody>
@@ -82,10 +74,10 @@ class Registrar extends Component {
       cantidad: 1,
       error: "",
       articulo: "",
-      credito: 0,
-      porcentaje: 15,
-      valor_cada_cuota: 0,
-      forma_pago: "efectivo",
+      //credito: 0,
+      //porcentaje: 15,
+      //valor_cada_cuota: 0,
+      //forma_pago: "efectivo",
       carrito: [],
       articulos_typehead: [],
     };
@@ -98,7 +90,7 @@ class Registrar extends Component {
     this.cambiar_cantidad = this.cambiar_cantidad.bind(this);
     this.traer_articulo = this.traer_articulo.bind(this);
     this.agregar_al_carrito = this.agregar_al_carrito.bind(this);
-    this.seleccionar_forma_pago = this.seleccionar_forma_pago.bind(this);
+    //this.seleccionar_forma_pago = this.seleccionar_forma_pago.bind(this);
   }
 
   agregar_al_carrito() {
@@ -119,9 +111,12 @@ class Registrar extends Component {
         color: this.state.color,
         talle: this.state.talle,
         cuero: this.state.cuero,
-        genero: this.state.tipo,
-        precio: this.state.credito !==0 ? this.state.credito : this.state.precio,
+        tipo: this.state.tipo,
+        genero: this.state.genero,
+        precio: this.state.precio,
+        //credito: this.state.credito,
         cantidad: this.state.cantidad,
+        nombre_apellido: this.state.nombre_apellido,
         dni_cliente: this.state.dni_cliente,
       };
 
@@ -131,18 +126,18 @@ class Registrar extends Component {
     this.setState({ carrito: carrito });
   }
 
+  /*
   seleccionar_forma_pago(event) {
     this.setState({ forma_pago: event.target.value });
     if (this.state.forma_pago !== "efectivo") {
       this.setState({ credito: 0 });
     } else {
       this.setState({
-        credito:
-          parseInt(parseFloat(this.state.precio) +
-          (parseFloat(this.state.precio) * this.state.porcentaje) / 100),
+        credito: parseFloat(this.state.precio)
       });
     }
   }
+  */
 
   traer_articulo(selected) {
     if (selected[0] !== undefined) {
@@ -152,7 +147,7 @@ class Registrar extends Component {
       this.setState({ color: articulo.color });
       this.setState({ talle: articulo.talle });
       this.setState({ cuero: articulo.cuero });
-      this.setState({ genero: articulo.genero });
+      this.setState({ genero: articulo.genero ? "hombre" : "mujer"});
       this.setState({ tipo: articulo.tipo });
       this.setState({ precio: articulo.precio });
     }
@@ -198,7 +193,7 @@ class Registrar extends Component {
   cargar_factura() {
     this.state.carrito.forEach((factura) => {
       const validacion = validarFormulario(factura);
-
+      
       if (validacion === "ok") {
         axios
           .post("http://localhost:3000/guardar_factura", factura)
@@ -231,7 +226,7 @@ class Registrar extends Component {
             >
               <h1 className="row px-2"> Registrar Venta </h1>
               <div className="row mt-3">
-                <div className="form-group col-6">
+                <div className="form-group col-12 mt-2 mt-md-0 col-md-4">
                   <label className="pb-2"> Nombre de Artículo </label>
                   <Typeahead
                     id="typeahead-articulos"
@@ -249,44 +244,8 @@ class Registrar extends Component {
                     }
                   />
                 </div>
-                <div className="form-group col-3">
-                  <label className="pb-2">Forma de Pago</label>
-                  <select
-                    className="form-select"
-                    value={this.state.forma_pago}
-                    onChange={this.seleccionar_forma_pago}
-                    aria-label="Default select example"
-                  >
-                    <option value="efectivo">Efectivo / Debito</option>
-                    <option value="credito">Credito</option>
-                  </select>
-                </div>
-                <div className="form-group col-3">
-                  <label className="pb-2"> Precio </label>
-                  <input
-                    type="number"
-                    className="form-control"
-                    value={
-                      this.state.credito !== 0
-                        ? this.state.credito
-                        : this.state.precio
-                    }
-                    onChange={this.cambiar_precio}
-                  />
-                </div>
-              </div>
 
-              <div className="row mt-3">
-                <div className="form-group col-2">
-                  <label className="pb-2"> Cantidad </label>
-                  <input
-                    type="number"
-                    className="form-control"
-                    value={this.state.cantidad}
-                    onChange={this.cambiar_cantidad}
-                  />
-                </div>
-                <div className="form-group col-5">
+                <div className="form-group col-12 mt-2 mt-md-0 col-md-4">
                   <label className="pb-2"> DNI del Cliente (Opcional) </label>
                   <input
                     type="text"
@@ -295,7 +254,7 @@ class Registrar extends Component {
                     onChange={this.cambiar_dni_cliente}
                   />
                 </div>
-                <div className="form-group col-5">
+                <div className="form-group col-12 mt-2 mt-md-0 col-md-4">
                   <label className="pb-2">
                     Nombre y Apellido del Cliente(Opcional)
                   </label>
@@ -304,6 +263,27 @@ class Registrar extends Component {
                     className="form-control"
                     value={this.state.nombre_apellido}
                     onChange={this.cambiar_nombre_apellido}
+                  />
+                </div>
+              </div>
+
+              <div className="row mt-3">
+                <div className="form-group col-12 mt-2 mt-md-0 col-md-4">
+                  <label className="pb-2"> Precio </label>
+                  <input
+                    type="number"
+                    className="form-control"
+                    value={this.state.precio}
+                    onChange={this.cambiar_precio}
+                  />
+                </div>
+                <div className="form-group col-12 mt-2 mt-md-0 col-md-4">
+                  <label className="pb-2"> Cantidad </label>
+                  <input
+                    type="number"
+                    className="form-control"
+                    value={this.state.cantidad}
+                    onChange={this.cambiar_cantidad}
                   />
                 </div>
               </div>
@@ -333,5 +313,20 @@ class Registrar extends Component {
     );
   }
 }
+
+/**
+
+<div className="form-group col-3">
+                  <label className="pb-2">Forma de Pago</label>
+                  <select
+                    className="form-select"
+                    value={this.state.forma_pago}
+                    onChange={this.seleccionar_forma_pago}
+                    aria-label="Default select example"
+                  >
+                    <option value="efectivo">Efectivo / Debito</option>
+                    <option value="credito">Credito</option>
+                  </select>
+                </div>*/
 
 export default Registrar;

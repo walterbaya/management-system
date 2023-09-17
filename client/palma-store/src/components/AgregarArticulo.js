@@ -24,6 +24,7 @@ class AgregarArticulo extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      id: "",
       nombre_articulo: "",
       color: "",
       cantidad: 0,
@@ -35,6 +36,7 @@ class AgregarArticulo extends Component {
       tipo: "",
       precio: 0,
       articulos_typehead: [],
+      editar_articulo: "agregar",
     };
 
     this.enviar_formulario = this.enviar_formulario.bind(this);
@@ -47,6 +49,12 @@ class AgregarArticulo extends Component {
     this.cambiar_tipo = this.cambiar_tipo.bind(this);
     this.cambiar_precio = this.cambiar_precio.bind(this);
     this.traer_articulo = this.traer_articulo.bind(this);
+    this.editar_articulo = this.editar_articulo.bind(this);
+  }
+
+  editar_articulo(event) {
+    this.setState({ editar_articulo: event.target.value });
+    this.reset_state();
   }
 
   cambiar_nombre_articulo(event) {
@@ -89,15 +97,28 @@ class AgregarArticulo extends Component {
       .catch((error) => console.log(error));
   }
 
+  reset_state() {
+    this.setState({ id: "" });
+    this.setState({ nombre_articulo: "" });
+    this.setState({ color: "" });
+    this.setState({ cantidad: 0 });
+    this.setState({ talle: 0 });
+    this.setState({ cuero: "" });
+    this.setState({ genero: "mujer" });
+    this.setState({ tipo: "" });
+    this.setState({ precio: 0 });
+  }
+
   enviar_formulario() {
     const factura = {
+      id: this.state.id,
       nombre_articulo: this.state.nombre_articulo,
       talle: this.state.talle,
       cantidad: this.state.cantidad,
       color: this.state.color,
       exito: this.state.exito,
       cuero: this.state.cuero,
-      genero: this.state.genero === "mujer" ? false : true,
+      genero: this.state.genero !== "mujer",
       tipo: this.state.tipo,
       precio: this.state.precio,
     };
@@ -114,6 +135,7 @@ class AgregarArticulo extends Component {
             .get("http://localhost:3000/get_articulos")
             .then((response) => {
               this.setState({ articulos_typehead: response.data });
+              this.reset_state();
             })
             .catch((error) => console.log(error));
         })
@@ -126,6 +148,7 @@ class AgregarArticulo extends Component {
   traer_articulo(selected) {
     if (selected[0] !== undefined) {
       const articulo = selected[0];
+      this.setState({ id: articulo.id });
       this.setState({ nombre_articulo: articulo.nombre_articulo });
       this.setState({ color: articulo.color });
       this.setState({ cantidad: articulo.cantidad });
@@ -163,29 +186,50 @@ class AgregarArticulo extends Component {
           onSubmit={(event) => event.preventDefault()}
         >
           <h1> Agregar Articulo / Modificar Articulo </h1>
+          <select
+            className="form-select w-25 my-4"
+            aria-label="Default select example"
+            value={this.state.editar_articulo}
+            onChange={this.editar_articulo}
+          >
+            <option defaultValue value="agregar">
+              Agregar articulo
+            </option>
+            <option value="editar">Editar articulo</option>
+          </select>
           <div className="form-group row mt-3">
             <div className="form-group col-6">
               <label className="pb-2"> Nombre de Artículo </label>
-              <Typeahead
-                id="typeahead-articulos"
-                onInputChange={(text) =>
-                  this.setState({ nombre_articulo: text })
-                }
-                onChange={this.traer_articulo}
-                options={this.state.articulos_typehead}
-                filterBy={[
-                  "nombre_articulo",
-                  "tipo",
-                  "cuero",
-                  "color",
-                  "talle",
-                ]}
-                labelKey={(option) =>
-                  `${option.nombre_articulo} ${option.tipo} ${option.cuero} ${option.color} ${option.talle}`
-                }
-              />
+              {(this.state.editar_articulo === "editar" && (
+                <Typeahead
+                  id="typeahead-articulos"
+                  onInputChange={(text) => {
+                    this.setState({ nombre_articulo: text });
+                  }}
+                  onChange={this.traer_articulo}
+                  options={this.state.articulos_typehead}
+                  filterBy={[
+                    "nombre_articulo",
+                    "tipo",
+                    "cuero",
+                    "color",
+                    "talle",
+                  ]}
+                  labelKey={(option) =>
+                    `${option.nombre_articulo} ${option.tipo} ${option.cuero} ${option.color} ${option.talle}`
+                  }
+                />
+              )) ||
+                (this.state.editar_articulo === "agregar" && (
+                  <input
+                    type="text"
+                    className="form-control col-6"
+                    onInputChange={(text) => {
+                      this.setState({ nombre_articulo: text });
+                    }}
+                  />
+                ))}
             </div>
-
             <div className="col-6">
               <label className="pb-2"> Genero </label>
 

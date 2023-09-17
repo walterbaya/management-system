@@ -30,9 +30,67 @@ function create_table() {
   );
 }
 
+function create_articulo(articulo) {
+  if (articulo.id === "" || articulo.id === undefined) {
+    connection.query(
+      "INSERT INTO articulos (nombre_articulo, talle, color, cuero, tipo, genero, cantidad, precio) VALUES" +
+        "(" +
+        convert_to_string(articulo.nombre_articulo).trim() +
+        "," +
+        convert_to_string(articulo.talle).trim() +
+        "," +
+        convert_to_string(articulo.color).trim() +
+        "," +
+        convert_to_string(articulo.cuero).trim() +
+        "," +
+        convert_to_string(articulo.tipo).trim() +
+        "," +
+        articulo.genero +
+        "," +
+        convert_to_string(articulo.cantidad).trim() +
+        "," +
+        convert_to_string(articulo.precio).trim() +
+        ");",
+      function (err, rows, fields) {
+        console.log(err);
+        console.log(fields);
+        console.log(rows);
+      }
+    );
+  } else {
+    connection.query(
+      "UPDATE articulos SET" +
+        " nombre_articulo=" +
+        convert_to_string(articulo.nombre_articulo).trim() +
+        ", talle=" +
+        convert_to_string(articulo.talle).trim() +
+        ", color=" +
+        convert_to_string(articulo.color).trim() +
+        ", cuero=" +
+        convert_to_string(articulo.cuero).trim() +
+        ", tipo=" +
+        convert_to_string(articulo.tipo).trim() +
+        ", genero=" +
+        articulo.genero +
+        ", cantidad=" +
+        convert_to_string(articulo.cantidad).trim() +
+        ", precio=" +
+        convert_to_string(articulo.precio).trim() +
+        "WHERE id =" +
+        convert_to_string(articulo.id).trim() +
+        ";",
+      function (error, results, fields) {
+        console.log(error);
+        console.log(results);
+        console.log(fields);
+      }
+    );
+  }
+}
+
 function create_factura(factura) {
-  //p_debito = (5200*0.04) + (5200*0.035)*(0.21)   
-  
+  //p_debito = (5200*0.04) + (5200*0.035)*(0.21)
+
   connection.query(
     "INSERT INTO facturacion (nombre_articulo, precio, fecha, dni, nombre_y_apellido, forma_de_pago, cantidad) VALUES" +
       "(" +
@@ -49,34 +107,6 @@ function create_factura(factura) {
       convert_to_string(factura.forma_de_pago) +
       "," +
       factura.cantidad +
-      ");",
-    function (err, rows, fields) {
-      console.log(err);
-      console.log(fields);
-      console.log(rows);
-    }
-  );
-}
-
-function create_articulo(articulo) {
-  connection.query(
-    "INSERT INTO articulos (nombre_articulo, talle, color, cuero, tipo, genero, cantidad, precio) VALUES" +
-      "(" +
-      convert_to_string(articulo.nombre_articulo).trim() +
-      "," +
-      convert_to_string(articulo.talle).trim() +
-      "," +
-      convert_to_string(articulo.color).trim() +
-      "," +
-      convert_to_string(articulo.cuero).trim() +
-      "," +
-      convert_to_string(articulo.tipo).trim() +
-      "," +
-      articulo.genero +
-      "," +
-      convert_to_string(articulo.cantidad).trim() +
-      "," +
-      convert_to_string(articulo.precio).trim() + 
       ");",
     function (err, rows, fields) {
       console.log(err);
@@ -122,12 +152,15 @@ function get_articulo(article_name) {
 
 async function get_all_articulos() {
   const res = await aux();
-  res.forEach(element => {
+  res.forEach((element) => {
     element.talle = element.talle.toString().toUpperCase().trim();
     element.cuero = element.cuero.toString().toUpperCase().trim();
     element.color = element.color.toString().toUpperCase().trim();
     element.tipo = element.tipo.toString().toUpperCase().trim();
-    element.nombre_articulo = element.nombre_articulo.toString().toUpperCase().trim();
+    element.nombre_articulo = element.nombre_articulo
+      .toString()
+      .toUpperCase()
+      .trim();
   });
   return res;
 }

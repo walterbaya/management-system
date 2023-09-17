@@ -14,16 +14,9 @@ function TableArticulos(props) {
         <td>{articulo.color}</td>
         <td>{articulo.cuero}</td>
         <td>{articulo.tipo}</td>
-        <td>{articulo.genero}</td>
+        <td>{articulo.genero ? "Hombre" : "Mujer"}</td>
         <td>{articulo.cantidad}</td>
         <td>{articulo.precio}</td>
-        <td>{articulo.credito}</td>
-        <td>{articulo.valor_cada_cuota}</td>
-        <td><select className="form-select" aria-label="Default select example">
-          <option selected value="1">1</option>
-          <option value="3">3</option>
-          <option value="6">6</option>
-        </select></td>
       </tr>
     ));
 
@@ -39,10 +32,7 @@ function TableArticulos(props) {
               <th scope="col">Tipo</th>
               <th scope="col">Genero</th>
               <th scope="col">Cantidad</th>
-              <th scope="col">Precio Débito, Efectivo o Transferencia</th>
-              <th scope="col">Precio Crédito</th>
-              <th scope="col">Valor Cuota</th>
-              <th scope="col">Cantidad de Cuotas</th>
+              <th scope="col">Precio</th>
             </tr>
           </thead>
           <tbody>{rows}</tbody>
@@ -103,13 +93,7 @@ class Disponibilidad extends Component {
               id="typeahead-articulos"
               onChange={this.mostrar_articulo}
               options={this.state.articulos_typehead}
-              filterBy={[
-                "nombre_articulo",
-                "tipo",
-                "cuero",
-                "color",
-                "talle",
-              ]}
+              filterBy={() => true}
               labelKey={(option) =>
                 `${option.nombre_articulo} ${option.tipo} ${option.cuero} ${option.color} ${option.talle}`
               }
