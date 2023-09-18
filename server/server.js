@@ -6,7 +6,6 @@ database_connection.create_table();
 
 //create connection database
 const dao = database_connection;
-
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -22,6 +21,11 @@ app.post("/guardar_factura", function (req, res) {
   } else {
     res.send(validacion);
   }
+});
+
+app.delete("/delete_articulo/:id", function (req, res) {
+  dao.delete_articulo(req.params);
+  res.send("success");
 });
 
 app.post("/agregar_articulo", function (req, res) {

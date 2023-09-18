@@ -88,6 +88,22 @@ function create_articulo(articulo) {
   }
 }
 
+function delete_articulo(articulo){
+  console.log("articulo");
+  console.log(articulo);
+  connection.query(
+    "DELETE FROM articulos " + 
+    "WHERE id =" +
+    convert_to_string(articulo.id).trim() +
+    ";",
+    function (err, rows, fields) {
+      console.log(err);
+      console.log(fields);
+      console.log(rows);
+    }
+  );
+}
+
 function create_factura(factura) {
   //p_debito = (5200*0.04) + (5200*0.035)*(0.21)
 
@@ -126,6 +142,7 @@ function create_factura(factura) {
     }
   );
 }
+
 
 function get_all_facturas() {
   connection.query("SELECT * FROM facturacion;", function (err, rows, fields) {
@@ -220,4 +237,5 @@ module.exports = {
   get_facturas_between,
   get_articulo,
   create_articulo,
+  delete_articulo,
 };

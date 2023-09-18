@@ -28,6 +28,7 @@ function validarFormulario(factura, es_factura) {
 }
 
 function TableArticulos(props) {
+
   let rows = <tr></tr>;
   let res = <div className="fixed_height p-4"></div>;
   if (props.articulos !== undefined && props.articulos.length > 0) {
@@ -43,6 +44,12 @@ function TableArticulos(props) {
         <td>{articulo.nombre_apellido}</td>
         <td>{articulo.dni_cliente}</td>
         <td>{articulo.precio * articulo.cantidad}</td>
+        <td>
+          <button className="btn btn-info text-white" onClick={e => props.restar(articulo.id_articulo, props.articulos)}>-</button>
+        </td>
+        <td>
+          <button className="btn btn-danger text-white" onClick={e => props.eliminar(articulo.id_articulo, props.articulos)}>X</button>
+        </td>
       </tr>
     ));
 
@@ -61,6 +68,8 @@ function TableArticulos(props) {
               <th scope="col">Nombre y Apellido</th>
               <th scope="col">Dni Cliente</th>
               <th scope="col">Precio</th>
+              <th scope="col"></th>
+              <th scope="col"></th>
             </tr>
           </thead>
           <tbody>{rows}</tbody>
@@ -150,18 +159,31 @@ class Registrar extends Component {
     }
   }
 
-  /*
-  seleccionar_forma_pago(event) {
-    this.setState({ forma_pago: event.target.value });
-    if (this.state.forma_pago !== "efectivo") {
-      this.setState({ credito: 0 });
-    } else {
-      this.setState({
-        credito: parseFloat(this.state.precio)
-      });
-    }
+  eliminar(id, carrito){
+    let articulos_encontrados = carrito.filter(
+      (elem) => elem.id_articulo !== id
+    );
+    this.setState({carrito: articulos_encontrados});
   }
-  */
+
+  restar_articulo(id, carrito) {
+    let articulos = carrito;
+    let articulos_encontrados = carrito.filter(
+      (elem) => elem.id_articulo === id
+    );
+    if (articulos_encontrados.length !== 0) {
+      articulos = carrito.filter(
+        (elem) => elem.id_articulo !== id
+      );
+      articulos_encontrados[0].cantidad =
+        parseInt(articulos_encontrados[0].cantidad) - 1;
+
+      if (articulos_encontrados[0].cantidad !== 0) {
+        articulos.push(articulos_encontrados[0]);
+      }
+    }
+    this.setState({carrito: articulos});
+  }
 
   traer_articulo(selected) {
     if (selected[0] !== undefined) {
@@ -228,7 +250,6 @@ class Registrar extends Component {
   cargar_factura() {
     this.state.carrito.forEach((factura) => {
       const validacion = validarFormulario(factura, true);
-      console.log(validacion);
       if (validacion === "ok") {
         axios
           .post("http://localhost:3000/guardar_factura", factura)
@@ -349,7 +370,9 @@ class Registrar extends Component {
           <div className="col-12 my-2">
             <div className="p-3 bg-white rounded">
               <h1>Carrito</h1>
-              <TableArticulos articulos={this.state.carrito} />
+              <TableArticulos articulos={this.state.carrito} restar={this.restar_articulo.bind(this)}
+              eliminar={this.eliminar.bind(this)}
+              />
 
               <button
                 className="btn btn-primary mt-2"

@@ -17,6 +17,22 @@ function TableArticulos(props) {
         <td>{articulo.genero ? "Hombre" : "Mujer"}</td>
         <td>{articulo.cantidad}</td>
         <td>{articulo.precio}</td>
+        <td>
+          <button
+            className="btn btn-info text-white"
+            onClick={(e) => props.restar(articulo.id, props.articulos)}
+          >
+            -
+          </button>
+        </td>
+        <td>
+          <button
+            className="btn btn-danger text-white"
+            onClick={(e) => props.eliminar(articulo.id, props.articulos)}
+          >
+            X
+          </button>
+        </td>
       </tr>
     ));
 
@@ -33,6 +49,8 @@ function TableArticulos(props) {
               <th scope="col">Genero</th>
               <th scope="col">Cantidad</th>
               <th scope="col">Precio</th>
+              <th scope="col"></th>
+              <th scope="col"></th>
             </tr>
           </thead>
           <tbody>{rows}</tbody>
@@ -50,7 +68,7 @@ class Disponibilidad extends Component {
     this.state = {
       nombre_articulo: [],
       articulos: [],
-      articulos_typehead: []
+      articulos_typehead: [],
     };
     this.cambiar_nombre_articulo = this.cambiar_nombre_articulo.bind(this);
     this.mostrar_articulo = this.mostrar_articulo.bind(this);
@@ -72,6 +90,61 @@ class Disponibilidad extends Component {
 
   mostrar_articulo(selected) {
     this.setState({ articulos: selected });
+  }
+
+  eliminar(id, carrito) {
+    this.setState({
+      articulos: carrito.filter((elem) => elem.id !== id),
+    });
+    axios
+      .delete("http://localhost:3000/delete_articulo/" + id)
+      .then((response) => console.log(response.data))
+      .catch((error) => console.log(error));
+
+    axios
+      .get("http://localhost:3000/get_articulos")
+      .then((response) => {
+        this.setState({ articulos_typehead: response.data });
+      })
+      .catch((error) => console.log(error));
+  }
+
+  restar_articulo(id, carrito) {
+    let articulos = carrito;
+    let articulos_encontrados = carrito.filter((elem) => elem.id === id);
+
+    if (articulos_encontrados.length !== 0) {
+      articulos = carrito.filter((elem) => elem.id !== id);
+      articulos_encontrados[0].cantidad =
+        parseInt(articulos_encontrados[0].cantidad) - 1;
+
+      if (articulos_encontrados[0].cantidad !== 0) {
+        articulos.push(articulos_encontrados[0]);
+      }
+    }
+
+    axios
+      .post("http://localhost:3000/agregar_articulo", articulos_encontrados[0])
+      .then((response) => {
+        axios
+          .get("http://localhost:3000/get_articulos")
+          .then((response) => {
+            this.setState({ articulos_typehead: response.data });
+            let articulos_temp = this.state.articulos;
+            if (articulos_temp.length > 1) {
+              this.setState({ articulos: articulos_temp });
+            } else {
+              articulos_temp.pop();
+              const elem = this.state.articulos_typehead.filter(
+                (elem) => elem.id === id
+              );
+              articulos_temp.push(elem[0]);
+              this.setState({ articulos: articulos_temp });
+            }
+          })
+          .catch((error) => console.log(error));
+      })
+      .catch((error) => console.log(error));
   }
 
   show_complete_stock() {
@@ -97,7 +170,6 @@ class Disponibilidad extends Component {
               labelKey={(option) =>
                 `${option.nombre_articulo} ${option.tipo} ${option.cuero} ${option.color} ${option.talle}`
               }
-
             />
           </div>
           <button
@@ -107,7 +179,11 @@ class Disponibilidad extends Component {
             Mostrar Stock Actual Completo
           </button>
         </form>
-        <TableArticulos articulos={this.state.articulos} />
+        <TableArticulos
+          articulos={this.state.articulos}
+          restar={this.restar_articulo.bind(this)}
+          eliminar={this.eliminar.bind(this)}
+        />
       </div>
     );
   }
