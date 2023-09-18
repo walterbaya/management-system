@@ -56,17 +56,11 @@ app.listen(PORT, function () {
 });
 
 function validarFormulario(factura) {
-  if (!factura.nombre_articulo_cliente) {
+  if (!factura.nombre_articulo) {
     return "Error, se debe ingresar el nombre del articulo";
   }
-  if (!factura.precio_venta || factura.precio_venta <= 0) {
+  if (!factura.precio || factura.precio <= 0) {
     return "Error, se debe ingresar el precio de venta y debe ser mayor o igual a 0";
-  }
-  if (!factura.dni_cliente) {
-    return "Error, se debe ingresar el dni del cliente";
-  }
-  if (!factura.nombre_y_apellido_cliente) {
-    return "Error, se debe ingresar el nombre y apellido del cliente";
   }
 
   return "ok";

@@ -3,8 +3,17 @@ import { Typeahead } from "react-bootstrap-typeahead"; // ES2015
 import Table from "react-bootstrap/Table";
 import axios from "axios";
 
-function validarFormulario(factura) {
-  console.log(factura);
+function validarFormulario(factura, es_factura) {
+  console.log(factura.cantidad);
+  console.log(factura.articulo_cantidad);
+  console.log(parseInt(factura.articulo_cantidad) - parseInt(factura.cantidad));
+  if (
+    es_factura &&
+    parseInt(factura.articulo_cantidad) - parseInt(factura.cantidad) < 0
+  ) {
+    return "No hay suficientes: " + factura.nombre_articulo + " en el stock!";
+  }
+
   if (!factura.nombre_articulo) {
     return "Error, se debe ingresar el nombre del articulo";
   }
@@ -23,13 +32,13 @@ function TableArticulos(props) {
   let res = <div className="fixed_height p-4"></div>;
   if (props.articulos !== undefined && props.articulos.length > 0) {
     rows = props.articulos.map((articulo) => (
-      <tr key={articulo.id}>
+      <tr key={articulo.id_articulo}>
         <td>{articulo.nombre_articulo}</td>
         <td>{articulo.talle}</td>
         <td>{articulo.color}</td>
         <td>{articulo.cuero}</td>
         <td>{articulo.tipo}</td>
-        <td>{articulo.genero}</td>
+        <td>{articulo.genero ? "Mujer" : "Hombre"}</td>
         <td>{articulo.cantidad}</td>
         <td>{articulo.nombre_apellido}</td>
         <td>{articulo.dni_cliente}</td>
@@ -73,7 +82,9 @@ class Registrar extends Component {
       nombre_apellido: "",
       cantidad: 1,
       error: "",
+      exito: "",
       articulo: "",
+      articulo_cantidad: "",
       //credito: 0,
       //porcentaje: 15,
       //valor_cada_cuota: 0,
@@ -94,36 +105,49 @@ class Registrar extends Component {
   }
 
   agregar_al_carrito() {
-    let carrito = this.state.carrito;
-    let articulos_encontrados = carrito.filter(
-      (elem) => elem.id === this.state.id_articulo
-    );
-    if (articulos_encontrados.length !== 0) {
-      carrito = carrito.filter((elem) => elem.id !== this.state.id_articulo);
-      articulos_encontrados[0].cantidad =
-        parseInt(articulos_encontrados[0].cantidad) +
-        parseInt(this.state.cantidad);
-      carrito.push(articulos_encontrados[0]);
+    const json = {
+      id_articulo: this.state.id_articulo,
+      articulo_cantidad: this.state.articulo_cantidad,
+      nombre_articulo: this.state.nombre_articulo,
+      color: this.state.color,
+      talle: this.state.talle,
+      cuero: this.state.cuero,
+      tipo: this.state.tipo,
+      genero: this.state.genero === "hombre",
+      precio: this.state.precio,
+      //credito: this.state.credito,
+      cantidad: this.state.cantidad,
+      nombre_apellido: this.state.nombre_apellido,
+      dni_cliente: this.state.dni_cliente,
+    };
+
+    console.log("el articulo agregado: ");
+    console.log(json);
+
+    const validacion = validarFormulario(json, false);
+
+    if (validacion === "ok") {
+      this.setState({ error: "" });
+      let carrito = this.state.carrito;
+      let articulos_encontrados = carrito.filter(
+        (elem) => elem.id_articulo === this.state.id_articulo
+      );
+      if (articulos_encontrados.length !== 0) {
+        carrito = carrito.filter(
+          (elem) => elem.id_articulo !== this.state.id_articulo
+        );
+        articulos_encontrados[0].cantidad =
+          parseInt(articulos_encontrados[0].cantidad) +
+          parseInt(this.state.cantidad);
+        carrito.push(articulos_encontrados[0]);
+      } else {
+        carrito.push(json);
+
+        this.setState({ carrito: carrito });
+      }
     } else {
-      const json = {
-        id: this.state.id_articulo,
-        nombre_articulo: this.state.nombre_articulo,
-        color: this.state.color,
-        talle: this.state.talle,
-        cuero: this.state.cuero,
-        tipo: this.state.tipo,
-        genero: this.state.genero,
-        precio: this.state.precio,
-        //credito: this.state.credito,
-        cantidad: this.state.cantidad,
-        nombre_apellido: this.state.nombre_apellido,
-        dni_cliente: this.state.dni_cliente,
-      };
-
-      carrito.push(json);
+      this.setState({ error: validacion });
     }
-
-    this.setState({ carrito: carrito });
   }
 
   /*
@@ -147,28 +171,39 @@ class Registrar extends Component {
       this.setState({ color: articulo.color });
       this.setState({ talle: articulo.talle });
       this.setState({ cuero: articulo.cuero });
-      this.setState({ genero: articulo.genero ? "hombre" : "mujer"});
+      this.setState({ genero: articulo.genero });
       this.setState({ tipo: articulo.tipo });
       this.setState({ precio: articulo.precio });
+      this.setState({ articulo_cantidad: articulo.cantidad });
     }
   }
 
+  resetState() {
+    this.setState({ id_articulo: "" });
+    this.setState({ precio: 0 });
+    this.setState({ dni_cliente: "" });
+    this.setState({ nombre_apellido: "" });
+    this.setState({ cantidad: 1 });
+    this.setState({ articulo: "" });
+    this.setState({ carrito: [] });
+  }
+
   componentDidMount() {
+    this.bringArticles();
+  }
+
+  bringArticles() {
     axios
       .get("http://localhost:3000/get_articulos")
       .then((response) => {
-        this.setState({ articulos_typehead: response.data });
-      })
-      .catch((error) => console.log(error));
+        let res = response.data;
+        res.forEach((element) => {
+          element.genero = element.genero ? "Mujer" : "Hombre";
+        });
 
-    /*
-    axios
-      .get("http://localhost:3000/get_variables")
-      .then((response) => {
-        this.setState({ porcentaje: response.data });
+        this.setState({ articulos_typehead: res });
       })
       .catch((error) => console.log(error));
-      */
   }
 
   cambiar_id_articulo(event) {
@@ -192,15 +227,23 @@ class Registrar extends Component {
 
   cargar_factura() {
     this.state.carrito.forEach((factura) => {
-      const validacion = validarFormulario(factura);
-      
+      const validacion = validarFormulario(factura, true);
+      console.log(validacion);
       if (validacion === "ok") {
         axios
           .post("http://localhost:3000/guardar_factura", factura)
-          .then((response) => console.log(response.data))
+          .then((response) => {
+            if (response.data === "success") {
+              this.setState({ exito: "Factura Cargada Con Exito" });
+              this.setState({ error: "" });
+              this.resetState();
+              this.bringArticles();
+            }
+          })
           .catch((error) => console.log(error));
       } else {
         this.setState({ error: validacion });
+        this.setState({ exito: "" });
       }
     });
   }
@@ -214,11 +257,18 @@ class Registrar extends Component {
         </div>
       );
     }
+    if (this.state.exito) {
+      message = (
+        <div className="alert alert-success" role="alert">
+          {this.state.exito}
+        </div>
+      );
+    }
 
     return (
       <div className="container-fluid">
         <div className="row">
-          {message}
+          <div className="col-12">{message}</div>
           <div className="col-12">
             <form
               className="bg-white p-3 rounded"
@@ -238,9 +288,10 @@ class Registrar extends Component {
                       "cuero",
                       "color",
                       "talle",
+                      "genero",
                     ]}
                     labelKey={(option) =>
-                      `${option.nombre_articulo} ${option.tipo} ${option.cuero} ${option.color} ${option.talle}`
+                      `${option.nombre_articulo} ${option.tipo} ${option.cuero} ${option.color} ${option.talle} ${option.genero}`
                     }
                   />
                 </div>
@@ -269,7 +320,7 @@ class Registrar extends Component {
 
               <div className="row mt-3">
                 <div className="form-group col-12 mt-2 mt-md-0 col-md-4">
-                  <label className="pb-2"> Precio </label>
+                  <label className="pb-2"> Precio Por Unidad</label>
                   <input
                     type="number"
                     className="form-control"

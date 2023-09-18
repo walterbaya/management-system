@@ -32,7 +32,7 @@ class AgregarArticulo extends Component {
       error: "",
       exito: "",
       cuero: "",
-      genero: "mujer",
+      genero: "Mujer",
       tipo: "",
       precio: 0,
       articulos_typehead: [],
@@ -92,7 +92,13 @@ class AgregarArticulo extends Component {
     axios
       .get("http://localhost:3000/get_articulos")
       .then((response) => {
-        this.setState({ articulos_typehead: response.data });
+        let res = response.data;
+        res.forEach(element => {
+          element.genero = element.genero ? "Mujer" : "Hombre";
+        });
+
+        this.setState({ articulos_typehead: res });
+
       })
       .catch((error) => console.log(error));
   }
@@ -104,7 +110,7 @@ class AgregarArticulo extends Component {
     this.setState({ cantidad: 0 });
     this.setState({ talle: 0 });
     this.setState({ cuero: "" });
-    this.setState({ genero: "mujer" });
+    this.setState({ genero: "Mujer" });
     this.setState({ tipo: "" });
     this.setState({ precio: 0 });
   }
@@ -118,10 +124,12 @@ class AgregarArticulo extends Component {
       color: this.state.color,
       exito: this.state.exito,
       cuero: this.state.cuero,
-      genero: this.state.genero !== "mujer",
+      genero: this.state.genero === "Mujer",
       tipo: this.state.tipo,
       precio: this.state.precio,
     };
+
+    console.log(factura);
 
     const validacion = validarFormulario(factura);
 
@@ -154,7 +162,7 @@ class AgregarArticulo extends Component {
       this.setState({ cantidad: articulo.cantidad });
       this.setState({ talle: articulo.talle });
       this.setState({ cuero: articulo.cuero });
-      this.setState({ genero: articulo.genero });
+      this.setState({ genero: articulo.genero});
       this.setState({ tipo: articulo.tipo });
       this.setState({ precio: articulo.precio });
     }
@@ -214,9 +222,10 @@ class AgregarArticulo extends Component {
                     "cuero",
                     "color",
                     "talle",
+                    "genero"
                   ]}
                   labelKey={(option) =>
-                    `${option.nombre_articulo} ${option.tipo} ${option.cuero} ${option.color} ${option.talle}`
+                    `${option.nombre_articulo} ${option.tipo} ${option.cuero} ${option.color} ${option.talle} ${option.genero}`
                   }
                 />
               )) ||
@@ -224,8 +233,8 @@ class AgregarArticulo extends Component {
                   <input
                     type="text"
                     className="form-control col-6"
-                    onInputChange={(text) => {
-                      this.setState({ nombre_articulo: text });
+                    onChange={(event) => {
+                      this.setState({ nombre_articulo: event.target.value });
                     }}
                   />
                 ))}
@@ -239,10 +248,10 @@ class AgregarArticulo extends Component {
                 value={this.state.genero}
                 onChange={this.cambiar_genero}
               >
-                <option defaultValue value="mujer">
+                <option defaultValue value="Mujer">
                   Mujer
                 </option>
-                <option value="hombre">Hombre</option>
+                <option value="Hombre">Hombre</option>
               </select>
             </div>
           </div>

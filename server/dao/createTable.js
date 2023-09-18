@@ -12,7 +12,7 @@ console.log("database connection is been created");
 
 function create_table() {
   connection.query(
-    "CREATE TABLE IF NOT EXISTS facturacion(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, nombre_articulo VARCHAR(80) NOT NULL, precio DOUBLE NOT NULL, fecha DATE, dni VARCHAR(100), nombre_y_apellido VARCHAR(400), forma_de_pago VARCHAR(60) NOT NULL , cantidad DOUBLE NOT NULL);",
+    "CREATE TABLE IF NOT EXISTS facturacion(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, nombre_articulo VARCHAR(80) NOT NULL, precio DOUBLE NOT NULL, fecha DATE, dni VARCHAR(100), nombre_y_apellido VARCHAR(400), cantidad DOUBLE NOT NULL);",
     function (err, rows, fields) {
       console.log(err);
       console.log(fields);
@@ -92,22 +92,33 @@ function create_factura(factura) {
   //p_debito = (5200*0.04) + (5200*0.035)*(0.21)
 
   connection.query(
-    "INSERT INTO facturacion (nombre_articulo, precio, fecha, dni, nombre_y_apellido, forma_de_pago, cantidad) VALUES" +
+    "INSERT INTO facturacion (nombre_articulo, precio, fecha, dni, nombre_y_apellido, cantidad) VALUES" +
       "(" +
-      convert_to_string(factura.nombre_articulo_cliente) +
+      convert_to_string(factura.nombre_articulo) +
       "," +
-      factura.precio_venta +
+      factura.precio +
       "," +
       convert_to_string(get_date()) +
       "," +
       convert_to_string(factura.dni_cliente) +
       "," +
-      convert_to_string(factura.nombre_y_apellido_cliente) +
-      "," +
-      convert_to_string(factura.forma_de_pago) +
+      convert_to_string(factura.nombre_y_apellido) +
       "," +
       factura.cantidad +
       ");",
+    function (err, rows, fields) {
+      console.log(err);
+      console.log(fields);
+      console.log(rows);
+    }
+  );  
+  connection.query(
+    "UPDATE articulos SET " +
+      "cantidad=" +
+      parseInt(factura.articulo_cantidad - factura.cantidad)  +
+      " WHERE id =" +
+      convert_to_string(factura.id_articulo).trim() +
+      ";",
     function (err, rows, fields) {
       console.log(err);
       console.log(fields);
