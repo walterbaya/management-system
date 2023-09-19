@@ -73,6 +73,7 @@ function create_articulo(articulo) {
         ", genero=" +
         articulo.genero +
         ", cantidad=" +
+        
         convert_to_string(articulo.cantidad).trim() +
         ", precio=" +
         convert_to_string(articulo.precio).trim() +
@@ -150,21 +151,6 @@ function get_all_facturas() {
   });
 }
 
-function get_facturas_between(start_date, end_date) {
-  connection.query(
-    "SELECT * FROM facturacion WHERE fecha >= " +
-      convert_to_string(start_date) +
-      "AND fecha <=" +
-      convert_to_string(end_date) +
-      ";",
-    function (err, rows, fields) {
-      console.log(fields);
-      console.log(err);
-      console.log(rows);
-    }
-  );
-}
-
 function get_articulo(article_name) {
   connection.query(
     "SELECT * FROM articulos WHERE nombre = " +
@@ -205,6 +191,34 @@ function aux() {
     );
   });
 }
+
+
+async function  get_facturas_between(fecha_desde, fecha_hasta) {
+  const res = await aux_2(fecha_desde, fecha_hasta);
+  return res;
+}
+
+//Auxiliar Functions
+
+function aux_2(fecha_desde, fecha_hasta) {
+  return new Promise((resolve) => {
+    connection.query(
+      connection.query(
+        "SELECT * FROM facturacion WHERE fecha >= " +
+          convert_to_string(fecha_desde) +
+          "AND fecha <=" +
+          convert_to_string(fecha_hasta) +
+          ";"),
+      function (error, results, fields) {
+        resolve(results);
+      }
+    );
+  });
+}
+
+
+
+
 
 function convert_to_string(value) {
   if (!value) {
