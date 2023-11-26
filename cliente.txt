@@ -1,0 +1,5 @@
+#!/bin/sh
+
+cd client & 
+cd palma-store & 
+npm start
