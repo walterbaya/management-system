@@ -1,5 +1,6 @@
 var express = require("express");
 var cors = require("cors");
+const config = require("./config.js");
 const database_connection = require("./dao/createTable");
 
 database_connection.create_table();
@@ -11,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 
-var PORT = 3000;
+var PORT = config.PORT;
 
 app.post("/guardar_factura", function (req, res) {
   const validacion = validarFormulario(req.body);

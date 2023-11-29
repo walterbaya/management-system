@@ -1,10 +1,11 @@
 var mysql = require("mysql");
+const config = require("../config.js");
 
 var connection = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "1234",
-  database: "palma_store",
+  host: config.HOST,
+  user: config.USER,
+  password: config.PASSWORD,
+  database: config.DATABASE,
 });
 
 connection.connect();
