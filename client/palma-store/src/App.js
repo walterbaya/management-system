@@ -27,10 +27,10 @@ class App extends Component {
                   Registrar Venta
                 </Link>
                 <Link className="btn-main m-1" to={`/`}>
-                  Consultar Stock
+                  Stock
                 </Link>
                 <Link className="btn-main m-1" to={`/consultar_ventas`}>
-                  Consultar Ventas
+                  Consultar Ventas Bajar Excel
                 </Link>
               </div>
             </div>

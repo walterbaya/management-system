@@ -178,6 +178,11 @@ class Disponibilidad extends Component {
           >
             Mostrar Stock Actual Completo
           </button>
+          <button
+            className="btn btn-primary mt-3 ms-3"
+          >
+            Regresar Stock a Versión Anterior
+          </button>
         </form>
         <TableArticulos
           articulos={this.state.articulos}

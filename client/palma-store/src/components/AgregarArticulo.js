@@ -324,6 +324,12 @@ class AgregarArticulo extends Component {
             <div className="mt-3 ms-3">
               <LoadExcel />
             </div>
+            <button
+              className="btn btn-primary mt-3 ms-3"
+              onClick={this.enviar_formulario}
+            >
+              Agregar Artículos Con Scanner
+            </button>
           </div>
         </form>
       </div>
