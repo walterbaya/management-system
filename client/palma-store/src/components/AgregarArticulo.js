@@ -1,7 +1,9 @@
 import { Component } from "react";
 import LoadExcel from "./Utilities/LoadExcel";
 import { Typeahead } from "react-bootstrap-typeahead"; // ES2015
+import QrReaderModule from "./Utilities/QrReaderModule";
 import axios from "axios";
+import QRCode from "react-qr-code";
 
 function validarFormulario(factura) {
   if (!factura.nombre_articulo) {
@@ -324,12 +326,9 @@ class AgregarArticulo extends Component {
             <div className="mt-3 ms-3">
               <LoadExcel />
             </div>
-            <button
-              className="btn btn-primary mt-3 ms-3"
-              onClick={this.enviar_formulario}
-            >
-              Agregar Artículos Con Scanner
-            </button>
+            <div className="mt-3 ms-3">
+              <QrReaderModule></QrReaderModule>
+            </div>
           </div>
         </form>
       </div>

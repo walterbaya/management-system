@@ -2,6 +2,7 @@ import { Component } from "react";
 import Table from "react-bootstrap/Table";
 import { Typeahead } from "react-bootstrap-typeahead";
 import axios from "axios";
+import QRCode from "react-qr-code";
 
 function TableArticulos(props) {
   let rows = <tr></tr>;
@@ -9,6 +10,9 @@ function TableArticulos(props) {
   if (props.articulos !== undefined && props.articulos.length > 0) {
     rows = props.articulos.map((articulo) => (
       <tr key={articulo.id}>
+        <td>
+          <QRCode value={articulo.id} size={50}></QRCode>
+        </td>
         <td>{articulo.nombre_articulo}</td>
         <td>{articulo.talle}</td>
         <td>{articulo.color}</td>
@@ -41,6 +45,7 @@ function TableArticulos(props) {
         <Table className="table table-bordered hover" size="sm">
           <thead className="table-primary text-center">
             <tr>
+              <th scope="col">Identificador de Articulo</th>
               <th scope="col">Nombre Artículo</th>
               <th scope="col">Talle</th>
               <th scope="col">Color</th>
@@ -178,9 +183,7 @@ class Disponibilidad extends Component {
           >
             Mostrar Stock Actual Completo
           </button>
-          <button
-            className="btn btn-primary mt-3 ms-3"
-          >
+          <button className="btn btn-primary mt-3 ms-3">
             Regresar Stock a Versión Anterior
           </button>
         </form>
