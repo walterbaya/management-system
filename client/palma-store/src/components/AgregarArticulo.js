@@ -3,7 +3,6 @@ import LoadExcel from "./Utilities/LoadExcel";
 import { Typeahead } from "react-bootstrap-typeahead"; // ES2015
 import QrReaderModule from "./Utilities/QrReaderModule";
 import axios from "axios";
-import QRCode from "react-qr-code";
 
 function validarFormulario(factura) {
   if (!factura.nombre_articulo) {

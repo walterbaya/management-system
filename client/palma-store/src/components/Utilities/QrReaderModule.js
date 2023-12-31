@@ -1,9 +1,7 @@
 import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
-import QrReader from "react-qr-scanner";
-import * as XLSX from "xlsx";
-import axios from "axios";
+import { QrReader } from 'react-qr-reader';
 
 /*
 function get_list_articulos(sheet) {
@@ -44,29 +42,20 @@ function get_list_articulos(sheet) {
 
 function QrReaderModule() {
   const [show, setShow] = useState(false);
-  const [delay, setDelay] = useState(100);
-  const [result, setResult] = useState("No result");
+  const [delay] = useState(1000);
+  const [result, setResult] = useState("");
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-  const previewStyle = {
-    height: 320,
-    width: 400
-  };
 
-  const  handleScan = (data) => {
-    if(data){
+  const handleScan = (data) => {
+    if (data) {
       setResult(data.text);
-      saveArticle(data.text)
+      saveArticle("Se Escaneó exitosamente el articulo de numero: " + data.text);
     }
   }
 
-  const handleError = (err) => {
-    console.error(err);
-  }
-
-
   const saveArticle = (e) => {
-   
+
   };
 
 
@@ -86,12 +75,18 @@ function QrReaderModule() {
           <Modal.Title>Escanear Articulos</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-            <QrReader
-              delay={delay}
-              onError={handleError}
-              style={previewStyle}
-              onScan={handleScan}
-            />
+          <QrReader
+            scanDelay={delay}
+            onResult={(result, error) => {
+              if (result) {
+                handleScan(result.text);
+              }
+              else {
+                console.error(error);
+              }
+            }
+            }
+          />
           <p>{result}</p>
         </Modal.Body>
 
