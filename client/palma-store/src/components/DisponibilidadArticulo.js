@@ -1,8 +1,8 @@
-import { Component } from "react";
+import { Component, useState } from "react";
 import Table from "react-bootstrap/Table";
 import { Typeahead } from "react-bootstrap-typeahead";
 import axios from "axios";
-import QRCode from "react-qr-code";
+import QRCodeModule from "./Utilities/QRCodeModule";
 
 function TableArticulos(props) {
   let rows = <tr></tr>;
@@ -11,7 +11,7 @@ function TableArticulos(props) {
     rows = props.articulos.map((articulo) => (
       <tr key={articulo.id}>
         <td>
-          <QRCode value={articulo.id} size={50}></QRCode>
+          <QRCodeModule url={articulo.id} data={articulo.nombre_articulo + " " + articulo.cuero + " " + articulo.color + " " + (articulo.genero ? "Hombre": "Mujer") + " " + articulo.tipo + " " + articulo.talle + ".png"}></QRCodeModule>
         </td>
         <td>{articulo.nombre_articulo}</td>
         <td>{articulo.talle}</td>
