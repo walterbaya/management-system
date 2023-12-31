@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
-import { QrReader } from 'react-qr-reader';
+import QrReader from 'react-qr-scanner'
 
 /*
 function get_list_articulos(sheet) {
@@ -42,15 +42,18 @@ function get_list_articulos(sheet) {
 
 function QrReaderModule() {
   const [show, setShow] = useState(false);
-  const [delay] = useState(1000);
+  const [scanned, setScanned] = useState(false);
   const [result, setResult] = useState("");
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
   const handleScan = (data) => {
     if (data) {
+      console.log(data.text)
       setResult(data.text);
-      saveArticle("Se Escaneó exitosamente el articulo de numero: " + data.text);
+      saveArticle(data.text);
+      setScanned(true);
+      //saveArticle("Se Escaneó exitosamente el articulo de numero: " + data);
     }
   }
 
@@ -74,20 +77,22 @@ function QrReaderModule() {
         <Modal.Header closeButton>
           <Modal.Title>Escanear Articulos</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          <QrReader
-            scanDelay={delay}
-            onResult={(result, error) => {
-              if (result) {
-                handleScan(result.text);
-              }
-              else {
-                console.error(error);
-              }
-            }
-            }
-          />
-          <p>{result}</p>
+        <Modal.Body className="scanner-altura-fija">
+
+          {(scanned && <button className="btn btn-primary" onClick={() => { setScanned(false); setResult(""); }}>Escanear Siguiente</button>)
+            ||
+            (!scanned && <div>
+              <QrReader
+                style={{ width: "100%" }}
+                onError={(error) => console.log(error)}
+                onScan={handleScan}
+              />
+              <p>{result}</p>
+            </div>)
+          }
+
+
+
         </Modal.Body>
 
         <Modal.Footer>

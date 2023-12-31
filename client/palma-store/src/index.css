@@ -111,4 +111,7 @@ body {
   overflow: auto;;
 }
 
+.scanner-altura-fija{
+  min-height: 500px;
+}
  
