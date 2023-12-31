@@ -4,6 +4,11 @@ import { Typeahead } from "react-bootstrap-typeahead";
 import axios from "axios";
 import QRCodeModule from "./Utilities/QRCodeModule";
 
+
+function getArticuloFullDescription(articulo){
+  return (articulo.id + "-" + articulo.nombre_articulo + "-" + articulo.cuero + "-" + articulo.color + "-" + (articulo.genero ? "Hombre": "Mujer") + "-" + articulo.tipo + "-" + articulo.talle).toLowerCase();
+}
+
 function TableArticulos(props) {
   let rows = <tr></tr>;
   let res = <div className="fixed_height p-4"></div>;
@@ -11,7 +16,7 @@ function TableArticulos(props) {
     rows = props.articulos.map((articulo) => (
       <tr key={articulo.id}>
         <td>
-          <QRCodeModule url={articulo.id} data={articulo.nombre_articulo + " " + articulo.cuero + " " + articulo.color + " " + (articulo.genero ? "Hombre": "Mujer") + " " + articulo.tipo + " " + articulo.talle + ".png"}></QRCodeModule>
+          <QRCodeModule url={articulo.id} data={getArticuloFullDescription(articulo) + ".png"}></QRCodeModule>
         </td>
         <td>{articulo.nombre_articulo}</td>
         <td>{articulo.talle}</td>
