@@ -164,6 +164,20 @@ function get_articulo(article_name) {
   );
 }
 
+function get_articulo_by_id(id) {
+  connection.query(
+    "SELECT * FROM articulos WHERE id = " +
+      convert_to_string(id) +
+      ";",
+    function (err, rows, fields) {
+      console.log(fields);
+      console.log(err);
+      return rows;
+    }
+  );
+}
+
+
 async function get_all_articulos() {
   const res = await aux();
   res.forEach((element) => {

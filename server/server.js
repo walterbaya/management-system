@@ -55,6 +55,10 @@ app.get("/get_articulos", function (req, res) {
   dao.get_all_articulos().then(data => res.send(data));
 });
 
+app.get("/get_articulo_by_id/:id", function (req, res) {
+  dao.get_articulo_by_id(req.params.id).then(data => res.send(data));
+});
+
 app.get("/get_facturas_between/:fecha_desde/:fecha_hasta", function (req, res) {
   dao.get_facturas_between(req.params.fecha_desde, req.params.fecha_hasta).then(data => res.send(data));
 });

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
-import QrReader from 'react-qr-scanner'
+import QrReader from "react-qr-scanner";
+import axios from "axios";
 
 /*
 function get_list_articulos(sheet) {
@@ -49,18 +50,37 @@ function QrReaderModule() {
 
   const handleScan = (data) => {
     if (data) {
-      console.log(data.text)
+      console.log(data.text);
       setResult(data.text);
       saveArticle(data.text);
       setScanned(true);
-      //saveArticle("Se Escaneó exitosamente el articulo de numero: " + data);
     }
-  }
-
-  const saveArticle = (e) => {
-
   };
 
+  const saveArticle = (id) => {
+    //Traemos el articulo desde la base de datos primero y luego lo pisamos
+
+    const factura = {
+      id: id,
+      nombre_articulo: "",
+      talle: "",
+      cantidad: "",
+      color: "",
+      exito: "",
+      cuero: "",
+      genero: "",
+      tipo: "",
+      precio: "",
+    };
+
+    axios
+      .post("http://localhost:3000/agregar_articulo", factura)
+      .then((response) => {
+        console.log(response.data);
+        //this.setState({ exito: "Articulo guardado con exito" });
+      })
+      .catch((error) => console.log(error));
+  };
 
   return (
     <>
@@ -78,21 +98,27 @@ function QrReaderModule() {
           <Modal.Title>Escanear Articulos</Modal.Title>
         </Modal.Header>
         <Modal.Body className="scanner-altura-fija">
-
-          {(scanned && <button className="btn btn-primary" onClick={() => { setScanned(false); setResult(""); }}>Escanear Siguiente</button>)
-            ||
-            (!scanned && <div>
-              <QrReader
-                style={{ width: "100%" }}
-                onError={(error) => console.log(error)}
-                onScan={handleScan}
-              />
-              <p>{result}</p>
-            </div>)
-          }
-
-
-
+          {(scanned && (
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                setScanned(false);
+                setResult("");
+              }}
+            >
+              Escanear Siguiente
+            </button>
+          )) ||
+            (!scanned && (
+              <div>
+                <QrReader
+                  style={{ width: "100%" }}
+                  onError={(error) => console.log(error)}
+                  onScan={handleScan}
+                />
+                <p>{result}</p>
+              </div>
+            ))}
         </Modal.Body>
 
         <Modal.Footer>
