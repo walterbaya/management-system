@@ -55,7 +55,7 @@ app.get("/get_articulos", function (req, res) {
   dao.get_all_articulos().then(data => res.send(data));
 });
 
-app.get("/get_articulo_by_id/:id", function (req, res) {
+app.get("/get_articulo/:id", function (req, res) {
   dao.get_articulo_by_id(req.params.id).then(data => res.send(data));
 });
 

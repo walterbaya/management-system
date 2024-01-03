@@ -73,7 +73,6 @@ function create_articulo(articulo) {
         ", genero=" +
         articulo.genero +
         ", cantidad=" +
-        
         convert_to_string(articulo.cantidad).trim() +
         ", precio=" +
         convert_to_string(articulo.precio).trim() +
@@ -89,14 +88,14 @@ function create_articulo(articulo) {
   }
 }
 
-function delete_articulo(articulo){
+function delete_articulo(articulo) {
   console.log("articulo");
   console.log(articulo);
   connection.query(
-    "DELETE FROM articulos " + 
-    "WHERE id =" +
-    convert_to_string(articulo.id).trim() +
-    ";",
+    "DELETE FROM articulos " +
+      "WHERE id =" +
+      convert_to_string(articulo.id).trim() +
+      ";",
     function (err, rows, fields) {
       console.log(err);
       console.log(fields);
@@ -128,11 +127,11 @@ function create_factura(factura) {
       console.log(fields);
       console.log(rows);
     }
-  );  
+  );
   connection.query(
     "UPDATE articulos SET " +
       "cantidad=" +
-      parseInt(factura.articulo_cantidad - factura.cantidad)  +
+      parseInt(factura.articulo_cantidad - factura.cantidad) +
       " WHERE id =" +
       convert_to_string(factura.id_articulo).trim() +
       ";",
@@ -143,7 +142,6 @@ function create_factura(factura) {
     }
   );
 }
-
 
 function get_all_facturas() {
   connection.query("SELECT * FROM facturacion;", function (err, rows, fields) {
@@ -164,19 +162,10 @@ function get_articulo(article_name) {
   );
 }
 
-function get_articulo_by_id(id) {
-  connection.query(
-    "SELECT * FROM articulos WHERE id = " +
-      convert_to_string(id) +
-      ";",
-    function (err, rows, fields) {
-      console.log(fields);
-      console.log(err);
-      return rows;
-    }
-  );
+async function get_articulo_by_id(id) {
+  const res = await get_articulo_by_id_aux(id);
+  return res;
 }
-
 
 async function get_all_articulos() {
   const res = await aux();
@@ -206,8 +195,7 @@ function aux() {
   });
 }
 
-
-async function  get_facturas_between(fecha_desde, fecha_hasta) {
+async function get_facturas_between(fecha_desde, fecha_hasta) {
   const res = await aux_2(fecha_desde, fecha_hasta);
   return res;
 }
@@ -222,7 +210,8 @@ function aux_2(fecha_desde, fecha_hasta) {
           convert_to_string(fecha_desde) +
           "AND fecha <=" +
           convert_to_string(fecha_hasta) +
-          ";"),
+          ";"
+      ),
       function (error, results, fields) {
         resolve(results);
       }
@@ -230,9 +219,17 @@ function aux_2(fecha_desde, fecha_hasta) {
   });
 }
 
-
-
-
+function get_articulo_by_id_aux(id) {
+  console.log(id);
+  return new Promise((resolve) => {
+    connection.query(
+      "SELECT * FROM articulos WHERE id =" + id + ";",
+      function (error, results, fields) {
+        resolve(results);
+      }
+    );
+  });
+}
 
 function convert_to_string(value) {
   if (!value) {
@@ -264,6 +261,7 @@ module.exports = {
   //get_facturas_like,
   get_facturas_between,
   get_articulo,
+  get_articulo_by_id,
   create_articulo,
   delete_articulo,
 };

@@ -4,46 +4,11 @@ import Modal from "react-bootstrap/Modal";
 import QrReader from "react-qr-scanner";
 import axios from "axios";
 
-/*
-function get_list_articulos(sheet) {
-  let res = [];
-
-  sheet.forEach((sheet_obj) => {
-    Object.keys(sheet_obj).forEach((key) => {
-      const obj = {
-        nombre_articulo: "",
-        talle: "",
-        color: "",
-        cuero: "",
-        tipo: "",
-        genero: "",
-        cantidad: "",
-        precio: "",
-      };
-      const talle = parseInt(key);
-      if (talle <= 46 && talle >= 35) {
-        obj.nombre_articulo = sheet_obj.ARTICULO;
-        obj.talle = talle;
-        obj.color = sheet_obj.COLOR;
-        obj.cuero = sheet_obj.CUERO;
-        obj.tipo = sheet_obj.TIPO;
-        obj.genero = sheet_obj.GENERO === "M" ? true : false;
-        obj.cantidad = sheet_obj[key];
-        obj.precio = sheet_obj.PRECIO;
-        console.log(obj);
-        res.push(obj);
-      }
-    });
-  });
-
-  console.log(res);
-  return res;
-}
-*/
-
 function QrReaderModule() {
   const [show, setShow] = useState(false);
   const [scanned, setScanned] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [articulo, setArticulo] = useState({});
   const [result, setResult] = useState("");
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -52,6 +17,7 @@ function QrReaderModule() {
     if (data) {
       console.log(data.text);
       setResult(data.text);
+      console.log(data.text);
       saveArticle(data.text);
       setScanned(true);
     }
@@ -60,26 +26,27 @@ function QrReaderModule() {
   const saveArticle = (id) => {
     //Traemos el articulo desde la base de datos primero y luego lo pisamos
 
-    const factura = {
-      id: id,
-      nombre_articulo: "",
-      talle: "",
-      cantidad: "",
-      color: "",
-      exito: "",
-      cuero: "",
-      genero: "",
-      tipo: "",
-      precio: "",
-    };
+    let articulo = {};
 
     axios
-      .post("http://localhost:3000/agregar_articulo", factura)
+      .get("http://localhost:3000/get_articulo/" + id)
       .then((response) => {
-        console.log(response.data);
-        //this.setState({ exito: "Articulo guardado con exito" });
+        console.log("datos:");
+        articulo = response.data[0];
+        console.log(articulo.cantidad);
+        articulo.cantidad = articulo.cantidad + 1;
       })
-      .catch((error) => console.log(error));
+      .catch((error) => console.log(error))
+      .finally(() => {
+        console.log(articulo.cantidad);
+        axios
+          .post("http://localhost:3000/agregar_articulo", articulo)
+          .then((response) => {
+            setSuccess(true);
+            setArticulo(articulo);
+          })
+          .catch((error) => console.log(error));
+      });
   };
 
   return (
@@ -103,7 +70,8 @@ function QrReaderModule() {
               className="btn btn-primary"
               onClick={() => {
                 setScanned(false);
-                setResult("");
+                setArticulo({});
+                setSuccess(false);
               }}
             >
               Escanear Siguiente
@@ -119,6 +87,24 @@ function QrReaderModule() {
                 <p>{result}</p>
               </div>
             ))}
+
+          {success === true ? (
+            <div className="mt-3 p-3 w-100 text-dark">
+              <h3>Carga Exitosa</h3>
+              <h4>Descripción del articulo cargado</h4>
+              <ul className="list-group mt-3">
+                <li className="list-group-item">Nombre: {articulo.nombre_articulo}</li>
+                <li className="list-group-item">Cuero: {articulo.cuero}</li>
+                <li className="list-group-item">Color: {articulo.color}</li>
+                <li className="list-group-item">Genero: {articulo.genero ? "Hombre": "Mujer"}</li>
+                <li className="list-group-item">Talle: {articulo.talle}</li>
+                <li className="list-group-item">Tipo: {articulo.tipo }</li>
+                <li className="list-group-item">Cantidad: {articulo.cantidad }</li>
+              </ul>
+            </div>
+          ) : (
+            <div></div>
+          )}
         </Modal.Body>
 
         <Modal.Footer>
