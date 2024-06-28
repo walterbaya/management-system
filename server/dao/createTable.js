@@ -34,23 +34,23 @@ function create_articulo(articulo) {
   if (articulo.id === "" || articulo.id === undefined) {
     connection.query(
       "INSERT INTO articulos (nombre_articulo, talle, color, cuero, tipo, genero, cantidad, precio) VALUES" +
-        "(" +
-        convert_to_string(articulo.nombre_articulo).trim() +
-        "," +
-        convert_to_string(articulo.talle).trim() +
-        "," +
-        convert_to_string(articulo.color).trim() +
-        "," +
-        convert_to_string(articulo.cuero).trim() +
-        "," +
-        convert_to_string(articulo.tipo).trim() +
-        "," +
-        articulo.genero +
-        "," +
-        convert_to_string(articulo.cantidad).trim() +
-        "," +
-        convert_to_string(articulo.precio).trim() +
-        ");",
+      "(" +
+      convert_to_string(articulo.nombre_articulo).trim() +
+      "," +
+      convert_to_string(articulo.talle).trim() +
+      "," +
+      convert_to_string(articulo.color).trim() +
+      "," +
+      convert_to_string(articulo.cuero).trim() +
+      "," +
+      convert_to_string(articulo.tipo).trim() +
+      "," +
+      articulo.genero +
+      "," +
+      convert_to_string(articulo.cantidad).trim() +
+      "," +
+      convert_to_string(articulo.precio).trim() +
+      ");",
       function (err, rows, fields) {
         console.log(err);
         console.log(fields);
@@ -60,25 +60,25 @@ function create_articulo(articulo) {
   } else {
     connection.query(
       "UPDATE articulos SET" +
-        " nombre_articulo=" +
-        convert_to_string(articulo.nombre_articulo).trim() +
-        ", talle=" +
-        convert_to_string(articulo.talle).trim() +
-        ", color=" +
-        convert_to_string(articulo.color).trim() +
-        ", cuero=" +
-        convert_to_string(articulo.cuero).trim() +
-        ", tipo=" +
-        convert_to_string(articulo.tipo).trim() +
-        ", genero=" +
-        articulo.genero +
-        ", cantidad=" +
-        convert_to_string(articulo.cantidad).trim() +
-        ", precio=" +
-        convert_to_string(articulo.precio).trim() +
-        "WHERE id =" +
-        convert_to_string(articulo.id).trim() +
-        ";",
+      " nombre_articulo=" +
+      convert_to_string(articulo.nombre_articulo).trim() +
+      ", talle=" +
+      convert_to_string(articulo.talle).trim() +
+      ", color=" +
+      convert_to_string(articulo.color).trim() +
+      ", cuero=" +
+      convert_to_string(articulo.cuero).trim() +
+      ", tipo=" +
+      convert_to_string(articulo.tipo).trim() +
+      ", genero=" +
+      articulo.genero +
+      ", cantidad=" +
+      convert_to_string(articulo.cantidad).trim() +
+      ", precio=" +
+      convert_to_string(articulo.precio).trim() +
+      "WHERE id =" +
+      convert_to_string(articulo.id).trim() +
+      ";",
       function (error, results, fields) {
         console.log(error);
         console.log(results);
@@ -93,9 +93,9 @@ function delete_articulo(articulo) {
   console.log(articulo);
   connection.query(
     "DELETE FROM articulos " +
-      "WHERE id =" +
-      convert_to_string(articulo.id).trim() +
-      ";",
+    "WHERE id =" +
+    convert_to_string(articulo.id).trim() +
+    ";",
     function (err, rows, fields) {
       console.log(err);
       console.log(fields);
@@ -109,19 +109,19 @@ function create_factura(factura) {
 
   connection.query(
     "INSERT INTO facturacion (nombre_articulo, precio, fecha, dni, nombre_y_apellido, cantidad) VALUES" +
-      "(" +
-      convert_to_string(factura.nombre_articulo) +
-      "," +
-      factura.precio +
-      "," +
-      convert_to_string(get_date()) +
-      "," +
-      convert_to_string(factura.dni_cliente) +
-      "," +
-      convert_to_string(factura.nombre_y_apellido) +
-      "," +
-      factura.cantidad +
-      ");",
+    "(" +
+    convert_to_string(factura.nombre_articulo) +
+    "," +
+    factura.precio +
+    "," +
+    convert_to_string(get_date()) +
+    "," +
+    convert_to_string(factura.dni_cliente) +
+    "," +
+    convert_to_string(factura.nombre_y_apellido) +
+    "," +
+    factura.cantidad +
+    ");",
     function (err, rows, fields) {
       console.log(err);
       console.log(fields);
@@ -130,11 +130,11 @@ function create_factura(factura) {
   );
   connection.query(
     "UPDATE articulos SET " +
-      "cantidad=" +
-      parseInt(factura.articulo_cantidad - factura.cantidad) +
-      " WHERE id =" +
-      convert_to_string(factura.id_articulo).trim() +
-      ";",
+    "cantidad=" +
+    parseInt(factura.articulo_cantidad - factura.cantidad) +
+    " WHERE id =" +
+    convert_to_string(factura.id_articulo).trim() +
+    ";",
     function (err, rows, fields) {
       console.log(err);
       console.log(fields);
@@ -152,8 +152,8 @@ function get_all_facturas() {
 function get_articulo(article_name) {
   connection.query(
     "SELECT * FROM articulos WHERE nombre = " +
-      convert_to_string(article_name) +
-      ";",
+    convert_to_string(article_name) +
+    ";",
     function (err, rows, fields) {
       console.log(fields);
       console.log(err);
@@ -200,24 +200,21 @@ async function get_facturas_between(fecha_desde, fecha_hasta) {
   return res;
 }
 
-//Auxiliar Functions
-
 function aux_2(fecha_desde, fecha_hasta) {
-  return new Promise((resolve) => {
-    connection.query(
-      connection.query(
-        "SELECT * FROM facturacion WHERE fecha >= " +
-          convert_to_string(fecha_desde) +
-          "AND fecha <=" +
-          convert_to_string(fecha_hasta) +
-          ";"
-      ),
-      function (error, results, fields) {
-        resolve(results);
+  return new Promise((resolve, reject) => {
+    const query = "SELECT * FROM facturacion WHERE fecha >= ? AND fecha <= ?";
+    const params = [fecha_desde, fecha_hasta];
+
+    connection.query(query, params, (error, results, fields) => {
+      if (error) {
+        return reject(error); // Rechaza la promesa en caso de error
       }
-    );
+      console.log(results)
+      resolve(results); // Resuelve la promesa con los resultados
+    });
   });
 }
+
 
 function get_articulo_by_id_aux(id) {
   console.log(id);

@@ -80,7 +80,7 @@ class Consultar extends Component {
     if (validacion === "ok") {
       axios.get("http://localhost:3000/get_facturas_between/" + this.state.fecha_desde + "/" + this.state.fecha_hasta)
         .then((response) => console.log(response.data))
-        .catch((error) => console.log(error));
+        .catch((error) => console.log("Error al intentar obtener las facturas: " + error));
     } else {
       this.setState({ error: validacion });
     }
