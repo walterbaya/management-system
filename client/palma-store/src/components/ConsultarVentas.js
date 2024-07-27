@@ -60,7 +60,7 @@ class Consultar extends Component {
 
     if (validacion === "ok") {
       axios
-        .post("http://localhost:3000/obtener_excel", consulta)
+        .post("http://localhost:3000/get_excel", consulta)
         .then((response) => console.log(response.data))
         .catch((error) => console.log(error));
     } else {

@@ -2,7 +2,7 @@ var express = require("express");
 var cors = require("cors");
 const database_connection = require("./dao/createTable");
 
-database_connection.create_table();
+database_connection.create_tables();
 
 //create connection database
 const dao = database_connection;

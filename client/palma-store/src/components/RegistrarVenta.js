@@ -3,24 +3,21 @@ import { Typeahead } from "react-bootstrap-typeahead"; // ES2015
 import Table from "react-bootstrap/Table";
 import axios from "axios";
 
-function validarFormulario(factura, es_factura) {
-  console.log(factura.cantidad);
-  console.log(factura.articulo_cantidad);
-  console.log(parseInt(factura.articulo_cantidad) - parseInt(factura.cantidad));
+function validarFormulario(articulo, es_articulo) {
   if (
-    es_factura &&
-    parseInt(factura.articulo_cantidad) - parseInt(factura.cantidad) < 0
+    es_articulo &&
+    parseInt(articulo.articulo_cantidad) - parseInt(articulo.cantidad) < 0
   ) {
-    return "No hay suficientes: " + factura.nombre_articulo + " en el stock!";
+    return "No hay suficientes: " + articulo.nombre_articulo + " en el stock!";
   }
 
-  if (!factura.nombre_articulo) {
+  if (!articulo.nombre_articulo) {
     return "Error, se debe ingresar el nombre del articulo";
   }
-  if (!factura.precio || factura.precio <= 0) {
+  if (!articulo.precio || articulo.precio <= 0) {
     return "Error, se debe ingresar el precio de venta y debe ser mayor o igual a 0";
   }
-  if (!factura.cantidad) {
+  if (!articulo.cantidad) {
     return "Error, se debe ingresar una cantidad";
   }
 
@@ -87,8 +84,6 @@ class Registrar extends Component {
     this.state = {
       id_articulo: "",
       precio: 0,
-      dni_cliente: "",
-      nombre_apellido: "",
       cantidad: 1,
       error: "",
       exito: "",
@@ -98,7 +93,7 @@ class Registrar extends Component {
       //porcentaje: 15,
       //valor_cada_cuota: 0,
       //forma_pago: "efectivo",
-      carrito: [],
+      carrito: {articulos: [], datos_clientes: {nombre_apellido: " ", dni_cliente: ""}},
       articulos_typehead: [],
     };
 
@@ -114,26 +109,18 @@ class Registrar extends Component {
   }
 
   agregar_al_carrito() {
-    const json = {
+    const articulo = {
       id_articulo: this.state.id_articulo,
       articulo_cantidad: this.state.articulo_cantidad,
-      nombre_articulo: this.state.nombre_articulo,
-      color: this.state.color,
-      talle: this.state.talle,
-      cuero: this.state.cuero,
-      tipo: this.state.tipo,
       genero: this.state.genero === "hombre",
       precio: this.state.precio,
-      //credito: this.state.credito,
-      cantidad: this.state.cantidad,
-      nombre_apellido: this.state.nombre_apellido,
-      dni_cliente: this.state.dni_cliente,
+      cantidad: this.state.cantidad
     };
 
     console.log("el articulo agregado: ");
-    console.log(json);
+    console.log(articulo);
 
-    const validacion = validarFormulario(json, false);
+    const validacion = validarFormulario(articulo, false);
 
     if (validacion === "ok") {
       this.setState({ error: "" });
@@ -150,7 +137,7 @@ class Registrar extends Component {
           parseInt(this.state.cantidad);
         carrito.push(articulos_encontrados[0]);
       } else {
-        carrito.push(json);
+        carrito.push(articulo);
 
         this.setState({ carrito: carrito });
       }
@@ -163,7 +150,13 @@ class Registrar extends Component {
     let articulos_encontrados = carrito.filter(
       (elem) => elem.id_articulo !== id
     );
-    this.setState({carrito: articulos_encontrados});
+
+    this.setState(prevState => ({
+      carrito: {
+        ...prevState.carrito,
+        articulos: articulos_encontrados
+      }
+    }));
   }
 
   restar_articulo(id, carrito) {
@@ -188,6 +181,7 @@ class Registrar extends Component {
   traer_articulo(selected) {
     if (selected[0] !== undefined) {
       const articulo = selected[0];
+      console.log(articulo)
       this.setState({ id_articulo: articulo.id });
       this.setState({ nombre_articulo: articulo.nombre_articulo });
       this.setState({ color: articulo.color });
@@ -239,20 +233,36 @@ class Registrar extends Component {
     this.setState({ cantidad: event.target.value });
   }
 
-  cambiar_dni_cliente(event) {
-    this.setState({ dni_cliente: event.target.value });
-  }
+  cambiar_dni_cliente = (event) => {
+    this.setState(prevState => ({
+      carrito: {
+        ...prevState.carrito,
+        datos_clientes: {
+          ...prevState.carrito.datos_clientes,
+          dni_cliente: event.target.value
+        }
+      }
+    }));
+  };
 
   cambiar_nombre_apellido(event) {
-    this.setState({ nombre_apellido: event.target.value });
+    this.setState(prevState => ({
+      carrito: {
+        ...prevState.carrito,
+        datos_clientes: {
+          ...prevState.carrito.datos_clientes,
+          nombre_apellido: event.target.value
+        }
+      }
+    }));
   }
 
   cargar_factura() {
-    this.state.carrito.forEach((factura) => {
-      const validacion = validarFormulario(factura, true);
+    //Se validan los articulos
+      const validacion = validarFormulario(this.state.carrito.articulos, true);
       if (validacion === "ok") {
         axios
-          .post("http://localhost:3000/guardar_factura", factura)
+          .post("http://localhost:3000/guardar_factura", this.state.carrito)
           .then((response) => {
             if (response.data === "success") {
               this.setState({ exito: "Factura Cargada Con Exito" });
@@ -266,7 +276,6 @@ class Registrar extends Component {
         this.setState({ error: validacion });
         this.setState({ exito: "" });
       }
-    });
   }
 
   render() {
@@ -322,7 +331,7 @@ class Registrar extends Component {
                   <input
                     type="text"
                     className="form-control"
-                    value={this.state.dni_cliente}
+                    value={this.state.carrito.datos_clientes.dni_cliente}
                     onChange={this.cambiar_dni_cliente}
                   />
                 </div>
@@ -333,7 +342,7 @@ class Registrar extends Component {
                   <input
                     type="text"
                     className="form-control"
-                    value={this.state.nombre_apellido}
+                    value={this.state.carrito.datos_clientes.nombre_apellido}
                     onChange={this.cambiar_nombre_apellido}
                   />
                 </div>
@@ -387,20 +396,5 @@ class Registrar extends Component {
     );
   }
 }
-
-/**
-
-<div className="form-group col-3">
-                  <label className="pb-2">Forma de Pago</label>
-                  <select
-                    className="form-select"
-                    value={this.state.forma_pago}
-                    onChange={this.seleccionar_forma_pago}
-                    aria-label="Default select example"
-                  >
-                    <option value="efectivo">Efectivo / Debito</option>
-                    <option value="credito">Credito</option>
-                  </select>
-                </div>*/
 
 export default Registrar;

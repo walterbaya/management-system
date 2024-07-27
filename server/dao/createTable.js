@@ -10,9 +10,9 @@ var connection = mysql.createConnection({
 connection.connect();
 console.log("database connection is been created");
 
-function create_table() {
+function create_tables() {
   connection.query(
-    "CREATE TABLE IF NOT EXISTS facturacion(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, nombre_articulo VARCHAR(80) NOT NULL, precio DOUBLE NOT NULL, fecha DATE, dni VARCHAR(100), nombre_y_apellido VARCHAR(400), cantidad DOUBLE NOT NULL);",
+    "CREATE TABLE IF NOT EXISTS facturas(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, nombre_articulo VARCHAR(80) NOT NULL, precio DOUBLE NOT NULL, fecha DATE, dni VARCHAR(100), nombre_y_apellido VARCHAR(400), cantidad DOUBLE NOT NULL);",
     function (err, rows, fields) {
       console.log(err);
       console.log(fields);
@@ -28,7 +28,34 @@ function create_table() {
       console.log(rows);
     }
   );
+
+  connection.query(
+    "CREATE TABLE IF NOT EXISTS facturas_articulos(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, id_articulo INT NOT NULL, id_factura INT NOT NULL);", function (err, rows, fields) {
+      console.log(err);
+      console.log(fields);
+      console.log(rows);
+    }
+  );
+
+  connection.query(
+    "ALTER TABLE facturas_articulos ADD CONSTRAINT fk_id_articulo FOREIGN KEY (id_articulo) REFERENCES articulos(id);",
+    function (err, rows, fields) {
+      console.log(err);
+      console.log(fields);
+      console.log(rows);
+    }
+  );
+
+  connection.query(
+    "ALTER TABLE facturas_articulos ADD CONSTRAINT fk_id_factura FOREIGN KEY (id_factura) REFERENCES facturas(id);",
+    function (err, rows, fields) {
+      console.log(err);
+      console.log(fields);
+      console.log(rows);
+    }
+  );
 }
+
 
 function create_articulo(articulo) {
   if (articulo.id === "" || articulo.id === undefined) {
@@ -107,8 +134,9 @@ function delete_articulo(articulo) {
 function create_factura(factura) {
   //p_debito = (5200*0.04) + (5200*0.035)*(0.21)
 
+  //Se crea la factura con los datos 
   connection.query(
-    "INSERT INTO facturacion (nombre_articulo, precio, fecha, dni, nombre_y_apellido, cantidad) VALUES" +
+    "INSERT INTO facturas (nombre_articulo, precio, fecha, dni, nombre_y_apellido, cantidad) VALUES" +
     "(" +
     convert_to_string(factura.nombre_articulo) +
     "," +
@@ -144,7 +172,7 @@ function create_factura(factura) {
 }
 
 function get_all_facturas() {
-  connection.query("SELECT * FROM facturacion;", function (err, rows, fields) {
+  connection.query("SELECT * FROM facturas;", function (err, rows, fields) {
     return rows;
   });
 }
@@ -202,7 +230,7 @@ async function get_facturas_between(fecha_desde, fecha_hasta) {
 
 function aux_2(fecha_desde, fecha_hasta) {
   return new Promise((resolve, reject) => {
-    const query = "SELECT * FROM facturacion WHERE fecha >= ? AND fecha <= ?";
+    const query = "SELECT * FROM facturas WHERE fecha >= ? AND fecha <= ?";
     const params = [fecha_desde, fecha_hasta];
 
     connection.query(query, params, (error, results, fields) => {
@@ -214,7 +242,6 @@ function aux_2(fecha_desde, fecha_hasta) {
     });
   });
 }
-
 
 function get_articulo_by_id_aux(id) {
   console.log(id);
@@ -251,7 +278,7 @@ function get_date() {
 }
 
 module.exports = {
-  create_table,
+  create_tables,
   create_factura,
   get_all_facturas,
   get_all_articulos,
