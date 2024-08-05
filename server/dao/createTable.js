@@ -30,30 +30,37 @@ function create_tables() {
   );
 
   connection.query(
-    "CREATE TABLE IF NOT EXISTS facturas_articulos(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, id_articulo INT NOT NULL, id_factura INT NOT NULL);", function (err, rows, fields) {
+    "CREATE TABLE IF NOT EXISTS facturas_articulos(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, id_factura INT NOT NULL, nombre_articulo VARCHAR(80) NOT NULL, talle DOUBLE NOT NULL, color VARCHAR(80) NOT NULL, cuero VARCHAR(80) NOT NULL, tipo VARCHAR(80) NOT NULL, genero BOOLEAN NOT NULL, cantidad DOUBLE NOT NULL, precio DOUBLE NOT NULL);", function (err, rows, fields) {
       console.log(err);
       console.log(fields);
       console.log(rows);
     }
   );
 
-  connection.query(
-    "ALTER TABLE facturas_articulos ADD CONSTRAINT fk_id_articulo FOREIGN KEY (id_articulo) REFERENCES articulos(id);",
-    function (err, rows, fields) {
-      console.log(err);
-      console.log(fields);
-      console.log(rows);
+  const checkColumnQuery = `
+    SELECT COUNT(*) AS count 
+    FROM INFORMATION_SCHEMA.COLUMNS 
+    WHERE TABLE_SCHEMA = 'palma_store' 
+    AND TABLE_NAME = 'facturas_articulos' 
+    AND COLUMN_NAME = 'id_factura';
+  `;
+
+  connection.query(checkColumnQuery, (err, results) => {
+    console.log(err);
+    if (results[0].count === 0) {
+      // Si la columna no existe, hacer el ALTER TABLE
+      connection.query(
+        "ALTER TABLE facturas_articulos ADD CONSTRAINT fk_id_factura FOREIGN KEY (id_factura) REFERENCES facturas(id);",
+        function (err, rows, fields) {
+          console.log(err);
+          console.log(fields);
+          console.log(rows);
+        }
+      );
     }
+  }
   );
 
-  connection.query(
-    "ALTER TABLE facturas_articulos ADD CONSTRAINT fk_id_factura FOREIGN KEY (id_factura) REFERENCES facturas(id);",
-    function (err, rows, fields) {
-      console.log(err);
-      console.log(fields);
-      console.log(rows);
-    }
-  );
 }
 
 
@@ -134,41 +141,71 @@ function delete_articulo(articulo) {
 function create_factura(factura) {
   //p_debito = (5200*0.04) + (5200*0.035)*(0.21)
 
+  const datos_cliente = factura.datos_cliente
+  const articulos = factura.articulos
   //Se crea la factura con los datos 
   connection.query(
-    "INSERT INTO facturas (nombre_articulo, precio, fecha, dni, nombre_y_apellido, cantidad) VALUES" +
+    "INSERT INTO facturas (fecha, dni, nombre_y_apellido) VALUES" +
     "(" +
-    convert_to_string(factura.nombre_articulo) +
-    "," +
-    factura.precio +
-    "," +
     convert_to_string(get_date()) +
     "," +
-    convert_to_string(factura.dni_cliente) +
+    convert_to_string(datos_cliente.dni_cliente) +
     "," +
-    convert_to_string(factura.nombre_y_apellido) +
-    "," +
-    factura.cantidad +
+    convert_to_string(datos_cliente.nombre_y_apellido) +
     ");",
     function (err, rows, fields) {
       console.log(err);
       console.log(fields);
       console.log(rows);
+      articulos.forEach(articulo => {
+        connection.query(
+          "INSERT INTO facturas_articulos (id_factura, nombre_articulo, talle, color, cuero, tipo, genero, cantidad, precio) VALUES" +
+          "(" +
+          rows.id +
+          "," +
+          convert_to_string(articulo.nombre_articulo).trim() +
+          "," +
+          convert_to_string(articulo.talle).trim() +
+          "," +
+          convert_to_string(articulo.color).trim() +
+          "," +
+          convert_to_string(articulo.cuero).trim() +
+          "," +
+          convert_to_string(articulo.tipo).trim() +
+          "," +
+          articulo.genero +
+          "," +
+          convert_to_string(articulo.cantidad).trim() +
+          "," +
+          convert_to_string(articulo.precio).trim() +
+          ");",
+          function (err, rows, fields) {
+            console.log(err);
+            console.log(fields);
+            console.log(rows);
+          }
+        );
+      });
+
+
     }
   );
-  connection.query(
-    "UPDATE articulos SET " +
-    "cantidad=" +
-    parseInt(factura.articulo_cantidad - factura.cantidad) +
-    " WHERE id =" +
-    convert_to_string(factura.id_articulo).trim() +
-    ";",
-    function (err, rows, fields) {
-      console.log(err);
-      console.log(fields);
-      console.log(rows);
-    }
-  );
+
+  articulos.forEach(articulo => {
+    connection.query(
+      "UPDATE articulos SET " +
+      "cantidad=" +
+      parseInt(articulo.articulo_cantidad - articulo.cantidad) +
+      " WHERE id =" +
+      convert_to_string(articulo.id_articulo).trim() +
+      ";",
+      function (err, rows, fields) {
+        console.log(err);
+        console.log(fields);
+        console.log(rows);
+      }
+    );
+  });
 }
 
 function get_all_facturas() {

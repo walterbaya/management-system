@@ -68,13 +68,15 @@ app.listen(PORT, function () {
   console.log("Server is running on PORT:", PORT);
 });
 
-function validarFormulario(factura) {
-  if (!factura.nombre_articulo) {
-    return "Error, se debe ingresar el nombre del articulo";
-  }
-  if (!factura.precio || factura.precio <= 0) {
-    return "Error, se debe ingresar el precio de venta y debe ser mayor o igual a 0";
-  }
+function validarFormulario(carrito) {
+  carrito.articulos.forEach(articulo => {
+    if (!articulo.nombre_articulo) {
+      return "Error, se debe ingresar el nombre del articulo";
+    }
+    if (!articulo.precio || articulo.precio <= 0) {
+      return "Error, se debe ingresar el precio de venta y debe ser mayor o igual a 0";
+    }
+  });
 
   return "ok";
 }

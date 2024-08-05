@@ -28,8 +28,11 @@ function TableArticulos(props) {
 
   let rows = <tr></tr>;
   let res = <div className="fixed_height p-4"></div>;
-  if (props.articulos !== undefined && props.articulos.length > 0) {
-    rows = props.articulos.map((articulo) => (
+
+  const carrito = props.carrito;
+
+  if (carrito.articulos !== undefined && carrito.articulos.length > 0) {
+    rows = carrito.articulos.map((articulo) => (
       <tr key={articulo.id_articulo}>
         <td>{articulo.nombre_articulo}</td>
         <td>{articulo.talle}</td>
@@ -38,14 +41,14 @@ function TableArticulos(props) {
         <td>{articulo.tipo}</td>
         <td>{articulo.genero ? "Mujer" : "Hombre"}</td>
         <td>{articulo.cantidad}</td>
-        <td>{articulo.nombre_apellido}</td>
-        <td>{articulo.dni_cliente}</td>
+        <td>{carrito.datos_cliente.nombre_apellido}</td>
+        <td>{carrito.datos_cliente.dni_cliente}</td>
         <td>{articulo.precio * articulo.cantidad}</td>
         <td>
-          <button className="btn btn-info text-white" onClick={e => props.restar(articulo.id_articulo, props.articulos)}>-</button>
+          <button className="btn btn-info text-white" onClick={e => props.restar(articulo.id_articulo, props.carrito.articulos)}>-</button>
         </td>
         <td>
-          <button className="btn btn-danger text-white" onClick={e => props.eliminar(articulo.id_articulo, props.articulos)}>X</button>
+          <button className="btn btn-danger text-white" onClick={e => props.eliminar(articulo.id_articulo, props.carrito.articulos)}>X</button>
         </td>
       </tr>
     ));
@@ -82,18 +85,21 @@ class Registrar extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      error: "",
+      exito: "",
+
+      //Articulo
       id_articulo: "",
       precio: 0,
       cantidad: 1,
-      error: "",
-      exito: "",
       articulo: "",
       articulo_cantidad: "",
-      //credito: 0,
-      //porcentaje: 15,
-      //valor_cada_cuota: 0,
-      //forma_pago: "efectivo",
-      carrito: {articulos: [], datos_clientes: {nombre_apellido: " ", dni_cliente: ""}},
+      nombre_articulo: "",
+      talle: "",
+      color: "",
+      cuero: "",
+      tipo: "",      
+      carrito: {articulos: [], datos_cliente: {nombre_apellido: "", dni_cliente: ""}},
       articulos_typehead: [],
     };
 
@@ -111,33 +117,40 @@ class Registrar extends Component {
   agregar_al_carrito() {
     const articulo = {
       id_articulo: this.state.id_articulo,
-      articulo_cantidad: this.state.articulo_cantidad,
+      nombre_articulo: this.state.nombre_articulo,
+      talle: this.state.talle,
+      color: this.state.color,
+      cuero: this.state.cuero,
+      tipo: this.state.tipo,      
       genero: this.state.genero === "hombre",
-      precio: this.state.precio,
-      cantidad: this.state.cantidad
+      articulo_cantidad: this.state.articulo_cantidad,
+      cantidad: this.state.cantidad,
+      precio: this.state.precio,  
     };
-
-    console.log("el articulo agregado: ");
-    console.log(articulo);
 
     const validacion = validarFormulario(articulo, false);
 
     if (validacion === "ok") {
       this.setState({ error: "" });
       let carrito = this.state.carrito;
-      let articulos_encontrados = carrito.filter(
+      let articulos_encontrados = carrito.articulos.filter(
         (elem) => elem.id_articulo === this.state.id_articulo
       );
+
+      articulos_encontrados.forEach(articulo => {
+        articulo.precio = this.state.precio;
+      });
+
       if (articulos_encontrados.length !== 0) {
-        carrito = carrito.filter(
+        carrito.articulos = carrito.articulos.filter(
           (elem) => elem.id_articulo !== this.state.id_articulo
         );
         articulos_encontrados[0].cantidad =
           parseInt(articulos_encontrados[0].cantidad) +
           parseInt(this.state.cantidad);
-        carrito.push(articulos_encontrados[0]);
+        carrito.articulos.push(articulos_encontrados[0]);
       } else {
-        carrito.push(articulo);
+        carrito.articulos.push(articulo);
 
         this.setState({ carrito: carrito });
       }
@@ -146,8 +159,9 @@ class Registrar extends Component {
     }
   }
 
-  eliminar(id, carrito){
-    let articulos_encontrados = carrito.filter(
+  eliminar(id){
+    const carrito = this.state.carrito;
+    let articulos_encontrados = carrito.articulos.filter(
       (elem) => elem.id_articulo !== id
     );
 
@@ -159,29 +173,36 @@ class Registrar extends Component {
     }));
   }
 
-  restar_articulo(id, carrito) {
-    let articulos = carrito;
-    let articulos_encontrados = carrito.filter(
+  restar_articulo(id) {
+    let carrito = this.state.carrito;
+    
+    //Obtengo el articulo, pero esto trae una lista 
+    const articulo = carrito.articulos.filter(
       (elem) => elem.id_articulo === id
     );
-    if (articulos_encontrados.length !== 0) {
-      articulos = carrito.filter(
-        (elem) => elem.id_articulo !== id
-      );
-      articulos_encontrados[0].cantidad =
-        parseInt(articulos_encontrados[0].cantidad) - 1;
 
-      if (articulos_encontrados[0].cantidad !== 0) {
-        articulos.push(articulos_encontrados[0]);
+    //Si habia articulo tengo que restarle la cantidad
+    if (articulo.length !== 0) {
+      //Lo que tendria que hacer es cambiar
+      const index = carrito.articulos.findIndex(articulo => articulo.id_articulo === id);
+      
+      articulo[0].cantidad = parseInt(articulo[0].cantidad) - 1;
+      
+      if(articulo[0].cantidad === 0){
+        carrito.articulos.splice(index, 1);
       }
+      else{
+        carrito.articulos[index] =  articulo[0];
+      }
+      
     }
-    this.setState({carrito: articulos});
+
+    this.setState({carrito: carrito});
   }
 
   traer_articulo(selected) {
     if (selected[0] !== undefined) {
       const articulo = selected[0];
-      console.log(articulo)
       this.setState({ id_articulo: articulo.id });
       this.setState({ nombre_articulo: articulo.nombre_articulo });
       this.setState({ color: articulo.color });
@@ -237,8 +258,8 @@ class Registrar extends Component {
     this.setState(prevState => ({
       carrito: {
         ...prevState.carrito,
-        datos_clientes: {
-          ...prevState.carrito.datos_clientes,
+        datos_cliente: {
+          ...prevState.carrito.datos_cliente,
           dni_cliente: event.target.value
         }
       }
@@ -249,8 +270,8 @@ class Registrar extends Component {
     this.setState(prevState => ({
       carrito: {
         ...prevState.carrito,
-        datos_clientes: {
-          ...prevState.carrito.datos_clientes,
+        datos_cliente: {
+          ...prevState.carrito.datos_cliente,
           nombre_apellido: event.target.value
         }
       }
@@ -259,7 +280,14 @@ class Registrar extends Component {
 
   cargar_factura() {
     //Se validan los articulos
-      const validacion = validarFormulario(this.state.carrito.articulos, true);
+    let validacion = "ok";
+    this.state.carrito.articulos.forEach(articulo => {
+        if (validarFormulario(articulo, true) !== "ok"){
+          validacion = validarFormulario(articulo, true);
+        }
+      })
+
+      
       if (validacion === "ok") {
         axios
           .post("http://localhost:3000/guardar_factura", this.state.carrito)
@@ -331,7 +359,7 @@ class Registrar extends Component {
                   <input
                     type="text"
                     className="form-control"
-                    value={this.state.carrito.datos_clientes.dni_cliente}
+                    value={this.state.carrito.datos_cliente.dni_cliente}
                     onChange={this.cambiar_dni_cliente}
                   />
                 </div>
@@ -342,7 +370,7 @@ class Registrar extends Component {
                   <input
                     type="text"
                     className="form-control"
-                    value={this.state.carrito.datos_clientes.nombre_apellido}
+                    value={this.state.carrito.datos_cliente.nombre_apellido}
                     onChange={this.cambiar_nombre_apellido}
                   />
                 </div>
@@ -379,7 +407,7 @@ class Registrar extends Component {
           <div className="col-12 my-2">
             <div className="p-3 bg-white rounded">
               <h1>Carrito</h1>
-              <TableArticulos articulos={this.state.carrito} restar={this.restar_articulo.bind(this)}
+              <TableArticulos carrito = {this.state.carrito} restar={this.restar_articulo.bind(this)}
               eliminar={this.eliminar.bind(this)}
               />
 
