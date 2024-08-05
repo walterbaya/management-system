@@ -161,7 +161,7 @@ function create_factura(factura) {
         connection.query(
           "INSERT INTO facturas_articulos (id_factura, nombre_articulo, talle, color, cuero, tipo, genero, cantidad, precio) VALUES" +
           "(" +
-          rows.id +
+          rows.insertId +
           "," +
           convert_to_string(articulo.nombre_articulo).trim() +
           "," +
