@@ -154,9 +154,6 @@ function create_factura(factura) {
     convert_to_string(datos_cliente.nombre_y_apellido) +
     ");",
     function (err, rows, fields) {
-      console.log(err);
-      console.log(fields);
-      console.log(rows);
       articulos.forEach(articulo => {
         connection.query(
           "INSERT INTO facturas_articulos (id_factura, nombre_articulo, talle, color, cuero, tipo, genero, cantidad, precio) VALUES" +

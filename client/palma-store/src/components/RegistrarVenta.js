@@ -222,7 +222,8 @@ class Registrar extends Component {
     this.setState({ nombre_apellido: "" });
     this.setState({ cantidad: 1 });
     this.setState({ articulo: "" });
-    this.setState({ carrito: [] });
+    this.setState({nombre_articulo: ""})
+    this.setState({ carrito: {articulos: [], datos_cliente: {nombre_apellido: "", dni_cliente: ""}}});
   }
 
   componentDidMount() {
@@ -359,7 +360,7 @@ class Registrar extends Component {
                   <input
                     type="text"
                     className="form-control"
-                    value={"" || this.state.carrito.datos_cliente.dni_cliente}
+                    value={this.state.carrito.datos_cliente.dni_cliente}
                     onChange={this.cambiar_dni_cliente}
                   />
                 </div>
@@ -370,7 +371,7 @@ class Registrar extends Component {
                   <input
                     type="text"
                     className="form-control"
-                    value={"" || this.state.carrito.datos_cliente.nombre_apellido}
+                    value={this.state.carrito.datos_cliente.nombre_apellido}
                     onChange={this.cambiar_nombre_apellido}
                   />
                 </div>
