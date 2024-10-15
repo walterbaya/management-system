@@ -5,6 +5,7 @@ import Registrar from "./components/RegistrarVenta";
 import Consultar from "./components/ConsultarVentas";
 import Disponibilidad from "./components/DisponibilidadArticulo";
 import AgregarArticulo from "./components/AgregarArticulo";
+import ControlCatalogos from "./components/ControlCatalogos";
 
 class App extends Component {
   render() {
@@ -32,6 +33,9 @@ class App extends Component {
                 <Link className="btn-main m-1" to={`/consultar_ventas`}>
                   Consultar Ventas Bajar Excel
                 </Link>
+                <Link className="btn-main m-1" to={`/control_catalogos`}>
+                  Control Catalogos
+                </Link>
               </div>
             </div>
             <div className="explanation-text-main col-md-10 col-sm-12">
@@ -39,6 +43,7 @@ class App extends Component {
                 <Route path="/registrar" element=<Registrar /> />
                 <Route path="/consultar_ventas" element=<Consultar /> />
                 <Route path="/agregar_articulo" element=<AgregarArticulo /> />
+                <Route path="/control_catalogos" element=<ControlCatalogos /> />
                 <Route path="/" element=<Disponibilidad /> />
               </Routes>
             </div>

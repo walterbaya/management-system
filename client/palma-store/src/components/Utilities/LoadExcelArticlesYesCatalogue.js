@@ -3,7 +3,7 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import * as XLSX from "xlsx";
 import { FileUploader } from "react-drag-drop-files";
-import axios from "axios";
+import fs from 'fs';
 
 function get_list_articulos(sheet) {
   let res = [];
@@ -28,7 +28,7 @@ function get_list_articulos(sheet) {
   return res;
 }
 
-function LoadExcel() {
+function LoadExcelArticlesYesCatalogue() {
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
@@ -47,9 +47,21 @@ function LoadExcel() {
 
       //En vez de llamar al sevidor generamos el archivo directamente
 
-      
+      const writeJsonToFile = (path, data) => {
+        try {
+          fs.writeFileSync(path, JSON.stringify(data, null, 2), 'utf8')
+          console.log('Data successfully saved to disk')
+        } catch (error) {
+          console.log('An error has occurred ', error)
+       }
+      }
+
+      writeJsonToFile('my-data.json', json);
+  
+      }
     };
-  };
+
+
 
   return (
     <>
@@ -90,4 +102,4 @@ function LoadExcel() {
   );
 }
 
-export default LoadExcel;
+export default LoadExcelArticlesYesCatalogue;
