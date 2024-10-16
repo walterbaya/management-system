@@ -3,25 +3,22 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import * as XLSX from "xlsx";
 import { FileUploader } from "react-drag-drop-files";
-import fs from 'fs';
 
 function get_list_articulos(sheet) {
   let res = [];
 
   sheet.forEach((sheet_obj) => {
-    Object.keys(sheet_obj).forEach((key) => {
-      const obj = {
-        nombre_articulo: "",
-        tipo: "",
-        precio: "",
-      };
-      
-      obj.nombre_articulo = sheet_obj.ARTICULO;
-      obj.tipo = sheet_obj.TIPO;
-      obj.precio = sheet_obj.PRECIO;
-      console.log(obj);
-      res.push(obj);
-    });
+    const obj = {
+      nombre_articulo: "",
+      tipo: "",
+      precio: "",
+    };
+
+    obj.nombre_articulo = sheet_obj.ARTICULO;
+    obj.tipo = sheet_obj.TIPO;
+    obj.precio = sheet_obj.PRECIO;
+    console.log(obj);
+    res.push(obj);
   });
 
   console.log(res);
@@ -34,9 +31,9 @@ function LoadExcelArticlesYesCatalogue() {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = (file) => {
     const reader = new FileReader();
-    reader.readAsBinaryString(e);
+    reader.readAsBinaryString(file);
     reader.onload = (e) => {
       const data = e.target.result;
       const workbook = XLSX.read(data, { type: "binary" });
@@ -45,28 +42,31 @@ function LoadExcelArticlesYesCatalogue() {
       const xlsx_sheet = XLSX.utils.sheet_to_json(sheet);
       const json = get_list_articulos(xlsx_sheet);
 
-      //En vez de llamar al sevidor generamos el archivo directamente
-
-      const writeJsonToFile = (path, data) => {
-        try {
-          fs.writeFileSync(path, JSON.stringify(data, null, 2), 'utf8')
-          console.log('Data successfully saved to disk')
-        } catch (error) {
-          console.log('An error has occurred ', error)
-       }
-      }
-
-      writeJsonToFile('my-data.json', json);
-  
-      }
+      // Enviar el JSON al servidor para que se guarde en la carpeta específica
+      fetch("http://localhost:3000/guardar_json", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(json),
+      })
+        .then((response) => {
+          if (response.ok) {
+            console.log("Archivo JSON enviado al servidor con éxito");
+          } else {
+            console.error("Error al enviar el archivo JSON al servidor");
+          }
+        })
+        .catch((error) => {
+          console.error("Error en la solicitud:", error);
+        });
     };
-
-
+  };
 
   return (
     <>
       <Button variant="primary" onClick={handleShow}>
-        Cargar Excel con Artículos
+        Cargar Excel Para El Catalogo YES
       </Button>
 
       <Modal
@@ -76,7 +76,7 @@ function LoadExcelArticlesYesCatalogue() {
         keyboard={false}
       >
         <Modal.Header closeButton>
-          <Modal.Title>Cargar Excel con Datos</Modal.Title>
+          <h1 className="row px-2"> Cargar Excel YES</h1>
         </Modal.Header>
         <Modal.Body>
           <p>
