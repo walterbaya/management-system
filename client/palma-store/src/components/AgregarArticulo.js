@@ -5,14 +5,14 @@ import QrReaderModule from "./Utilities/QrReaderModule";
 import axios from "axios";
 
 function validarFormulario(factura) {
-  if (!factura.nombre_articulo) {
+  if (!factura.name) {
     return "Error, se debe ingresar el nombre del articulo";
   }
-  if (!factura.cantidad || factura.cantidad <= 0) {
+  if (!factura.numberOfElements || factura.numberOfElements <= 0) {
     return "Error, se debe ingresar la cantidad y debe ser mayor a 0";
   }
-  if (!factura.talle || factura.talle <= 0) {
-    return "Error, se debe ingresar el talle y debe ser mayor a 0";
+  if (!factura.size || factura.size <= 0) {
+    return "Error, se debe ingresar el size y debe ser mayor a 0";
   }
   if (!factura.color) {
     return "Error, se debe ingresar el color ";
@@ -26,29 +26,29 @@ class AgregarArticulo extends Component {
     super(props);
     this.state = {
       id: "",
-      nombre_articulo: "",
+      name: "",
       color: "",
-      cantidad: 0,
-      talle: 0,
+      numberOfElements: 0,
+      size: 0,
       error: "",
       exito: "",
-      cuero: "",
-      genero: "Mujer",
-      tipo: "",
-      precio: 0,
+      leatherType: "",
+      gender: "Mujer",
+      shoeType: "",
+      price: 0,
       articulos_typehead: [],
       editar_articulo: "agregar",
     };
 
     this.enviar_formulario = this.enviar_formulario.bind(this);
-    this.cambiar_nombre_articulo = this.cambiar_nombre_articulo.bind(this);
-    this.cambiar_talle = this.cambiar_talle.bind(this);
-    this.cambiar_cantidad = this.cambiar_cantidad.bind(this);
+    this.cambiar_name = this.cambiar_name.bind(this);
+    this.cambiar_size = this.cambiar_size.bind(this);
+    this.cambiar_numberOfElements = this.cambiar_numberOfElements.bind(this);
     this.cambiar_color = this.cambiar_color.bind(this);
-    this.cambiar_cuero = this.cambiar_cuero.bind(this);
-    this.cambiar_genero = this.cambiar_genero.bind(this);
-    this.cambiar_tipo = this.cambiar_tipo.bind(this);
-    this.cambiar_precio = this.cambiar_precio.bind(this);
+    this.cambiar_leatherType = this.cambiar_leatherType.bind(this);
+    this.cambiar_gender = this.cambiar_gender.bind(this);
+    this.cambiar_shoeType = this.cambiar_shoeType.bind(this);
+    this.cambiar_price = this.cambiar_price.bind(this);
     this.traer_articulo = this.traer_articulo.bind(this);
     this.editar_articulo = this.editar_articulo.bind(this);
   }
@@ -58,44 +58,46 @@ class AgregarArticulo extends Component {
     this.reset_state();
   }
 
-  cambiar_nombre_articulo(event) {
-    this.setState({ nombre_articulo: event.target.value });
+  cambiar_name(event) {
+    this.setState({ name: event.target.value });
   }
 
   cambiar_color(event) {
     this.setState({ color: event.target.value });
   }
 
-  cambiar_talle(event) {
-    this.setState({ talle: event.target.value });
-  }
-  cambiar_cantidad(event) {
-    this.setState({ cantidad: event.target.value });
+  cambiar_size(event) {
+    this.setState({ size: event.target.value });
   }
 
-  cambiar_cuero(event) {
-    this.setState({ cuero: event.target.value });
+  cambiar_numberOfElements(event) {
+    this.setState({ numberOfElements: event.target.value });
   }
 
-  cambiar_tipo(event) {
-    this.setState({ tipo: event.target.value });
+  cambiar_leatherType(event) {
+    this.setState({ leatherType: event.target.value });
   }
 
-  cambiar_genero(event) {
-    this.setState({ genero: event.target.value });
+  cambiar_shoeType(event) {
+    this.setState({ shoeType: event.target.value });
   }
 
-  cambiar_precio(event) {
-    this.setState({ precio: event.target.value });
+  cambiar_gender(event) {
+    this.setState({ gender: event.target.value });
+  }
+
+  cambiar_price(event) {
+    this.setState({ price: event.target.value });
   }
 
   componentDidMount() {
     axios
-      .get("http://localhost:3000/get_articulos")
+      .get("http://localhost:8080/api/public/product/get_products")
       .then((response) => {
+        console.log(response.data)
         let res = response.data;
         res.forEach(element => {
-          element.genero = element.genero ? "Mujer" : "Hombre";
+          element.gender = element.gender ? "Mujer" : "Hombre";
         });
 
         this.setState({ articulos_typehead: res });
@@ -106,42 +108,41 @@ class AgregarArticulo extends Component {
 
   reset_state() {
     this.setState({ id: "" });
-    this.setState({ nombre_articulo: "" });
+    this.setState({ name: "" });
     this.setState({ color: "" });
-    this.setState({ cantidad: 0 });
-    this.setState({ talle: 0 });
-    this.setState({ cuero: "" });
-    this.setState({ genero: "Mujer" });
-    this.setState({ tipo: "" });
-    this.setState({ precio: 0 });
+    this.setState({ numberOfElements: 0 });
+    this.setState({ size: 0 });
+    this.setState({ leatherType: "" });
+    this.setState({ gender: "Mujer" });
+    this.setState({ shoeType: "" });
+    this.setState({ price: 0 });
   }
 
   enviar_formulario() {
     const factura = {
       id: this.state.id,
-      nombre_articulo: this.state.nombre_articulo,
-      talle: this.state.talle,
-      cantidad: this.state.cantidad,
+      name: this.state.name,
+      size: this.state.size,
+      numberOfElements: this.state.numberOfElements,
       color: this.state.color,
       exito: this.state.exito,
-      cuero: this.state.cuero,
-      genero: this.state.genero === "Mujer",
-      tipo: this.state.tipo,
-      precio: this.state.precio,
+      leatherType: this.state.leatherType,
+      gender: this.state.gender === "Mujer",
+      shoeType: this.state.shoeType,
+      price: this.state.price,
     };
-
-    console.log(factura);
 
     const validacion = validarFormulario(factura);
 
+
     if (validacion === "ok") {
       axios
-        .post("http://localhost:3000/agregar_articulo", factura)
+        .post("http://localhost:8080/api/public/product/add_product", factura)
         .then((response) => {
           console.log(response.data);
           this.setState({ exito: "Articulo guardado con exito" });
           axios
-            .get("http://localhost:3000/get_articulos")
+            .get("http://localhost:8080/api/public/product/get_products")
             .then((response) => {
               this.setState({ articulos_typehead: response.data });
               this.reset_state();
@@ -158,14 +159,14 @@ class AgregarArticulo extends Component {
     if (selected[0] !== undefined) {
       const articulo = selected[0];
       this.setState({ id: articulo.id });
-      this.setState({ nombre_articulo: articulo.nombre_articulo });
+      this.setState({ name: articulo.name });
       this.setState({ color: articulo.color });
-      this.setState({ cantidad: articulo.cantidad });
-      this.setState({ talle: articulo.talle });
-      this.setState({ cuero: articulo.cuero });
-      this.setState({ genero: articulo.genero});
-      this.setState({ tipo: articulo.tipo });
-      this.setState({ precio: articulo.precio });
+      this.setState({ numberOfElements: articulo.numberOfElements });
+      this.setState({ size: articulo.size });
+      this.setState({ leatherType: articulo.leatherType });
+      this.setState({ gender: articulo.gender});
+      this.setState({ shoeType: articulo.shoeType });
+      this.setState({ price: articulo.price });
     }
   }
 
@@ -213,20 +214,20 @@ class AgregarArticulo extends Component {
                 <Typeahead
                   id="typeahead-articulos"
                   onInputChange={(text) => {
-                    this.setState({ nombre_articulo: text });
+                    this.setState({ name: text });
                   }}
                   onChange={this.traer_articulo}
                   options={this.state.articulos_typehead}
                   filterBy={[
-                    "nombre_articulo",
-                    "tipo",
-                    "cuero",
+                    "name",
+                    "shoeType",
+                    "leatherType",
                     "color",
-                    "talle",
-                    "genero"
+                    "size",
+                    "gender"
                   ]}
                   labelKey={(option) =>
-                    `${option.nombre_articulo} ${option.tipo} ${option.cuero} ${option.color} ${option.talle} ${option.genero}`
+                    `${option.name} ${option.shoeType} ${option.leatherType} ${option.color} ${option.size} ${option.gender}`
                   }
                 />
               )) ||
@@ -235,7 +236,7 @@ class AgregarArticulo extends Component {
                     type="text"
                     className="form-control col-6"
                     onChange={(event) => {
-                      this.setState({ nombre_articulo: event.target.value });
+                      this.setState({ name: event.target.value });
                     }}
                   />
                 ))}
@@ -246,8 +247,8 @@ class AgregarArticulo extends Component {
               <select
                 className="form-select"
                 aria-label="Default select example"
-                value={this.state.genero}
-                onChange={this.cambiar_genero}
+                value={this.state.gender}
+                onChange={this.cambiar_gender}
               >
                 <option defaultValue value="Mujer">
                   Mujer
@@ -262,8 +263,8 @@ class AgregarArticulo extends Component {
               <input
                 type="text"
                 className="form-control"
-                value={this.state.tipo}
-                onChange={this.cambiar_tipo}
+                value={this.state.shoeType}
+                onChange={this.cambiar_shoeType}
               />
             </div>
             <div className="col-4">
@@ -280,8 +281,8 @@ class AgregarArticulo extends Component {
               <input
                 type="text"
                 className="form-control"
-                value={this.state.cuero}
-                onChange={this.cambiar_cuero}
+                value={this.state.leatherType}
+                onChange={this.cambiar_leatherType}
               />
             </div>
           </div>
@@ -291,8 +292,8 @@ class AgregarArticulo extends Component {
               <input
                 type="number"
                 className="form-control"
-                value={this.state.cantidad}
-                onChange={this.cambiar_cantidad}
+                value={this.state.numberOfElements}
+                onChange={this.cambiar_numberOfElements}
               />
             </div>
 
@@ -301,8 +302,8 @@ class AgregarArticulo extends Component {
               <input
                 type="number"
                 className="form-control"
-                value={this.state.talle}
-                onChange={this.cambiar_talle}
+                value={this.state.size}
+                onChange={this.cambiar_size}
               />
             </div>
             <div className="col-4">
@@ -310,8 +311,8 @@ class AgregarArticulo extends Component {
               <input
                 type="number"
                 className="form-control"
-                value={this.state.precio}
-                onChange={this.cambiar_precio}
+                value={this.state.price}
+                onChange={this.cambiar_price}
               />
             </div>
           </div>

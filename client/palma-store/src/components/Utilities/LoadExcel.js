@@ -11,25 +11,25 @@ function get_list_articulos(sheet) {
   sheet.forEach((sheet_obj) => {
     Object.keys(sheet_obj).forEach((key) => {
       const obj = {
-        nombre_articulo: "",
-        talle: "",
+        name: "",
+        size: "",
         color: "",
-        cuero: "",
-        tipo: "",
-        genero: "",
-        cantidad: "",
-        precio: "",
+        leatherType: "",
+        shoeType: "",
+        gender: "",
+        numberOfElements: "",
+        price: "",
       };
-      const talle = parseInt(key);
-      if (talle <= 46 && talle >= 35) {
-        obj.nombre_articulo = sheet_obj.ARTICULO;
-        obj.talle = talle;
+      const size = parseInt(key);
+      if (size <= 46 && size >= 35) {
+        obj.name = sheet_obj.ARTICULO;
+        obj.size = size;
         obj.color = sheet_obj.COLOR;
-        obj.cuero = sheet_obj.CUERO;
-        obj.tipo = sheet_obj.TIPO;
-        obj.genero = sheet_obj.GENERO === "M" ? true : false;
-        obj.cantidad = sheet_obj[key];
-        obj.precio = sheet_obj.PRECIO;
+        obj.leatherType = sheet_obj.CUERO;
+        obj.shoeType = sheet_obj.TIPO;
+        obj.gender = sheet_obj.GENERO === "M" ? true : false;
+        obj.numberOfElements = sheet_obj[key];
+        obj.price = sheet_obj.PRECIO;
         console.log(obj);
         res.push(obj);
       }
@@ -57,8 +57,10 @@ function LoadExcel() {
       const xlsx_sheet = XLSX.utils.sheet_to_json(sheet);
       const json = get_list_articulos(xlsx_sheet);
 
+      console.log(json)
+
       axios
-        .post("http://localhost:3000/registrar_articulos", json)
+        .post("http://localhost:8080/api/public/product/add_products", json)
         .then((response) => console.log(response.data))
         .catch((error) => console.log(error));
     };

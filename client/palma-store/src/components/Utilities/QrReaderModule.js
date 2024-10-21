@@ -29,7 +29,7 @@ function QrReaderModule() {
     let articulo = {};
 
     axios
-      .get("http://localhost:3000/get_articulo/" + id)
+      .get("http://localhost:8080/api/public/product/get_product/" + id)
       .then((response) => {
         console.log("datos:");
         articulo = response.data[0];
@@ -40,7 +40,7 @@ function QrReaderModule() {
       .finally(() => {
         console.log(articulo.cantidad);
         axios
-          .post("http://localhost:3000/agregar_articulo", articulo)
+          .post("http://localhost:8080/api/public/product/add_product", articulo)
           .then((response) => {
             setSuccess(true);
             setArticulo(articulo);

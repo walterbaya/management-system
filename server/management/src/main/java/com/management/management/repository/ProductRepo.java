@@ -8,13 +8,32 @@ import java.util.List;
 
 @Repository
 public interface ProductRepo extends JpaRepository<Product, Long> {
-    List<Product>
+
+    //delete_articulo
+    void deleteById(int id);
 
     //get_all_articulos,
-    //get_articulo,
-    //get_articulo_by_id,
-    //create_articulo,
-    //delete_articulo,
+    public List<Product> findAll();
 
+    //get_articulo
+    Product getProductByName(String name);
+
+    //get_articulo_by_id,
+    Product getProductById(int id);
+
+/*function get_date() {
+  const date = new Date();
+    let day = date.getDate();
+    let month = date.getMonth() + 1;
+    if (day < 10) {
+        day = "0" + day;
+    }
+    if (month < 10) {
+        month = "0" + month;
+    }
+
+    console.log(day + "/" + month + "/" + date.getFullYear());
+    return date.getFullYear() + "/" + month + "/" + day;
+}*/
 
 }
