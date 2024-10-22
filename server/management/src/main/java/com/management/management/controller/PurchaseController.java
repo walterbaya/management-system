@@ -5,10 +5,18 @@ import com.management.management.model.Purchase;
 import com.management.management.repository.ProductRepo;
 import com.management.management.repository.PurchaseRepo;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -31,27 +39,14 @@ public class PurchaseController {
     ProductRepo productRepo;
 
     @GetMapping("/get_facturas")
-    public List<Purchase> getAllFacturas(){
+    public List<Purchase> getAllPurchases(){
         return repo.findAll();
     };
 
     // Ruta para obtener facturas entre dos fechas (tu código original)
     @GetMapping("/get_facturas_between")
     public List<Purchase> getPurchasesBetween(@RequestParam("fecha_desde") String firstDate, @RequestParam("fecha_hasta") String endDate) throws ParseException {
-
-        // Crear un formateador para la fecha
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-        // Parsear las fechas desde las cadenas
-        LocalDate startDate = LocalDate.parse(firstDate, dateFormatter);
-        LocalDate endDateLocal = LocalDate.parse(endDate, dateFormatter);
-
-        // Ajustar la hora a las 00:00:00 para el inicio y 23:59:59 para el final
-        ZonedDateTime start = startDate.atStartOfDay(ZoneId.of("America/Argentina/Buenos_Aires"));
-        ZonedDateTime end = endDateLocal.atTime(23, 59, 59).atZone(ZoneId.of("America/Argentina/Buenos_Aires"));
-
-        // Aquí llamas al repositorio con las fechas ajustadas
-        return repo.getPurchasesBetween(start, end);
+        return getPurchasesBetweenAux(firstDate, endDate);
     }
 
 
@@ -93,4 +88,104 @@ public class PurchaseController {
         productRepo.saveAll(products);
     }
 
+
+    @GetMapping("/get_excel")
+    public ResponseEntity<byte[]> getExcel(
+            @RequestParam(value = "fecha_desde", required = false) String fechaDesde,
+            @RequestParam(value = "fecha_hasta", required = false) String fechaHasta) throws ParseException {
+
+        // Obtener las facturas desde el servicio
+        HashMap<Integer, Purchase> dataMap = new HashMap<>();
+
+        getPurchasesBetweenAux(fechaDesde, fechaHasta).forEach(purchase -> {
+            int id = purchase.getIdProduct();
+            if (dataMap.get(id) == null) {
+                dataMap.put(id, purchase);
+            } else {
+                Purchase p = dataMap.get(id);
+                p.setNumberOfElements(purchase.getNumberOfElements() + p.getNumberOfElements());
+                dataMap.put(id, p);
+            }
+        });
+
+        List<Purchase> data = new ArrayList<>(dataMap.values());
+
+        // Crear un libro de trabajo de Excel
+        Workbook workbook = new XSSFWorkbook();
+        var sheet = workbook.createSheet("Facturas");
+
+        // Crear estilo para encabezados de columna
+        CellStyle headerStyle = workbook.createCellStyle();
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setColor(IndexedColors.WHITE.getIndex()); // Texto blanco
+        headerStyle.setFont(headerFont);
+
+        // Establecer color de fondo azul para el encabezado
+        headerStyle.setFillForegroundColor(IndexedColors.BLUE.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        // Crear encabezados de columna con el nuevo estilo
+        var headerRow = sheet.createRow(0);
+        String[] columnHeaders = {"Nombre Artículo", "Tipo", "Género", "Talle", "Color", "Cuero", "Cantidad"}; // Ajusta los encabezados
+        for (int i = 0; i < columnHeaders.length; i++) {
+            var cell = headerRow.createCell(i);
+            cell.setCellValue(columnHeaders[i]);
+            cell.setCellStyle(headerStyle); // Aplicar el estilo a las celdas de encabezado
+        }
+
+        // Llenar la hoja de trabajo con los datos
+        int rowNum = 1;
+        for (Purchase purchase : data) {
+            var excelRow = sheet.createRow(rowNum++);
+            excelRow.createCell(0).setCellValue(purchase.getName());
+            excelRow.createCell(1).setCellValue(purchase.getShoeType());
+            excelRow.createCell(2).setCellValue(purchase.getGender());
+            excelRow.createCell(3).setCellValue(purchase.getSize());
+            excelRow.createCell(4).setCellValue(purchase.getColor());
+            excelRow.createCell(5).setCellValue(purchase.getLeatherType());
+            excelRow.createCell(6).setCellValue(purchase.getNumberOfElements());
+        }
+
+        // Ajustar el ancho de las columnas automáticamente
+        for (int i = 0; i < columnHeaders.length; i++) {
+            sheet.autoSizeColumn(i); // Ajustar el tamaño de cada columna según el contenido
+        }
+
+        // Escribir el archivo a un flujo de salida
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            workbook.write(outputStream);
+            workbook.close();
+            byte[] bytes = outputStream.toByteArray();
+
+            // Establecer los encabezados de respuesta
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=archivo.xlsx");
+            headers.add(HttpHeaders.CONTENT_TYPE, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+            return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
+        } catch (IOException e) {
+            // Manejo de errores
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    public List<Purchase> getPurchasesBetweenAux(String firstDate, String endDate) throws ParseException {
+
+        // Crear un formateador para la fecha
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        // Parsear las fechas desde las cadenas
+        LocalDate startDate = LocalDate.parse(firstDate, dateFormatter);
+        LocalDate endDateLocal = LocalDate.parse(endDate, dateFormatter);
+
+        // Ajustar la hora a las 00:00:00 para el inicio y 23:59:59 para el final
+        ZonedDateTime start = startDate.atStartOfDay(ZoneId.of("America/Argentina/Buenos_Aires"));
+        ZonedDateTime end = endDateLocal.atTime(23, 59, 59).atZone(ZoneId.of("America/Argentina/Buenos_Aires"));
+
+        // Aquí llamas al repositorio con las fechas ajustadas
+        return repo.getPurchasesBetween(start, end);
+    }
 }

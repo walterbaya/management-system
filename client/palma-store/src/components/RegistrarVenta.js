@@ -414,7 +414,7 @@ class Registrar extends Component {
               </button>
             </form>
           </div>
-          <div className="col-12 my-2">
+          <div className={`col-12 my-2 ${this.state.carrito.products.length > 0 ? 'd-block' : 'd-none'}`}>
             <div className="p-3 bg-white rounded">
               <h1>Carrito</h1>
               <Tableproducts carrito={this.state.carrito} restar={this.restar_articulo.bind(this)}

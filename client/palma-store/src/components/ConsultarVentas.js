@@ -43,6 +43,7 @@ class Consultar extends Component {
     this.cambiar_fecha_desde = this.cambiar_fecha_desde.bind(this);
     this.cambiar_fecha_hasta = this.cambiar_fecha_hasta.bind(this);
     this.enviar_formulario = this.enviar_formulario.bind(this);
+    this.obtener_excel = this.obtener_excel.bind(this);
   }
 
   cambiar_fecha_desde(event) {
@@ -54,22 +55,42 @@ class Consultar extends Component {
   }
 
   obtener_excel() {
-    const consulta = {
+    let consulta = {
       fecha_desde: this.state.fecha_desde,
-      fecha_hasta: this.state.fecha_hasta,
+      fecha_hasta: this.state.fecha_hasta
     };
-
+  
+    // Validación del formulario (opcional)
     const validacion = validarFormulario(consulta);
-
-    if (validacion === "ok") {
-      axios
-        .post("http://localhost:3000/get_excel", consulta)
-        .then((response) => console.log(response.data))
-        .catch((error) => console.log(error));
-    } else {
+    if (validacion !== "ok") {
       this.setState({ error: validacion });
+      return;
     }
+  
+    axios({
+      url: "http://localhost:8080/api/public/purchase/get_excel", // Cambia a la URL correcta de tu backend
+      method: 'GET',
+      responseType: 'blob', // Indica que la respuesta será un blob (binario)
+      params: {
+        fecha_desde: this.state.fecha_desde,
+        fecha_hasta: this.state.fecha_hasta
+      }
+    })
+    .then((response) => {
+      // Crear un enlace de descarga para el archivo Excel
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'archivo.xlsx'); // Nombre del archivo
+      document.body.appendChild(link);
+      link.click();
+      link.remove(); // Remover el enlace después de la descarga
+    })
+    .catch((error) => {
+      console.log("Error al intentar obtener el Excel: " + error);
+    });
   }
+  
 
   enviar_formulario() {
 
@@ -133,7 +154,7 @@ class Consultar extends Component {
             Obtener Excel
           </button>
         </form>
-        <div className="p-4 bg-white"><PurchaseTable listOfPurchases={this.state.purchases}></PurchaseTable></div>
+        <div className={`p-4 bg-white ${this.state.purchases.length > 0 ? 'd-block' : 'd-none'}`}><PurchaseTable listOfPurchases={this.state.purchases}></PurchaseTable></div>
       </div>
     );
   }
