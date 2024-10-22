@@ -1,5 +1,6 @@
 import { Component } from "react";
 import axios from "axios";
+import PurchaseTable from "./Tables/PurchaseTable";
 
 
 function get_date(val) {
@@ -35,7 +36,8 @@ class Consultar extends Component {
     super(props);
     this.state = {
       fecha_hasta: get_date(new Date()),
-      fecha_desde: get_date(new Date()),
+      fecha_desde: get_date(new Date(new Date().setDate(new Date().getDate() - 1))),
+      purchases: []
     };
 
     this.cambiar_fecha_desde = this.cambiar_fecha_desde.bind(this);
@@ -44,6 +46,7 @@ class Consultar extends Component {
   }
 
   cambiar_fecha_desde(event) {
+    console.log(this.state.fecha_desde);
     this.setState({ fecha_desde: get_date(event.target.value) });
   }
   cambiar_fecha_hasta(event) {
@@ -69,7 +72,7 @@ class Consultar extends Component {
   }
 
   enviar_formulario() {
-    
+
     let consulta = {
       fecha_desde: this.state.fecha_desde,
       fecha_hasta: this.state.fecha_hasta
@@ -78,8 +81,13 @@ class Consultar extends Component {
     const validacion = validarFormulario(consulta);
 
     if (validacion === "ok") {
-      axios.get("http://localhost:3000/get_facturas_between/" + this.state.fecha_desde + "/" + this.state.fecha_hasta)
-        .then((response) => console.log(response.data))
+      axios.get("http://localhost:8080/api/public/purchase/get_facturas_between", {
+        params: {
+          fecha_desde: this.state.fecha_desde,
+          fecha_hasta: this.state.fecha_hasta
+        }
+      })
+        .then((response) => this.setState({ purchases: response.data }))
         .catch((error) => console.log("Error al intentar obtener las facturas: " + error));
     } else {
       this.setState({ error: validacion });
@@ -125,6 +133,7 @@ class Consultar extends Component {
             Obtener Excel
           </button>
         </form>
+        <div className="p-4 bg-white"><PurchaseTable listOfPurchases={this.state.purchases}></PurchaseTable></div>
       </div>
     );
   }

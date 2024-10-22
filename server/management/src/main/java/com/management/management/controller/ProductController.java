@@ -95,7 +95,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/delete_product")
-    public void deleteProduct(@Param("id") int id) {
+    public void deleteProduct(@RequestParam("id") int id) {
         repo.deleteById(id);
     }
 

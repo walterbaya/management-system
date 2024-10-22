@@ -1,11 +1,10 @@
 package com.management.management.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 @Entity
@@ -13,6 +12,7 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 @Table(name = "facturas")
 public class Purchase {
     @Id
@@ -36,7 +36,7 @@ public class Purchase {
     @Column(name = "precio")
     private Double price;
     @Column(name = "fecha")
-    private Date emissionDate;
+    private ZonedDateTime emissionDate;
     @Column(name = "nombre_y_apellido")
     private String clientNameAndSurname;
     @Column(name = "dni_cliente")

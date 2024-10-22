@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Repository
@@ -17,6 +17,6 @@ public interface PurchaseRepo extends JpaRepository<Purchase, Long> {
     Purchase getPurchaseById(int id);
 
     @Query("SELECT p FROM Purchase p WHERE p.emissionDate BETWEEN :fechaDesde AND :fechaHasta")
-    List<Purchase> getPurchasesBetween(@Param("fechaDesde") Date firstDate, @Param("fechaHasta") Date secondDate);
+    List<Purchase> getPurchasesBetween(@Param("fechaDesde") ZonedDateTime firstDate, @Param("fechaHasta") ZonedDateTime secondDate);
 
 }

@@ -13,10 +13,10 @@ function TableArticulos(props) {
   let rows = <tr></tr>;
   let res = <div className="fixed_height p-4"></div>;
   if (props.articulos !== undefined && props.articulos.length > 0) {
-    rows = props.articulos.map((articulo) => (
-      <tr key={articulo.id}>
+    rows = props.articulos.map((articulo, index) => (
+      <tr key={articulo.id} style={{ backgroundColor: index % 2 === 0 ? '#f8f9fa' : 'white' }}>
         <td>
-          <QRCodeModule url={articulo.id} data={getArticuloFullDescription(articulo) + ".png"}></QRCodeModule>
+          <QRCodeModule url={articulo.id} data={getArticuloFullDescription(articulo) + ".png"} />
         </td>
         <td>{articulo.name}</td>
         <td>{articulo.size}</td>
@@ -30,6 +30,7 @@ function TableArticulos(props) {
           <button
             className="btn btn-info text-white"
             onClick={(e) => props.restar(articulo.id, props.articulos)}
+            style={{ backgroundColor: '#007bff', borderColor: '#007bff' }} // Azul
           >
             -
           </button>
@@ -38,29 +39,31 @@ function TableArticulos(props) {
           <button
             className="btn btn-danger text-white"
             onClick={(e) => props.eliminar(articulo.id, props.articulos)}
+            style={{ backgroundColor: '#dc3545', borderColor: '#dc3545' }} // Rojo
           >
             X
           </button>
         </td>
       </tr>
     ));
+  
 
     res = (
-      <div className="fixed_height p-4">
-        <Table className="table table-bordered hover" size="sm">
-          <thead className="table-primary text-center">
+      <div className="fixed_height p-4 ">
+        <Table className="table" style={{ border: '2px solid blue' }} size="sm">
+          <thead className="bg-primary text-white">
             <tr>
-              <th scope="col">Identificador de Articulo</th>
-              <th scope="col">Nombre Artículo</th>
-              <th scope="col">Talle</th>
-              <th scope="col">Color</th>
-              <th scope="col">Cuero</th>
-              <th scope="col">Tipo</th>
-              <th scope="col">Genero</th>
-              <th scope="col">Cantidad</th>
-              <th scope="col">Precio</th>
-              <th scope="col"></th>
-              <th scope="col"></th>
+              <th>Identificador de Articulo</th>
+              <th>Nombre Artículo</th>
+              <th>Talle</th>
+              <th>Color</th>
+              <th>Cuero</th>
+              <th>Tipo</th>
+              <th>Genero</th>
+              <th>Cantidad</th>
+              <th>Precio</th>
+              <th></th>
+              <th></th>
             </tr>
           </thead>
           <tbody>{rows}</tbody>
