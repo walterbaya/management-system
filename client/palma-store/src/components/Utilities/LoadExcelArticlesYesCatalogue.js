@@ -14,14 +14,12 @@ function get_list_articulos(sheet) {
       precio: "",
     };
 
-    obj.nombre_articulo = sheet_obj.ARTICULO;
-    obj.tipo = sheet_obj.TIPO;
-    obj.precio = sheet_obj.PRECIO;
-    console.log(obj);
+    obj.nombre_articulo = sheet_obj.nombre_articulo;
+    obj.tipo = sheet_obj.tipo;
+    obj.precio = sheet_obj.precio;
     res.push(obj);
   });
 
-  console.log(res);
   return res;
 }
 
@@ -42,8 +40,10 @@ function LoadExcelArticlesYesCatalogue() {
       const xlsx_sheet = XLSX.utils.sheet_to_json(sheet);
       const json = get_list_articulos(xlsx_sheet);
 
+
+      console.log(json)
       // Enviar el JSON al servidor para que se guarde en la carpeta específica
-      fetch("http://localhost:3000/guardar_json", {
+      fetch("http://localhost:8080/api/public/product/update_catalogue", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

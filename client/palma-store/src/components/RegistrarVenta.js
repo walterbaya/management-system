@@ -232,7 +232,7 @@ class Registrar extends Component {
 
   bringArticles() {
     axios
-      .get("http://localhost:3000/get_articulos")
+      .get("http://localhost:8080/api/public/product/get_products")
       .then((response) => {
         let res = response.data;
         res.forEach((element) => {
@@ -291,7 +291,7 @@ class Registrar extends Component {
       
       if (validacion === "ok") {
         axios
-          .post("http://localhost:3000/guardar_factura", this.state.carrito)
+          .post("http://localhost:3000/add_purchase", this.state.carrito)
           .then((response) => {
             if (response.data === "success") {
               this.setState({ exito: "Factura Cargada Con Exito" });

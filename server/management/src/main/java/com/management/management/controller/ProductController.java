@@ -1,26 +1,36 @@
 package com.management.management.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.management.management.model.Product;
 import com.management.management.repository.ProductRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("api/public/product")
 @RequiredArgsConstructor
+@Transactional
 public class ProductController {
 
     @Autowired
     ProductRepo repo;
 
     @PostMapping("/add_product")
-    public String addProduct(@RequestBody Product product){
-        if(validate(product).equals("ok")){
+    public String addProduct(@RequestBody Product product) {
+        if (validate(product).equals("ok")) {
             repo.save(product);
         }
         return validate(product);
@@ -28,19 +38,45 @@ public class ProductController {
     // Ruta para obtener todos los artículos (tu código original)
 
     @GetMapping("/get_products")
-    public List<Product> getProducts(){
+    public List<Product> getProducts() {
         return repo.findAll();
     }
     // Ruta para obtener artículo por ID (tu código original)
 
     @GetMapping("/get_articulo/:id")
-    public void getProduct(@Param("id") int id){
+    public void getProduct(@Param("id") int id) {
 
+    }
+
+    @PostMapping("/update_catalogue")
+    public ResponseEntity<String> guardarJson(@RequestBody List<Map<String, Object>> jsonData) {
+        try {
+            // Verifica si la carpeta 'uploads' existe, si no, la crea
+            Path uploadPath = Paths.get("uploads");
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            // Ruta donde se guardará el archivo JSON
+            Path filePath = uploadPath.resolve("articulos.json");
+
+            // Guardar el archivo JSON
+            String jsonContent = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(jsonData);
+            Files.write(filePath, jsonContent.getBytes());
+
+            // Respuesta de éxito
+            return ResponseEntity.ok("Archivo JSON guardado exitosamente en el servidor");
+
+        } catch (IOException e) {
+            // Manejo de errores al guardar el archivo
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al guardar el archivo");
+        }
     }
 
     // Ruta para registrar varios artículos (tu código original)
     @PostMapping("/add_products")
-    public String addProducts(@RequestBody List<Product> products){
+    public String addProducts(@RequestBody List<Product> products) {
 
         String res = "ok";
 
@@ -50,21 +86,17 @@ public class ProductController {
             }
         }
 
-        if(res.equals("ok")){
+        if (res.equals("ok")) {
             products.forEach(product -> {
-              repo.save(product);
+                repo.save(product);
             });
         }
-
-
         return res;
-
-
     }
 
-    @DeleteMapping("/delete_articulo/:id")
-    public void deleteProduct(@Param("id") int id){
-
+    @DeleteMapping("/delete_product")
+    public void deleteProduct(@Param("id") int id) {
+        repo.deleteById(id);
     }
 
     private String validate(Product product) {

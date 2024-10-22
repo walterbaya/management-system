@@ -5,8 +5,8 @@ import axios from "axios";
 import QRCodeModule from "./Utilities/QRCodeModule";
 
 
-function getArticuloFullDescription(articulo){
-  return (articulo.id + "-" + articulo.nombre_articulo + "-" + articulo.cuero + "-" + articulo.color + "-" + (articulo.genero ? "Hombre": "Mujer") + "-" + articulo.tipo + "-" + articulo.talle).toLowerCase();
+function getArticuloFullDescription(articulo) {
+  return (articulo.id + "-" + articulo.name + "-" + articulo.leatherType + "-" + articulo.color + "-" + (articulo.gender ? "Hombre" : "Mujer") + "-" + articulo.shoeType + "-" + articulo.size).toLowerCase();
 }
 
 function TableArticulos(props) {
@@ -18,14 +18,14 @@ function TableArticulos(props) {
         <td>
           <QRCodeModule url={articulo.id} data={getArticuloFullDescription(articulo) + ".png"}></QRCodeModule>
         </td>
-        <td>{articulo.nombre_articulo}</td>
-        <td>{articulo.talle}</td>
+        <td>{articulo.name}</td>
+        <td>{articulo.size}</td>
         <td>{articulo.color}</td>
-        <td>{articulo.cuero}</td>
-        <td>{articulo.tipo}</td>
-        <td>{articulo.genero ? "Hombre" : "Mujer"}</td>
-        <td>{articulo.cantidad}</td>
-        <td>{articulo.precio}</td>
+        <td>{articulo.leatherType}</td>
+        <td>{articulo.shoeType}</td>
+        <td>{articulo.gender ? "Hombre" : "Mujer"}</td>
+        <td>{articulo.numberOfElements}</td>
+        <td>{articulo.price}</td>
         <td>
           <button
             className="btn btn-info text-white"
@@ -76,22 +76,22 @@ class Disponibilidad extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      nombre_articulo: [],
+      name: [],
       articulos: [],
       articulos_typehead: [],
     };
-    this.cambiar_nombre_articulo = this.cambiar_nombre_articulo.bind(this);
+    this.cambiar_name = this.cambiar_name.bind(this);
     this.mostrar_articulo = this.mostrar_articulo.bind(this);
     this.show_complete_stock = this.show_complete_stock.bind(this);
   }
 
-  cambiar_nombre_articulo(event) {
-    this.setState({ nombre_articulo: event.target.value });
+  cambiar_name(event) {
+    this.setState({ name: event.target.value });
   }
 
   componentDidMount() {
     axios
-      .get("http://localhost:3000/get_articulos")
+      .get("http://localhost:8080/api/public/product/get_products")
       .then((response) => {
         this.setState({ articulos_typehead: response.data });
       })
@@ -107,12 +107,14 @@ class Disponibilidad extends Component {
       articulos: carrito.filter((elem) => elem.id !== id),
     });
     axios
-      .delete("http://localhost:3000/delete_articulo/" + id)
+      .delete("http://localhost:8080/api/public/product/delete_product", {
+        params: { id: id }
+      })
       .then((response) => console.log(response.data))
       .catch((error) => console.log(error));
 
     axios
-      .get("http://localhost:3000/get_articulos")
+      .get("http://localhost:8080/api/public/product/get_products")
       .then((response) => {
         this.setState({ articulos_typehead: response.data });
       })
@@ -125,19 +127,19 @@ class Disponibilidad extends Component {
 
     if (articulos_encontrados.length !== 0) {
       articulos = carrito.filter((elem) => elem.id !== id);
-      articulos_encontrados[0].cantidad =
-        parseInt(articulos_encontrados[0].cantidad) - 1;
+      articulos_encontrados[0].numberOfElements =
+        parseInt(articulos_encontrados[0].numberOfElements) - 1;
 
-      if (articulos_encontrados[0].cantidad !== 0) {
+      if (articulos_encontrados[0].numberOfElements !== 0) {
         articulos.push(articulos_encontrados[0]);
       }
     }
 
     axios
-      .post("http://localhost:3000/agregar_articulo", articulos_encontrados[0])
+      .post("http://localhost:8080/api/public/product/add_product", articulos_encontrados[0])
       .then((response) => {
         axios
-          .get("http://localhost:3000/get_articulos")
+          .get("http://localhost:8080/api/public/product/get_products")
           .then((response) => {
             this.setState({ articulos_typehead: response.data });
             let articulos_temp = this.state.articulos;
@@ -159,7 +161,7 @@ class Disponibilidad extends Component {
 
   show_complete_stock() {
     axios
-      .get("http://localhost:3000/get_articulos")
+      .get("http://localhost:8080/api/public/product/get_products")
       .then((response) => {
         this.setState({ articulos: response.data });
       })
@@ -178,7 +180,7 @@ class Disponibilidad extends Component {
               options={this.state.articulos_typehead}
               filterBy={() => true}
               labelKey={(option) =>
-                `${option.nombre_articulo} ${option.tipo} ${option.cuero} ${option.color} ${option.talle}`
+                `${option.name} ${option.shoeType} ${option.leatherType} ${option.color} ${option.size}`
               }
             />
           </div>

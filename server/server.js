@@ -15,7 +15,7 @@ app.use(express.json());
 var PORT = 3000;
 
 // Nueva ruta para guardar JSON en una carpeta específica
-app.post("/guardar_json", function (req, res) {
+app.post("http://localhost:8080/api/public/product/update_catalogue", function (req, res) {
   const jsonData = req.body;
 
   //Verificamos si la carpeta 'uploads' existe, si no, la creamos
