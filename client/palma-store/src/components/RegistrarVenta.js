@@ -6,49 +6,49 @@ import axios from "axios";
 function validarFormulario(articulo, es_articulo) {
   if (
     es_articulo &&
-    parseInt(articulo.articulo_cantidad) - parseInt(articulo.cantidad) < 0
+    parseInt(articulo.numberOfElements) - parseInt(articulo.numberOfElements) < 0
   ) {
-    return "No hay suficientes: " + articulo.nombre_articulo + " en el stock!";
+    return "No hay suficientes: " + articulo.name + " en el stock!";
   }
 
-  if (!articulo.nombre_articulo) {
+  if (!articulo.name) {
     return "Error, se debe ingresar el nombre del articulo";
   }
-  if (!articulo.precio || articulo.precio <= 0) {
-    return "Error, se debe ingresar el precio de venta y debe ser mayor o igual a 0";
+  if (!articulo.price || articulo.price <= 0) {
+    return "Error, se debe ingresar el precio de venta y debe ser mayor a 0";
   }
-  if (!articulo.cantidad) {
-    return "Error, se debe ingresar una cantidad";
+  if (!articulo.numberOfElements) {
+    return "Error, se debe ingresar una cantidad de elementos mayor a 0";
   }
 
   return "ok";
 }
 
-function TableArticulos(props) {
+function Tableproducts(props) {
 
   let rows = <tr></tr>;
   let res = <div className="fixed_height p-4"></div>;
 
   const carrito = props.carrito;
 
-  if (carrito.articulos !== undefined && carrito.articulos.length > 0) {
-    rows = carrito.articulos.map((articulo) => (
-      <tr key={articulo.id_articulo}>
-        <td>{articulo.nombre_articulo}</td>
-        <td>{articulo.talle}</td>
+  if (carrito.products !== undefined && carrito.products.length > 0) {
+    rows = carrito.products.map((articulo) => (
+      <tr key={articulo.idProduct}>
+        <td>{articulo.name}</td>
+        <td>{articulo.size}</td>
         <td>{articulo.color}</td>
-        <td>{articulo.cuero}</td>
-        <td>{articulo.tipo}</td>
-        <td>{articulo.genero ? "Mujer" : "Hombre"}</td>
-        <td>{articulo.cantidad}</td>
-        <td>{carrito.datos_cliente.nombre_apellido}</td>
-        <td>{carrito.datos_cliente.dni_cliente}</td>
-        <td>{articulo.precio * articulo.cantidad}</td>
+        <td>{articulo.leatherType}</td>
+        <td>{articulo.shoeType}</td>
+        <td>{articulo.gender ? "Mujer" : "Hombre"}</td>
+        <td>{articulo.numberOfElements}</td>
+        <td>{carrito.clientInfo.clientNameAndSurname}</td>
+        <td>{carrito.clientInfo.clientDni}</td>
+        <td>{articulo.price * articulo.numberOfElements}</td>
         <td>
-          <button className="btn btn-info text-white" onClick={e => props.restar(articulo.id_articulo, props.carrito.articulos)}>-</button>
+          <button className="btn btn-info text-white" onClick={e => props.restar(articulo.idProduct, props.carrito.products)}>-</button>
         </td>
         <td>
-          <button className="btn btn-danger text-white" onClick={e => props.eliminar(articulo.id_articulo, props.carrito.articulos)}>X</button>
+          <button className="btn btn-danger text-white" onClick={e => props.eliminar(articulo.idProduct, props.carrito.products)}>X</button>
         </td>
       </tr>
     ));
@@ -59,15 +59,15 @@ function TableArticulos(props) {
           <thead className="table-primary text-center">
             <tr>
               <th scope="col">Nombre Artículo</th>
-              <th scope="col">Talle</th>
+              <th scope="col">size</th>
               <th scope="col">Color</th>
-              <th scope="col">Cuero</th>
-              <th scope="col">Tipo</th>
-              <th scope="col">Genero</th>
-              <th scope="col">Cantidad</th>
+              <th scope="col">leatherType</th>
+              <th scope="col">shoeType</th>
+              <th scope="col">gender</th>
+              <th scope="col">numberOfElements</th>
               <th scope="col">Nombre y Apellido</th>
               <th scope="col">Dni Cliente</th>
-              <th scope="col">Precio</th>
+              <th scope="col">price</th>
               <th scope="col"></th>
               <th scope="col"></th>
             </tr>
@@ -89,26 +89,26 @@ class Registrar extends Component {
       exito: "",
 
       //Articulo
-      id_articulo: "",
-      precio: 0,
-      cantidad: 1,
+      idProduct: "",
+      price: 0,
+      numberOfElements: 1,
       articulo: "",
-      articulo_cantidad: "",
-      nombre_articulo: "",
-      talle: "",
+      numberOfElements: "",
+      name: "",
+      size: "",
       color: "",
-      cuero: "",
-      tipo: "",      
-      carrito: {articulos: [], datos_cliente: {nombre_apellido: "", dni_cliente: ""}},
-      articulos_typehead: [],
+      leatherType: "",
+      shoeType: "",
+      carrito: { products: [], clientInfo: { clientNameAndSurname: "", clientDni: "" } },
+      products_typehead: [],
     };
 
     this.cargar_factura = this.cargar_factura.bind(this);
-    this.cambiar_id_articulo = this.cambiar_id_articulo.bind(this);
-    this.cambiar_precio = this.cambiar_precio.bind(this);
-    this.cambiar_dni_cliente = this.cambiar_dni_cliente.bind(this);
-    this.cambiar_nombre_apellido = this.cambiar_nombre_apellido.bind(this);
-    this.cambiar_cantidad = this.cambiar_cantidad.bind(this);
+    this.cambiar_id = this.cambiar_id.bind(this);
+    this.cambiar_price = this.cambiar_price.bind(this);
+    this.cambiar_clientDni = this.cambiar_clientDni.bind(this);
+    this.cambiar_clientNameAndSurname = this.cambiar_clientNameAndSurname.bind(this);
+    this.cambiar_numberOfElements = this.cambiar_numberOfElements.bind(this);
     this.traer_articulo = this.traer_articulo.bind(this);
     this.agregar_al_carrito = this.agregar_al_carrito.bind(this);
     //this.seleccionar_forma_pago = this.seleccionar_forma_pago.bind(this);
@@ -116,16 +116,15 @@ class Registrar extends Component {
 
   agregar_al_carrito() {
     const articulo = {
-      id_articulo: this.state.id_articulo,
-      nombre_articulo: this.state.nombre_articulo,
-      talle: this.state.talle,
+      idProduct: this.state.idProduct,
+      name: this.state.name,
+      size: this.state.size,
       color: this.state.color,
-      cuero: this.state.cuero,
-      tipo: this.state.tipo,      
-      genero: this.state.genero === "hombre",
-      articulo_cantidad: this.state.articulo_cantidad,
-      cantidad: this.state.cantidad,
-      precio: this.state.precio,  
+      leatherType: this.state.leatherType,
+      shoeType: this.state.shoeType,
+      gender: this.state.gender === "hombre",
+      numberOfElements: this.state.numberOfElements,
+      price: this.state.price,
     };
 
     const validacion = validarFormulario(articulo, false);
@@ -133,24 +132,24 @@ class Registrar extends Component {
     if (validacion === "ok") {
       this.setState({ error: "" });
       let carrito = this.state.carrito;
-      let articulos_encontrados = carrito.articulos.filter(
-        (elem) => elem.id_articulo === this.state.id_articulo
+      let products_encontrados = carrito.products.filter(
+        (elem) => elem.idProduct === this.state.idProduct
       );
 
-      articulos_encontrados.forEach(articulo => {
-        articulo.precio = this.state.precio;
+      products_encontrados.forEach(articulo => {
+        articulo.price = this.state.price;
       });
 
-      if (articulos_encontrados.length !== 0) {
-        carrito.articulos = carrito.articulos.filter(
-          (elem) => elem.id_articulo !== this.state.id_articulo
+      if (products_encontrados.length !== 0) {
+        carrito.products = carrito.products.filter(
+          (elem) => elem.idProduct !== this.state.idProduct
         );
-        articulos_encontrados[0].cantidad =
-          parseInt(articulos_encontrados[0].cantidad) +
-          parseInt(this.state.cantidad);
-        carrito.articulos.push(articulos_encontrados[0]);
+        products_encontrados[0].numberOfElements =
+          parseInt(products_encontrados[0].numberOfElements) +
+          parseInt(this.state.numberOfElements);
+        carrito.products.push(products_encontrados[0]);
       } else {
-        carrito.articulos.push(articulo);
+        carrito.products.push(articulo);
 
         this.setState({ carrito: carrito });
       }
@@ -159,71 +158,71 @@ class Registrar extends Component {
     }
   }
 
-  eliminar(id){
+  eliminar(idProduct) {
     const carrito = this.state.carrito;
-    let articulos_encontrados = carrito.articulos.filter(
-      (elem) => elem.id_articulo !== id
+    let products_encontrados = carrito.products.filter(
+      (elem) => elem.idProduct !== idProduct
     );
 
     this.setState(prevState => ({
       carrito: {
         ...prevState.carrito,
-        articulos: articulos_encontrados
+        products: products_encontrados
       }
     }));
   }
 
-  restar_articulo(id) {
+  restar_articulo(idProduct) {
     let carrito = this.state.carrito;
-    
+
     //Obtengo el articulo, pero esto trae una lista 
-    const articulo = carrito.articulos.filter(
-      (elem) => elem.id_articulo === id
+    const articulo = carrito.products.filter(
+      (elem) => elem.idProduct === idProduct
     );
 
-    //Si habia articulo tengo que restarle la cantidad
+    //Si habia articulo tengo que restarle la numberOfElements
     if (articulo.length !== 0) {
       //Lo que tendria que hacer es cambiar
-      const index = carrito.articulos.findIndex(articulo => articulo.id_articulo === id);
-      
-      articulo[0].cantidad = parseInt(articulo[0].cantidad) - 1;
-      
-      if(articulo[0].cantidad === 0){
-        carrito.articulos.splice(index, 1);
+      const index = carrito.products.findIndex(articulo => articulo.idProduct === idProduct);
+
+      articulo[0].numberOfElements = parseInt(articulo[0].numberOfElements) - 1;
+
+      if (articulo[0].numberOfElements === 0) {
+        carrito.products.splice(index, 1);
       }
-      else{
-        carrito.articulos[index] =  articulo[0];
+      else {
+        carrito.products[index] = articulo[0];
       }
-      
+
     }
 
-    this.setState({carrito: carrito});
+    this.setState({ carrito: carrito });
   }
 
   traer_articulo(selected) {
     if (selected[0] !== undefined) {
       const articulo = selected[0];
-      this.setState({ id_articulo: articulo.id });
-      this.setState({ nombre_articulo: articulo.nombre_articulo });
+      this.setState({ idProduct: articulo.id });
+      this.setState({ name: articulo.name });
       this.setState({ color: articulo.color });
-      this.setState({ talle: articulo.talle });
-      this.setState({ cuero: articulo.cuero });
-      this.setState({ genero: articulo.genero });
-      this.setState({ tipo: articulo.tipo });
-      this.setState({ precio: articulo.precio });
-      this.setState({ articulo_cantidad: articulo.cantidad });
+      this.setState({ size: articulo.size });
+      this.setState({ leatherType: articulo.leatherType });
+      this.setState({ gender: articulo.gender });
+      this.setState({ shoeType: articulo.shoeType });
+      this.setState({ price: articulo.price });
+      this.setState({ numberOfElements: articulo.numberOfElements });
     }
   }
 
   resetState() {
-    this.setState({ id_articulo: "" });
-    this.setState({ precio: 0 });
-    this.setState({ dni_cliente: "" });
-    this.setState({ nombre_apellido: "" });
-    this.setState({ cantidad: 1 });
+    this.setState({ idProduct: "" });
+    this.setState({ price: 0 });
+    this.setState({ clientDni: "" });
+    this.setState({ clientNameAndSurname: "" });
+    this.setState({ numberOfElements: 1 });
     this.setState({ articulo: "" });
-    this.setState({nombre_articulo: ""})
-    this.setState({ carrito: {articulos: [], datos_cliente: {nombre_apellido: "", dni_cliente: ""}}});
+    this.setState({ name: "" })
+    this.setState({ carrito: { products: [], clientInfo: { clientNameAndSurname: "", clientDni: "" } } });
   }
 
   componentDidMount() {
@@ -236,75 +235,85 @@ class Registrar extends Component {
       .then((response) => {
         let res = response.data;
         res.forEach((element) => {
-          element.genero = element.genero ? "Mujer" : "Hombre";
+          element.gender = element.gender ? "Mujer" : "Hombre";
         });
 
-        this.setState({ articulos_typehead: res });
+        this.setState({ products_typehead: res });
       })
       .catch((error) => console.log(error));
   }
 
-  cambiar_id_articulo(event) {
-    this.setState({ id_articulo: event.target.value });
+  cambiar_id(event) {
+    this.setState({ idProduct: event.target.value });
   }
 
-  cambiar_precio(event) {
-    this.setState({ precio: event.target.value });
+  cambiar_price(event) {
+    this.setState({ price: event.target.value });
   }
-  cambiar_cantidad(event) {
-    this.setState({ cantidad: event.target.value });
+  cambiar_numberOfElements(event) {
+    this.setState({ numberOfElements: event.target.value });
   }
 
-  cambiar_dni_cliente = (event) => {
+  cambiar_clientDni = (event) => {
     this.setState(prevState => ({
       carrito: {
         ...prevState.carrito,
-        datos_cliente: {
-          ...prevState.carrito.datos_cliente,
-          dni_cliente: event.target.value
+        clientInfo: {
+          ...prevState.carrito.clientInfo,
+          clientDni: event.target.value
         }
       }
     }));
   };
 
-  cambiar_nombre_apellido(event) {
+  cambiar_clientNameAndSurname(event) {
     this.setState(prevState => ({
       carrito: {
         ...prevState.carrito,
-        datos_cliente: {
-          ...prevState.carrito.datos_cliente,
-          nombre_apellido: event.target.value
+        clientInfo: {
+          ...prevState.carrito.clientInfo,
+          clientNameAndSurname: event.target.value
         }
       }
     }));
   }
 
   cargar_factura() {
-    //Se validan los articulos
+    //Se validan los products
     let validacion = "ok";
-    this.state.carrito.articulos.forEach(articulo => {
-        if (validarFormulario(articulo, true) !== "ok"){
-          validacion = validarFormulario(articulo, true);
-        }
+
+    this.state.carrito.products.forEach(product => {
+      if (validarFormulario(product, true) !== "ok") {
+        validacion = validarFormulario(product, true);
+      }
+    })
+
+
+    console.log(this.state.carrito.products);
+
+    if (validacion === "ok") {
+
+      this.state.carrito.products.forEach(product => {
+        product.clientNameAndSurname = this.state.carrito.clientInfo.clientNameAndSurname;
+        product.clientDni = this.state.carrito.clientInfo.clientDni;
+        product.emissionDate = new Date();
       })
 
-      
-      if (validacion === "ok") {
-        axios
-          .post("http://localhost:3000/add_purchase", this.state.carrito)
-          .then((response) => {
-            if (response.data === "success") {
-              this.setState({ exito: "Factura Cargada Con Exito" });
-              this.setState({ error: "" });
-              this.resetState();
-              this.bringArticles();
-            }
-          })
-          .catch((error) => console.log(error));
-      } else {
-        this.setState({ error: validacion });
-        this.setState({ exito: "" });
-      }
+      axios
+        .post("http://localhost:8080/api/public/purchase/add_purchase", this.state.carrito.products)
+        .then((response) => {
+          if (response.data === "success") {
+            this.setState({ exito: "Factura Cargada Con Exito" });
+            this.setState({ error: "" });
+            this.resetState();
+            this.bringArticles();
+          }
+        })
+        .catch((error) => console.log(error));
+    } else {
+      this.setState({ error: validacion });
+      this.setState({ exito: "" });
+    }
   }
 
   render() {
@@ -338,19 +347,19 @@ class Registrar extends Component {
                 <div className="form-group col-12 mt-2 mt-md-0 col-md-4">
                   <label className="pb-2"> Nombre de Artículo </label>
                   <Typeahead
-                    id="typeahead-articulos"
+                    id="typeahead-products"
                     onChange={this.traer_articulo}
-                    options={this.state.articulos_typehead}
+                    options={this.state.products_typehead}
                     filterBy={[
-                      "nombre_articulo",
-                      "tipo",
-                      "cuero",
+                      "name",
+                      "shoeType",
+                      "leatherType",
                       "color",
-                      "talle",
-                      "genero",
+                      "size",
+                      "gender",
                     ]}
                     labelKey={(option) =>
-                      `${option.nombre_articulo} ${option.tipo} ${option.cuero} ${option.color} ${option.talle} ${option.genero}`
+                      `${option.name} ${option.shoeType} ${option.leatherType} ${option.color} ${option.size} ${option.gender}`
                     }
                   />
                 </div>
@@ -360,8 +369,8 @@ class Registrar extends Component {
                   <input
                     type="text"
                     className="form-control"
-                    value={this.state.carrito.datos_cliente.dni_cliente}
-                    onChange={this.cambiar_dni_cliente}
+                    value={this.state.carrito.clientInfo.clientDni}
+                    onChange={this.cambiar_clientDni}
                   />
                 </div>
                 <div className="form-group col-12 mt-2 mt-md-0 col-md-4">
@@ -371,29 +380,29 @@ class Registrar extends Component {
                   <input
                     type="text"
                     className="form-control"
-                    value={this.state.carrito.datos_cliente.nombre_apellido}
-                    onChange={this.cambiar_nombre_apellido}
+                    value={this.state.carrito.clientInfo.clientNameAndSurname}
+                    onChange={this.cambiar_clientNameAndSurname}
                   />
                 </div>
               </div>
 
               <div className="row mt-3">
                 <div className="form-group col-12 mt-2 mt-md-0 col-md-4">
-                  <label className="pb-2"> Precio Por Unidad</label>
+                  <label className="pb-2"> price Por Unidad</label>
                   <input
                     type="number"
                     className="form-control"
-                    value={this.state.precio}
-                    onChange={this.cambiar_precio}
+                    value={this.state.price}
+                    onChange={this.cambiar_price}
                   />
                 </div>
                 <div className="form-group col-12 mt-2 mt-md-0 col-md-4">
-                  <label className="pb-2"> Cantidad </label>
+                  <label className="pb-2"> numberOfElements </label>
                   <input
                     type="number"
                     className="form-control"
-                    value={this.state.cantidad}
-                    onChange={this.cambiar_cantidad}
+                    value={this.state.numberOfElements}
+                    onChange={this.cambiar_numberOfElements}
                   />
                 </div>
               </div>
@@ -408,8 +417,8 @@ class Registrar extends Component {
           <div className="col-12 my-2">
             <div className="p-3 bg-white rounded">
               <h1>Carrito</h1>
-              <TableArticulos carrito = {this.state.carrito} restar={this.restar_articulo.bind(this)}
-              eliminar={this.eliminar.bind(this)}
+              <Tableproducts carrito={this.state.carrito} restar={this.restar_articulo.bind(this)}
+                eliminar={this.eliminar.bind(this)}
               />
 
               <button

@@ -19,6 +19,8 @@ public class Purchase {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
+    @Column(name = "id_articulo")
+    private int idProduct;
     @Column(name = "nombre_articulo")
     private String name;
     @Column(name = "talle")
@@ -37,6 +39,8 @@ public class Purchase {
     private Date emissionDate;
     @Column(name = "nombre_y_apellido")
     private String clientNameAndSurname;
+    @Column(name = "dni_cliente")
+    private String clientDni;
     @Column(name = "cantidad")
     private Double numberOfElements;
 

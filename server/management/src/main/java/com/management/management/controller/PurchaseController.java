@@ -1,14 +1,16 @@
 package com.management.management.controller;
 
+import com.management.management.model.Product;
 import com.management.management.model.Purchase;
+import com.management.management.repository.ProductRepo;
 import com.management.management.repository.PurchaseRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/public/purchase")
@@ -17,6 +19,9 @@ public class PurchaseController {
 
     @Autowired
     PurchaseRepo repo;
+
+    @Autowired
+    ProductRepo productRepo;
 
     @GetMapping("/get_facturas")
     public List<Purchase> getAllFacturas(){
@@ -29,10 +34,21 @@ public class PurchaseController {
         return repo.getPurchasesBetween(firstDate, endDate);
     }
 
-    @PostMapping("/guardar_factura")
-    public void savePurchase(Purchase purchase){
-        repo.save(purchase);
-    }
+    @PostMapping("/add_purchase")
+    public void savePurchase(@RequestBody List<Purchase> purchaseList){
+        repo.saveAll(purchaseList);
 
+        List<Product> products = new ArrayList<>();
+
+        Map<Integer, Product> productMap = productRepo.findAll().stream().collect(Collectors.toMap(Product::getId, product -> product));
+
+        for (Purchase purchase : purchaseList) {
+            Product product = productMap.get(purchase.getIdProduct());
+            product.setNumberOfElements(product.getNumberOfElements() - purchase.getNumberOfElements());
+            products.add(product);
+        }
+
+        productRepo.saveAll(products);
+    }
 
 }
