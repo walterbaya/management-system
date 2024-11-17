@@ -15,6 +15,8 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import com.management.management.model.Product;
+
 import javax.sql.DataSource;
 
 @Configuration

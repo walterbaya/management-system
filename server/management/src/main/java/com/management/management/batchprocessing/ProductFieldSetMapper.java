@@ -2,8 +2,8 @@ package com.management.management.batchprocessing;
 
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.FieldSet;
+import com.management.management.model.Product;
 
-import java.net.BindException;
 
 public class ProductFieldSetMapper implements FieldSetMapper<Product> {
 
