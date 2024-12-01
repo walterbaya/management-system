@@ -1,0 +1,12 @@
+La idea es tener el servicio de management que se encarga exclusivamente de manejar el stock.
+El otro servicio es el de batch, que genera modificaciones en el stock pero desde la operacion
+de actualizacion o carga que se realiza por fuera del sistema en si, se realiza desde el cambio
+de stock de la fabrica o mismo desde las modificaciones que se hacen en el excel actual.
+
+Es decir management se encarga de manejar el control de stock desde el manejo directo de la aplicacion.
+
+Batch lo que hace en cambio es manejar el stock pero en base a lo que pasa fuera de la aplicacion, por ejemplo
+que se hayan modificado valores en la fabrica o que florencia haya vendido en algun otro lado y entonces se realicen
+esos cambios en la aplicacion.
+
+Hay que plantear como puede resolverse este problema y tomar una decision.

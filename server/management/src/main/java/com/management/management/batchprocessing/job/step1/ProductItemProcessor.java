@@ -1,4 +1,4 @@
-package com.management.management.batchprocessing;
+package com.management.management.batchprocessing.job.step1;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

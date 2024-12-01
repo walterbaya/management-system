@@ -1,4 +1,4 @@
-package com.management.management.batchprocessing;
+package com.management.management.batchprocessing.job.step1;
 
 import com.management.management.model.Product;
 import org.apache.poi.ss.usermodel.*;
@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExcelProductReader implements ItemReader<Product> {
+public class ExcelProductReader implements ItemReader<Product>{
 
     private List<Product> productList;
     private int nextProductIndex;
