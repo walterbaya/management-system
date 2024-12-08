@@ -42,6 +42,6 @@ public class Purchase {
     @Column(name = "dni_cliente")
     private String clientDni;
     @Column(name = "cantidad")
-    private Double numberOfElements;
+    private Integer numberOfElements;
 
 }

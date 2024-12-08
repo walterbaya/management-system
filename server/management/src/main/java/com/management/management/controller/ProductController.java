@@ -101,14 +101,14 @@ public class ProductController {
 
     private String validate(Product product) {
         System.out.println(product);
-        if (product.getName() == null || product.getName().isEmpty()) {
+        if (product.getName() == null) {
             return "Error, se debe ingresar el nombre del articulo";
         }
 
-        if (product.getNumberOfElements().isNaN() || product.getNumberOfElements() <= 0) {
+        if (product.getNumberOfElements() == null || product.getNumberOfElements() <= 0) {
             return "Error, se debe ingresar la cantidad y debe ser mayor a 0";
         }
-        if (product.getSize().isNaN() || product.getSize() <= 0) {
+        if (product.getSize() == null || product.getSize() <= 0) {
             return "Error, se debe ingresar el talle y debe ser mayor a 0";
         }
         if (product.getColor().isEmpty()) {

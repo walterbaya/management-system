@@ -19,10 +19,10 @@ public class Product {
     private int id;
 
     @Column(name = "nombre_articulo")
-    private String name;
+    private Integer name;
 
     @Column(name = "talle")
-    private Double size;
+    private Integer size;
 
     @Column(name = "color")
     private String color;
@@ -40,6 +40,27 @@ public class Product {
     private Double price;
 
     @Column(name = "cantidad")
-    private Double numberOfElements;
+    private Integer numberOfElements;
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true; // Son el mismo objeto
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false; // No es del mismo tipo
+        }
+        Product product = (Product) obj; // Hacer el cast
+
+        // Comparar los campos
+        return (this.color != null && this.color.equals(product.color)) &&
+               (this.gender != null && this.gender.equals(product.gender)) &&
+               (this.leatherType != null && this.leatherType.equals(product.leatherType)) &&
+               (this.name != null && this.name.equals(product.name)) &&
+               (this.shoeType != null && this.shoeType.equals(product.shoeType)) &&
+               (this.size != null && this.size.equals(product.size)) &&
+                (this.numberOfElements != null && this.numberOfElements.equals(product.numberOfElements));
+    }
+
 
 }

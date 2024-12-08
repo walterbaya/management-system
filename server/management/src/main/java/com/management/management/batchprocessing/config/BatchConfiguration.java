@@ -1,12 +1,15 @@
 package com.management.management.batchprocessing.config;
 
 import com.management.management.batchprocessing.JobCompletionNotificationListener;
+import com.management.management.batchprocessing.ReaderResetListener;
+import com.management.management.batchprocessing.job.step1.ExcelProductReader;
 import com.management.management.batchprocessing.job.step1.ProductItemProcessor;
 import com.management.management.batchprocessing.job.step1.ProductItemWriter;
-import com.management.management.stepProcesses.ExcelProductReader;
+
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.TaskExecutorJobLauncher;
@@ -15,6 +18,7 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -26,22 +30,31 @@ import com.management.management.model.Product;
 public class BatchConfiguration {
 
     @Bean
-    public ItemReader<Product> reader() {
-        return new ExcelProductReader("D:\\Documentos\\GitHub\\palma-store\\server\\stock-control\\src\\main\\resources\\stock ejemplo.xlsx");
+    @StepScope
+    public ItemReader<Product> reader(@Qualifier("excelProductReader") ExcelProductReader excelProductReader) {
+        return excelProductReader;
     }
 
     @Bean
+    public ExcelProductReader excelProductReader(){
+        return new ExcelProductReader();
+    }
+
+
+    @Bean
+    @StepScope
     public ProductItemProcessor processor() {
         return new ProductItemProcessor();
     }
 
     @Bean
+    @StepScope
     public ItemWriter<Product> writer() {
         return new ProductItemWriter();
     }
 
     @Bean
-    public Job importUserJob(JobRepository jobRepository, Step step1, JobCompletionNotificationListener listener) {
+    public Job importUserJob(JobRepository jobRepository, Step step1, JobCompletionNotificationListener listener, ReaderResetListener readerResetListener) {
         return new JobBuilder("importUserJob", jobRepository)
                 .listener(listener)
                 .start(step1)
@@ -56,9 +69,7 @@ public class BatchConfiguration {
                 .reader(reader)
                 .processor(processor)
                 .writer(writer)
+                .allowStartIfComplete(true)
                 .build();
     }
-
-
-
 }
