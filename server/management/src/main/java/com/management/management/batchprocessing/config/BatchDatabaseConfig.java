@@ -30,6 +30,7 @@ public class BatchDatabaseConfig {
         return dataSource;
     }
 
+    @Primary
     @Bean
     public PlatformTransactionManager transactionManager(@Qualifier("batchDataSource") DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);

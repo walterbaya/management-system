@@ -3,6 +3,7 @@ package com.management.management.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.management.management.model.Product;
 import com.management.management.repository.ProductRepo;
+import com.management.management.service.ExcelUpdateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
@@ -28,11 +29,17 @@ public class ProductController {
     @Autowired
     ProductRepo repo;
 
+    @Autowired
+    ExcelUpdateService excelUpdateService;
+
     @PostMapping("/add_product")
     public String addProduct(@RequestBody Product product) {
         if (validate(product).equals("ok")) {
             repo.save(product);
+            //Actualizamos el Excel
+            excelUpdateService.updateExcel(repo.findAll());
         }
+
         return validate(product);
     }
     // Ruta para obtener todos los artículos (tu código original)
@@ -90,6 +97,9 @@ public class ProductController {
             products.forEach(product -> {
                 repo.save(product);
             });
+
+            //Actualizamos el Excel
+            excelUpdateService.updateExcel(repo.findAll());
         }
         return res;
     }
@@ -97,6 +107,9 @@ public class ProductController {
     @DeleteMapping("/delete_product")
     public void deleteProduct(@RequestParam("id") int id) {
         repo.deleteById(id);
+
+        //Actualizamos el Excel
+        excelUpdateService.updateExcel(repo.findAll());
     }
 
     private String validate(Product product) {

@@ -4,7 +4,9 @@ import com.management.management.model.Product;
 import com.management.management.model.Purchase;
 import com.management.management.repository.ProductRepo;
 import com.management.management.repository.PurchaseRepo;
+import com.management.management.service.ExcelUpdateService;
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -37,6 +40,9 @@ public class PurchaseController {
 
     @Autowired
     ProductRepo productRepo;
+
+    @Autowired
+    ExcelUpdateService excelUpdateService;
 
     @GetMapping("/get_facturas")
     public List<Purchase> getAllPurchases(){
@@ -86,6 +92,8 @@ public class PurchaseController {
         }
 
         productRepo.saveAll(products);
+
+        excelUpdateService.updateExcel(productRepo.findAll());
     }
 
 

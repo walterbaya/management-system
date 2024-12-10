@@ -1,12 +1,15 @@
 package com.management.management.batchprocessing.job.step1;
 
 import com.management.management.model.Product;
+import jakarta.annotation.PostConstruct;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -15,19 +18,19 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class ExcelProductReader implements ItemReader<Product> {
 
     private List<Product> productList;
     private int nextProductIndex;
     private static final Logger log = LoggerFactory.getLogger(ExcelProductReader.class);
 
-    private final Path filePath = Paths.get("C:\\Users\\walte\\Documents\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\stock ejemplo.xlsx");
+    private final Path filePath = Paths.get("D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\stock ejemplo.xlsx");
 
     public void resetReader() {
         this.productList = readExcelFile(filePath);  // Recarga el archivo cada vez
         this.nextProductIndex = 0;  // Reinicia el índice de productos;
     }
-
 
     public ExcelProductReader() {
         this.productList = readExcelFile(filePath);  // Recarga el archivo cuando se crea una nueva instancia
@@ -50,6 +53,7 @@ public class ExcelProductReader implements ItemReader<Product> {
 
     private List<Product> readExcelFile(Path filePath) {
         List<Product> products = new ArrayList<>();
+
         try (FileInputStream fis = new FileInputStream(filePath.toFile());  // Usa filePath como Path
              Workbook workbook = new XSSFWorkbook(fis)) {
 
@@ -57,8 +61,27 @@ public class ExcelProductReader implements ItemReader<Product> {
             for (Row row : sheet) {
                 if (row.getRowNum() == 0) continue; // Saltar la cabecera
 
+                // Verificar si la fila está vacía (sin celdas con datos)
+                boolean isEmpty = true;
+                for (Cell cell : row) {
+                    if (cell != null && !getCellValueAsString(cell).isEmpty()) {
+                        isEmpty = false;
+                        break;  // Si encontramos una celda con valor, la fila no está vacía
+                    }
+                }
+
+                if (isEmpty) {
+                    break;  // Detener la lectura si la fila está vacía
+                }
+
                 String articuloString = getCellValueAsString(row.getCell(0)).replace(".0", "");
                 Integer articulo = articuloString.isEmpty() ? 0 : Integer.parseInt(articuloString);
+
+                // Si el número de artículo es 0, no se hace nada y se salta a la siguiente fila
+                if (articulo == 0) {
+                    continue;
+                }
+
                 String cuero = getCellValueAsString(row.getCell(1));
                 String color = getCellValueAsString(row.getCell(2));
                 String precioString = getCellValueAsString(row.getCell(15));
@@ -89,8 +112,11 @@ public class ExcelProductReader implements ItemReader<Product> {
         } catch (IOException e) {
             throw new IllegalStateException("Error reading Excel file: " + filePath.toString(), e);
         }
+
         return products;
     }
+
+
 
     private String getCellValueAsString(Cell cell) {
         if (cell == null) {
