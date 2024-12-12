@@ -28,7 +28,8 @@ public class ExcelUpdateService {
     @Autowired
     ExcelUpdateWatcherManager excelUpdateWatcherManager;
 
-    private String filePath = "D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\stock ejemplo.xlsx";
+    //private String filePath = "D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\stock ejemplo.xlsx";
+    private String filePath = "C:\\Users\\walte\\Documents\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\stock ejemplo.xlsx";
 
     public synchronized void updateExcel(List<Product> products) {
         // Solo puede actualizar de a una vez

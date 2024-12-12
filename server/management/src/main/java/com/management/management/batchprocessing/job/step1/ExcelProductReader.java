@@ -25,7 +25,8 @@ public class ExcelProductReader implements ItemReader<Product> {
     private int nextProductIndex;
     private static final Logger log = LoggerFactory.getLogger(ExcelProductReader.class);
 
-    private final Path filePath = Paths.get("D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\stock ejemplo.xlsx");
+    //private final Path filePath = Paths.get("D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\stock ejemplo.xlsx");
+    private final Path filePath = Paths.get("C:\\Users\\walte\\Documents\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\stock ejemplo.xlsx");
 
     public void resetReader() {
         this.productList = readExcelFile(filePath);  // Recarga el archivo cada vez
@@ -84,16 +85,16 @@ public class ExcelProductReader implements ItemReader<Product> {
 
                 String cuero = getCellValueAsString(row.getCell(1));
                 String color = getCellValueAsString(row.getCell(2));
-                String precioString = getCellValueAsString(row.getCell(15));
+                String precioString = getCellValueAsString(row.getCell(14));
                 double precio = precioString.isEmpty() ? 0.0 : Double.parseDouble(precioString);
-                String genero = getCellValueAsString(row.getCell(16));
-                String tipo = getCellValueAsString(row.getCell(17));
+                String genero = getCellValueAsString(row.getCell(15));
+                String tipo = getCellValueAsString(row.getCell(16));
 
-                for (int i = 3; i <= 14; i++) {
+                for (int i = 3; i <= 13; i++) {
                     Cell talleCell = row.getCell(i);
                     if (talleCell != null && talleCell.getCellType() == CellType.NUMERIC) {
                         String stockString = getCellValueAsString(talleCell).replace(".0", "");
-                        Integer stock = stockString.isEmpty() ? 0 : Integer.parseInt(stockString);
+                        int stock = stockString.isEmpty() ? 0 : Integer.parseInt(stockString);
                         if (stock > 0) {
                             Product product = new Product();
                             product.setName(articulo);
