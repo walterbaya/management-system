@@ -41,8 +41,7 @@ public class JobRunner implements CommandLineRunner {
     private ExcelUpdateWatcherManager excelUpdateWatcherManager;
 
     private WatchService watchService;
-    private Path filePath = Paths.get("C:\\Users\\walte\\Documents\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\stock ejemplo.xlsx");
-    //private Path filePath = Paths.get("D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\stock ejemplo.xlsx");
+    private Path filePath = Paths.get("D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\stock ejemplo.xlsx");
 
     public JobRunner(JobLauncher jobLauncher, Job importUserJob) {
         try {

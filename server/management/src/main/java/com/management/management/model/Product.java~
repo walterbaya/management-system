@@ -12,7 +12,6 @@ import java.util.Date;
 @NoArgsConstructor
 @ToString
 @DiscriminatorColumn(name = "en_fabrica")
-@DiscriminatorValue(value = "false")
 @Table(name = "articulos")
 public class Product {
     @Id
