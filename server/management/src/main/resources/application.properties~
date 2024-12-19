@@ -1,0 +1,31 @@
+spring.application.name=management
+spring.jpa.hibernate.ddl-auto=update
+spring.batch.jdbc.initialize-schema=always
+#spring.profiles.active=dev
+
+#Standard Database
+standard.datasource.url=jdbc:mysql://localhost:3306/palma_store
+standard.datasource.username=root
+standard.datasource.password=1234
+standard.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+#xlsxFile=D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\stock ejemplo.xlsx
+
+#logging.level.org.springframework.jdbc=DEBUG
+#logging.level.org.hibernate.SQL=DEBUG
+#logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
+#logging.level.org.springframework.batch=DEBUG
+
+#Batch Database
+batch.datasource.url=jdbc:mysql://localhost:3306/batch_processes
+batch.datasource.username=root
+batch.datasource.password=1234
+batch.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+#Factory Batch Database
+batchFactory.datasource.url=jdbc:mysql://localhost:3306/batch_factory_processes
+batchFactory.datasource.username=root
+batchFactory.datasource.password=1234
+batchFactory.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+
