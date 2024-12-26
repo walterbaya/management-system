@@ -12,7 +12,7 @@ public class ProductItemProcessor implements ItemProcessor<Product, Product> {
     @Override
     public Product process(final Product product) {
 
-        log.info("Converting (" + product + ") into (" + product + ")");
+        //log.info("Converting (" + product + ") into (" + product + ")");
 
         return product;
     }

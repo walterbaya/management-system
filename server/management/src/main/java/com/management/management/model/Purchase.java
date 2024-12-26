@@ -18,9 +18,9 @@ public class Purchase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Long id;
     @Column(name = "id_articulo")
-    private int idProduct;
+    private Long idProduct;
     @Column(name = "nombre_articulo")
     private String name;
     @Column(name = "talle")

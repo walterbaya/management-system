@@ -13,7 +13,7 @@ import java.util.List;
 public interface ProductRepo extends JpaRepository<Product, Long> {
 
     //delete_articulo
-    void deleteById(int id);
+    void deleteById(Long id);
 
     //get_all_articulos,
     public List<Product> findAll();
@@ -22,17 +22,19 @@ public interface ProductRepo extends JpaRepository<Product, Long> {
     Product getProductByName(int name);
 
     //get_articulo_by_id,
-    Product getProductById(int id);
+    Product getProductById(Long id);
     
     //find without knowing the id,
-    @Query("SELECT p FROM Product p WHERE p.name = :name AND p.size = :size AND p.color = :color AND p.shoeType = :shoeType AND p.leatherType = :leatherType AND p.gender = :gender")
+    @Query("SELECT p FROM Product p WHERE p.name = :name AND p.size = :size AND p.color = :color AND p.shoeType = :shoeType AND p.leatherType = :leatherType AND p.gender = :gender AND p.inFactory = :inFactory")
     Product findProductByAttributes(
         @Param("name") Integer name,
         @Param("size") Integer size,
         @Param("color") String color,
         @Param("shoeType") String shoeType,
         @Param("leatherType") String leatherType,
-        @Param("gender") Boolean gender);
+        @Param("gender") Boolean gender,
+        @Param("inFactory") Boolean inFactory
+    );
 
 
 /*function get_date() {

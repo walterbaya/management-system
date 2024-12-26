@@ -1,6 +1,7 @@
 package com.management.management;
 
-import com.management.management.model.ProductInFactory;
+import com.management.management.batchprocessing.job.step1.ExcelProductReader;
+import com.management.management.model.Product;
 import com.management.management.repository.ProductRepo;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @SpringBootTest
 class ManagementApplicationTests {
@@ -19,30 +23,29 @@ class ManagementApplicationTests {
 	void contextLoads() {
 	}
 
+
 	@Test
-	void ProductInFactoryTest(){
-		ProductInFactory pif = new ProductInFactory();
-		pif.setName(1111);
-		pif.setLeatherType("Cuero");
-		pif.setColor("Negro");
-		pif.setPrice(100.0);
-		pif.setGender(true);
-		pif.setShoeType("Zapatilla");
-		pif.setNumberOfElements(10);
+	void createProductReader() {
+		List products = new ArrayList<Product>();
+		ExcelProductReader excelReader = new ExcelProductReader();
 
-		ProductInFactory saved = productRepo.save(pif);
+		products.add(excelReader.read());
 
-		ProductInFactory recovered = (ProductInFactory) productRepo.findById((long) saved.getId()).orElseThrow();
-
-		assertAll(
-			() -> assertEquals(pif.getName(), recovered.getName()),
-			() -> assertEquals(pif.getLeatherType(), recovered.getLeatherType()),
-			() -> assertEquals(pif.getColor(), recovered.getColor()),
-			() -> assertEquals(pif.getPrice(), recovered.getPrice()),
-			() -> assertEquals(pif.getGender(), recovered.getGender()),
-			() -> assertEquals(pif.getShoeType(), recovered.getShoeType()),
-			() -> assertEquals(pif.getNumberOfElements(), recovered.getNumberOfElements())
-		);
+		assertEquals(1, products.size());
 	}
+
+	/*
+	@Test
+	void readManyProducts() {
+		List products = new ArrayList<Product>();
+		ExcelProductReader excelReader = new ExcelProductReader();
+
+		for (int i = 0; i < 33; i++) {
+			products.add(excelReader.read());
+		}
+
+		assertEquals(33, products.size());
+	}
+	*/
 
 }

@@ -1,14 +1,12 @@
 package com.management.management.batchprocessing.job.step1;
 
 import com.management.management.model.Product;
-import jakarta.annotation.PostConstruct;
+
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.io.FileInputStream;
@@ -16,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @Component
@@ -25,26 +24,28 @@ public class ExcelProductReader implements ItemReader<Product> {
     private int nextProductIndex;
     private static final Logger log = LoggerFactory.getLogger(ExcelProductReader.class);
 
-    private final Path filePath = Paths.get("D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\stock ejemplo.xlsx");
-
     public void resetReader() {
-        this.productList = readExcelFile(filePath);  // Recarga el archivo cada vez
+        this.productList = readExcelFile(filePathHombre);  // Recarga el archivo cada vez
+        this.productList.addAll(readExcelFile(filePathDama));
         this.nextProductIndex = 0;  // Reinicia el índice de productos;
     }
 
+    private final Path filePathHombre = Paths.get("C:\\Users\\walte\\Documents\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK HOMBRE.xlsx");
+    private final Path filePathDama = Paths.get("C:\\Users\\walte\\Documents\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK DAMA.xlsx");
+    
     public ExcelProductReader() {
-        this.productList = readExcelFile(filePath);  // Recarga el archivo cuando se crea una nueva instancia
+        this.productList = readExcelFile(filePathHombre);
+        this.productList.addAll(readExcelFile(filePathDama));
         this.nextProductIndex = 0;
     }
 
     @Override
     public Product read() {
-
         Product nextProduct = null;
 
         if (nextProductIndex < productList.size()) {
             nextProduct = productList.get(nextProductIndex);
-            log.info("Reading " + nextProduct);
+            log.info("Reading product: {}", nextProduct);
             nextProductIndex++;
         }
 
@@ -54,57 +55,79 @@ public class ExcelProductReader implements ItemReader<Product> {
     private List<Product> readExcelFile(Path filePath) {
         List<Product> products = new ArrayList<>();
 
-        try (FileInputStream fis = new FileInputStream(filePath.toFile());  // Usa filePath como Path
+        try (FileInputStream fis = new FileInputStream(filePath.toFile());
              Workbook workbook = new XSSFWorkbook(fis)) {
 
-            Sheet sheet = workbook.getSheetAt(0);
-            for (Row row : sheet) {
-                if (row.getRowNum() == 0) continue; // Saltar la cabecera
+            // Obtener el nombre del archivo para determinar el género
+            String fileName = filePath.getFileName().toString();
+            Boolean gender = !fileName.contains("STOCK HOMBRE");
 
-                // Verificar si la fila está vacía (sin celdas con datos)
-                boolean isEmpty = true;
-                for (Cell cell : row) {
-                    if (cell != null && !getCellValueAsString(cell).isEmpty()) {
-                        isEmpty = false;
-                        break;  // Si encontramos una celda con valor, la fila no está vacía
+            for (Sheet sheet : workbook) {
+                if (sheet.getSheetName().equalsIgnoreCase("VENTAS")) {
+                    continue; // Ignorar la hoja de ventas
+                }
+
+                // Establecer el tipo de zapato según el nombre de la hoja
+                String shoeType = sheet.getSheetName().toLowerCase(); // ejemplo: borcego
+
+                Iterator<Row> rowIterator = sheet.iterator();
+                String currentArticle = null;
+                int emptyRowCount = 0;
+
+                while (rowIterator.hasNext()) {
+                    Row row = rowIterator.next();
+
+                    // Detectar el inicio de un nuevo artículo
+                    if (isArticleRow(row)) {
+                        String articleCellValue = getCellValueAsString(row.getCell(2));
+                        if (articleCellValue != null && articleCellValue.startsWith("ART.")) {
+                            currentArticle = articleCellValue.replace("ART.", "").trim();
+                        }
+                        emptyRowCount = 0; // Reiniciar contador de filas vacías
+                        continue;
                     }
-                }
 
-                if (isEmpty) {
-                    break;  // Detener la lectura si la fila está vacía
-                }
+                    // Contar filas vacías consecutivas
+                    if (isEmptyRow(row)) {
+                        emptyRowCount++;
+                        if (emptyRowCount >= 10) {
+                            break; // Salir del bucle y pasar a la siguiente hoja
+                        }
+                        continue;
+                    } else {
+                        emptyRowCount = 0; // Reiniciar contador si la fila no está vacía
+                    }
 
-                String articuloString = getCellValueAsString(row.getCell(0)).replace(".0", "");
-                Integer articulo = articuloString.isEmpty() ? 0 : Integer.parseInt(articuloString);
+                    // Procesar filas de encabezado, fabrica y tienda
+                    if (currentArticle != null) {
+                        if (isHeaderRow(row)) {
+                            continue;
+                        } else if (isFactoryRow(row) || isStoreRow(row)) {
+                            boolean isFactory = isFactoryRow(row);
 
-                // Si el número de artículo es 0, no se hace nada y se salta a la siguiente fila
-                if (articulo == 0) {
-                    continue;
-                }
+                            for (int i = 4; i <= 11; i++) { // Columnas de tallas (39 a 46)
+                                Cell stockCell = row.getCell(i);
+                                if (stockCell != null && stockCell.getCellType() == CellType.NUMERIC) {
+                                    int stock = (int) stockCell.getNumericCellValue();
 
-                String cuero = getCellValueAsString(row.getCell(1));
-                String color = getCellValueAsString(row.getCell(2));
-                String precioString = getCellValueAsString(row.getCell(14));
-                double precio = precioString.isEmpty() ? 0.0 : Double.parseDouble(precioString);
-                String genero = getCellValueAsString(row.getCell(15));
-                String tipo = getCellValueAsString(row.getCell(16));
+                                    if (stock > 0) {
+                                       
+                                    	Product product = new Product();
 
-                for (int i = 3; i <= 13; i++) {
-                    Cell talleCell = row.getCell(i);
-                    if (talleCell != null && talleCell.getCellType() == CellType.NUMERIC) {
-                        String stockString = getCellValueAsString(talleCell).replace(".0", "");
-                        int stock = stockString.isEmpty() ? 0 : Integer.parseInt(stockString);
-                        if (stock > 0) {
-                            Product product = new Product();
-                            product.setName(articulo);
-                            product.setLeatherType(cuero);
-                            product.setColor(color);
-                            product.setPrice(precio);
-                            product.setGender(genero.equals("M"));
-                            product.setShoeType(tipo);
-                            product.setSize(i + 32);  // El tamaño de calzado es directamente i + 32
-                            product.setNumberOfElements(stock);
-                            products.add(product);
+                                        product.setName(Integer.parseInt(currentArticle));
+                                        product.setLeatherType(getCellValueAsString(row.getCell(2)));
+                                        product.setColor(getCellValueAsString(row.getCell(3)));
+                                        product.setSize(i + 35); // Ajustar la talla según la columna
+                                        product.setNumberOfElements(stock);
+
+                                        // Agregar shoeType y gender
+                                        product.setShoeType(shoeType);  // Tipo de zapato (nombre de la hoja)
+                                        product.setGender(gender);  // 0 para hombre, 1 para mujer
+                                        product.setInFactory(isFactory);
+                                        products.add(product);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -118,21 +141,46 @@ public class ExcelProductReader implements ItemReader<Product> {
 
 
 
+    private boolean isArticleRow(Row row) {
+        Cell cell = row.getCell(2);
+        return cell != null && cell.getCellType() == CellType.STRING && cell.getStringCellValue().startsWith("ART.");
+    }
+
+    private boolean isHeaderRow(Row row) {
+        Cell cell = row.getCell(1);
+        return cell != null && cell.getCellType() == CellType.STRING && cell.getStringCellValue().equalsIgnoreCase("CUERO");
+    }
+
+    private boolean isFactoryRow(Row row) {
+        Cell cell = row.getCell(1);
+        return cell != null && cell.getCellType() == CellType.STRING && cell.getStringCellValue().equalsIgnoreCase("FABRICA");
+    }
+
+    private boolean isStoreRow(Row row) {
+        Cell cell = row.getCell(1);
+        return cell != null && cell.getCellType() == CellType.STRING && cell.getStringCellValue().equalsIgnoreCase("TIENDA");
+    }
+
+    private boolean isEmptyRow(Row row) {
+        for (Cell cell : row) {
+            if (cell != null && cell.getCellType() != CellType.BLANK) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private String getCellValueAsString(Cell cell) {
         if (cell == null) {
-            return "";
+            return null;
         }
         switch (cell.getCellType()) {
             case STRING:
                 return cell.getStringCellValue();
             case NUMERIC:
-                return String.valueOf(cell.getNumericCellValue());
-            case BOOLEAN:
-                return String.valueOf(cell.getBooleanCellValue());
-            case FORMULA:
-                return cell.getCellFormula();
+                return String.valueOf((int) cell.getNumericCellValue());
             default:
-                return "";
+                return null;
         }
     }
 }

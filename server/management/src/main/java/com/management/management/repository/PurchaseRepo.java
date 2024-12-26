@@ -14,7 +14,7 @@ public interface PurchaseRepo extends JpaRepository<Purchase, Long> {
 
     List<Purchase> findAll();
 
-    Purchase getPurchaseById(int id);
+    Purchase getPurchaseById(Long id);
 
     @Query("SELECT p FROM Purchase p WHERE p.emissionDate BETWEEN :fechaDesde AND :fechaHasta")
     List<Purchase> getPurchasesBetween(@Param("fechaDesde") ZonedDateTime firstDate, @Param("fechaHasta") ZonedDateTime secondDate);

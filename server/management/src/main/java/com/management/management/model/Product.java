@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -11,14 +12,12 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@DiscriminatorColumn(name = "en_fabrica")
-@DiscriminatorValue(value = "false")
 @Table(name = "articulos")
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Long id;
 
     @Column(name = "nombre_articulo")
     private Integer name;
@@ -44,25 +43,35 @@ public class Product {
     @Column(name = "cantidad")
     private Integer numberOfElements;
     
+    @Column(name = "en_fabrica")
+    private Boolean inFactory;
+    
+    public boolean sameProduct(Product product) {
+    	return Objects.equals(color, product.color) &&
+                Objects.equals(gender, product.gender) &&
+                Objects.equals(leatherType, product.leatherType) &&
+                Objects.equals(name, product.name) &&
+                Objects.equals(shoeType, product.shoeType) &&
+                Objects.equals(size, product.size) &&
+                Objects.equals(inFactory, product.inFactory);
+                }
+
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true; // Son el mismo objeto
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false; // No es del mismo tipo
-        }
-        Product product = (Product) obj; // Hacer el cast
-
-        // Comparar los campos
-        return (this.color != null && this.color.equals(product.color)) &&
-               (this.gender != null && this.gender.equals(product.gender)) &&
-               (this.leatherType != null && this.leatherType.equals(product.leatherType)) &&
-               (this.name != null && this.name.equals(product.name)) &&
-               (this.shoeType != null && this.shoeType.equals(product.shoeType)) &&
-               (this.size != null && this.size.equals(product.size)) &&
-                (this.numberOfElements != null && this.numberOfElements.equals(product.numberOfElements));
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Product product = (Product) obj;
+        return Objects.equals(id, product.id) &&
+        		Objects.equals(color, product.color) &&
+                Objects.equals(gender, product.gender) &&
+                Objects.equals(leatherType, product.leatherType) &&
+                Objects.equals(name, product.name) &&
+                Objects.equals(shoeType, product.shoeType) &&
+                Objects.equals(size, product.size) &&
+                Objects.equals(inFactory, product.inFactory) &&
+                Objects.equals(numberOfElements, product.numberOfElements);
     }
+
 
 
 }

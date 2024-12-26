@@ -19,12 +19,12 @@ public class ProductItemWriter implements ItemWriter<Product> {
     public void write(Chunk<? extends Product> chunk) throws Exception {
         // Obtener los productos del chunk
         List<Product> productList = (List<Product>)chunk.getItems();
-
         // Comprobar y procesar cada producto
-        productList.forEach(product -> {
-            Product existingProduct = productRepo.findProductByAttributes(product.getName(), product.getSize(), product.getColor(), product.getShoeType(), product.getLeatherType(), product.getGender());
+        productList.forEach(product -> {	
+            Product existingProduct = productRepo.findProductByAttributes(product.getName(), product.getSize(), product.getColor(), product.getShoeType(), product.getLeatherType(), product.getGender(), product.getInFactory());
             if (existingProduct != null) {
-                product.setId(existingProduct.getId());
+                
+            	product.setId(existingProduct.getId());
                 // Actualizar solo si algo ha cambiado
                 if (!existingProduct.equals(product)) {
                     productRepo.save(product);

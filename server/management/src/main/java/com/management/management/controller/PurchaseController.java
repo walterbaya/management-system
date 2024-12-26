@@ -82,7 +82,7 @@ public class PurchaseController {
 
         List<Product> products = new ArrayList<>();
 
-        Map<Integer, Product> productMap = productRepo.findAll().stream().collect(Collectors.toMap(Product::getId, product -> product));
+        Map<Long, Product> productMap = productRepo.findAll().stream().collect(Collectors.toMap(Product::getId, product -> product));
 
         for (Purchase purchase : purchaseList) {
             Product product = productMap.get(purchase.getIdProduct());
@@ -92,7 +92,7 @@ public class PurchaseController {
 
         productRepo.saveAll(products);
 
-        excelUpdateService.updateExcel(productRepo.findAll());
+        excelUpdateService.updateExcelStock(productRepo.findAll());
     }
 
 
@@ -102,10 +102,10 @@ public class PurchaseController {
             @RequestParam(value = "fecha_hasta", required = false) String fechaHasta) throws ParseException {
 
         // Obtener las facturas desde el servicio
-        HashMap<Integer, Purchase> dataMap = new HashMap<>();
+        HashMap<Long, Purchase> dataMap = new HashMap<>();
 
         getPurchasesBetweenAux(fechaDesde, fechaHasta).forEach(purchase -> {
-            int id = purchase.getIdProduct();
+            Long id = purchase.getIdProduct();
             if (dataMap.get(id) == null) {
                 dataMap.put(id, purchase);
             } else {

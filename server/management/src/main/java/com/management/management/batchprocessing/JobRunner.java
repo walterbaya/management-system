@@ -1,25 +1,14 @@
 package com.management.management.batchprocessing;
 
 import com.management.management.service.ExcelUpdateWatcherManager;
-import jakarta.annotation.PostConstruct;
+import com.management.management.batchprocessing.job.step1.ExcelProductReader;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-
-import com.management.management.batchprocessing.job.step1.ExcelProductReader;
-
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.JobParametersBuilder;
-import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -32,16 +21,17 @@ public class JobRunner implements CommandLineRunner {
     private JobLauncher jobLauncher;
 
     @Autowired
-    private Job importUserJob;
+    private ExcelProductReader excelProductReader;
 
     @Autowired
-    private ExcelProductReader excelProductReader;
+    private Job importUserJob;
 
     @Autowired
     private ExcelUpdateWatcherManager excelUpdateWatcherManager;
 
     private WatchService watchService;
-    private Path filePath = Paths.get("D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\stock ejemplo.xlsx");
+    private Path filePathHombre = Paths.get("C:\\Users\\walte\\Documents\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK HOMBRE.xlsx");
+    private Path filePathDama = Paths.get("C:\\Users\\walte\\Documents\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK DAMA.xlsx");
 
     public JobRunner(JobLauncher jobLauncher, Job importUserJob) {
         try {
@@ -60,17 +50,19 @@ public class JobRunner implements CommandLineRunner {
 
     private void initWatchService() throws IOException {
         watchService = FileSystems.getDefault().newWatchService();
-        filePath.getParent().register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+        filePathHombre.getParent().register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+        filePathDama.getParent().register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+       
     }
 
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedRate = 800)
     public void watchFile() throws InterruptedException {
         WatchKey key;
         while ((key = watchService.poll()) != null) {
             for (WatchEvent<?> event : key.pollEvents()) {
                 if (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY) {
                     Path changed = (Path) event.context();
-                    if (changed.endsWith(filePath.getFileName()) && !excelUpdateWatcherManager.isAppUpdatingFile()) {
+                    if (changed.endsWith(filePathHombre.getFileName()) && changed.endsWith(filePathDama.getFileName()) && !excelUpdateWatcherManager.isAppUpdatingFile()) {
                         Thread.sleep(500); // Avoid concurrent operation conflicts
                         executeJob();
                     }

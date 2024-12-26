@@ -37,7 +37,7 @@ public class ProductController {
         if (validate(product).equals("ok")) {
             repo.save(product);
             //Actualizamos el Excel
-            excelUpdateService.updateExcel(repo.findAll());
+            excelUpdateService.updateExcelStock(repo.findAll());
         }
 
         return validate(product);
@@ -99,17 +99,17 @@ public class ProductController {
             });
 
             //Actualizamos el Excel
-            excelUpdateService.updateExcel(repo.findAll());
+            excelUpdateService.updateExcelStock(repo.findAll());
         }
         return res;
     }
 
     @DeleteMapping("/delete_product")
-    public void deleteProduct(@RequestParam("id") int id) {
+    public void deleteProduct(@RequestParam("id") Long id) {
         repo.deleteById(id);
 
         //Actualizamos el Excel
-        excelUpdateService.updateExcel(repo.findAll());
+        excelUpdateService.updateExcelStock(repo.findAll());
     }
 
     private String validate(Product product) {

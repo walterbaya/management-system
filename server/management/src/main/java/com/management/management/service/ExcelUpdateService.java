@@ -3,6 +3,9 @@ package com.management.management.service;
 import com.management.management.model.Product;
 import com.management.management.model.util.ProductRow;
 import lombok.RequiredArgsConstructor;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -13,95 +16,217 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+
+//El metodo debe tener una funcion que crea nuevos articulos a partir de la imagen del mismo
+//Por ahora cuando hacemos update va a ser unicamente cuando se realicen ventas, el resto del codigo
+//queda a manera de sistema de administracion de la empresa palma shoes, que son quienes tienen permiso de administrador
+//y van a subir 
 
 @Service
 @RequiredArgsConstructor
 public class ExcelUpdateService {
 
-    private static final Logger log = LoggerFactory.getLogger(ExcelUpdateService.class);
+	private static final Logger log = LoggerFactory.getLogger(ExcelUpdateService.class);
 
-    @Autowired
-    ExcelUpdateWatcherManager excelUpdateWatcherManager;
+	@Autowired
+	ExcelUpdateWatcherManager excelUpdateWatcherManager;
 
-    private String filePath = "D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\stock ejemplo.xlsx";
+	private String filePathHombre = "C:\\Users\\walte\\Documents\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK HOMBRE.xlsx";
+	private String filePathDama = "C:\\Users\\walte\\Documents\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK DAMA.xlsx";
 
-    public synchronized void updateExcel(List<Product> products) {
-        // Solo puede actualizar de a una vez
-        if (!excelUpdateWatcherManager.isAppUpdatingFile()) {
+	
+	public synchronized void updateExcelStock(List<Product> products) {
+		List<Product> maleProducts = products.stream().filter(product -> product.getGender())
+				.collect(Collectors.toList());
+
+		List<Product> femaleProducts = products.stream().filter(product -> !product.getGender())
+				.collect(Collectors.toList());
+
+		updateExcelStockAux(filePathHombre, maleProducts, true);
+		updateExcelStockAux(filePathDama, femaleProducts, false);
+
+	}
+
+	public synchronized void updateExcelStockAux(String filePath, List<Product> products, Boolean gender) {
+    	if (!excelUpdateWatcherManager.isAppUpdatingFile()) {
             excelUpdateWatcherManager.setAppUpdatingFile(true);
-            try {
-                // Crear un nuevo Workbook (sin leer un archivo existente)
-                Workbook workbook = new XSSFWorkbook(); // Se crea un nuevo workbook para sobrescribir el archivo existente
-                Sheet sheet = workbook.createSheet("Productos"); // Crear una nueva hoja (o puedes usar un nombre específico)
+            try (FileInputStream fis = new FileInputStream(filePath)) {
+                
+               Workbook workbook = new XSSFWorkbook(fis);
+               HashMap<String, Product> productByType = new HashMap();
+                
+               //Seteamos los productos por tipo
+               
+               for(Product p: products) {
+            	   productByType.put(p.getShoeType(), p);
+               }
+               
+               for(String shoeType: productByType.keySet()) {
+                   
+            	   //Entramos en la hoja
+            	   Sheet sheet = workbook.getSheet(shoeType.toUpperCase());
 
-                // Crear la fila de encabezado
-                Row headerRow = sheet.createRow(0);
-                headerRow.createCell(0).setCellValue("ARTICULO");
-                headerRow.createCell(1).setCellValue("CUERO");
-                headerRow.createCell(2).setCellValue("COLOR");
-                headerRow.createCell(3).setCellValue("35");
-                headerRow.createCell(4).setCellValue("36");
-                headerRow.createCell(5).setCellValue("37");
-                headerRow.createCell(6).setCellValue("38");
-                headerRow.createCell(7).setCellValue("39");
-                headerRow.createCell(8).setCellValue("40");
-                headerRow.createCell(9).setCellValue("41");
-                headerRow.createCell(10).setCellValue("42");
-                headerRow.createCell(11).setCellValue("43");
-                headerRow.createCell(12).setCellValue("44");
-                headerRow.createCell(13).setCellValue("45");
-                headerRow.createCell(14).setCellValue("PRECIO");
-                headerRow.createCell(15).setCellValue("GENERO");
-                headerRow.createCell(16).setCellValue("TIPO");
+                   
+                   if (sheet == null) {
+                       log.error("La hoja " + shoeType.toUpperCase() + " no existe en el archivo.");
+                       return;
+                   }
 
-                // Agrupar productos por combinación única de name, leatherType, color
-                Map<String, ProductRow> productMap = new HashMap<>();
-                for (Product product : products) {
-                    String key = product.getName() + "|" + product.getLeatherType() + "|" + product.getColor();
-                    if (!productMap.containsKey(key)) {
-                        // Crear un nuevo registro para esta combinación única
-                        ProductRow newRow = new ProductRow(product);
-                        productMap.put(key, newRow);
-                    }
-                    // Actualizar la cantidad para el talle específico
-                    productMap.get(key).updateSize(product.getSize(), product.getNumberOfElements());
-                }
+                   // Encontramos el producto 
+                   for (Product product : products) {
+                       boolean updated = false;
 
-                // Escribir las filas en la hoja
-                int rowNum = 1; // Comenzar desde la fila 1 (debido al encabezado)
-                for (ProductRow productRow : productMap.values()) {
-                    Row row = sheet.createRow(rowNum++);
+                       // Iterar sobre las filas para encontrar el producto
 
-                    row.createCell(0).setCellValue(productRow.getName());
-                    row.createCell(1).setCellValue(productRow.getLeatherType());
-                    row.createCell(2).setCellValue(productRow.getColor());
-                    for (int i = 0; i < productRow.getSizes().length; i++) {
-                        row.createCell(3 + i).setCellValue(productRow.getSizes()[i]);
-                    }
-                    row.createCell(14).setCellValue(productRow.getPrice());
-                    row.createCell(15).setCellValue(productRow.getGender());
-                    row.createCell(16).setCellValue(productRow.getShoeType());
-                }
+                       
+                       Iterator<Row> rowIterator = sheet.iterator();
+                       String currentArticle = null;
+                       int emptyRowCount = 0;
 
-                // Sobrescribir el archivo Excel con los nuevos datos
-                try (FileOutputStream fos = new FileOutputStream(filePath)) {
-                    workbook.write(fos); // Esto sobrescribe el archivo
-                }
+                       while (rowIterator.hasNext()) {
+                           Row row = rowIterator.next();
 
-                log.info("Archivo Excel actualizado correctamente.");
+                           // Detectar el inicio de un nuevo artículo
+                           if (isArticleRow(row)) {
+                               String articleCellValue = getCellValueAsString(row.getCell(2));
+                               if (articleCellValue != null && articleCellValue.startsWith("ART.")) {
+                                   currentArticle = articleCellValue.replace("ART.", "").trim();
+                               }
+                               emptyRowCount = 0; // Reiniciar contador de filas vacías
+                               continue;
+                           }
 
-            } catch (IOException e) {
-                log.error("Error al procesar el archivo Excel: ", e);
-            } finally {
-                excelUpdateWatcherManager.setAppUpdatingFile(false); // Restablecer el estado al final
+                           // Contar filas vacías consecutivas
+                           if (isEmptyRow(row)) {
+                               emptyRowCount++;
+                               if (emptyRowCount >= 10) {
+                                   break; // Salir del bucle y pasar a la siguiente hoja
+                               }
+                               continue;
+                           } else {
+                               emptyRowCount = 0; // Reiniciar contador si la fila no está vacía
+                           }
+
+                           // Procesar filas de encabezado, fabrica y tienda
+                           if (currentArticle != null && currentArticle.equals(product)) {
+                               if (isHeaderRow(row)) {
+                                   continue;
+                               } else if (isFactoryRow(row) || isStoreRow(row)) {
+                                   boolean isFactory = isFactoryRow(row);
+                                   
+                                   //Acá seteamos el valor, hasta entonces ya sabe cual es el articulo que tiene que cambiar
+                                   //Ahora faltaria que lo cambie
+                                    
+                                   
+
+                                  for (int i = 4; i <= 11; i++) { // Columnas de tallas (39 a 46)
+                                	   Cell stockCell = row.getCell(i);
+                                	   if (stockCell == null) {
+                                           stockCell = row.createCell(i);
+                                       }
+                                       int stock = (int) stockCell.getNumericCellValue();
+                                       
+                                       Product inSheetProduct = new Product();
+                                       inSheetProduct.setName(Integer.parseInt(currentArticle));
+                                       inSheetProduct.setLeatherType(getCellValueAsString(row.getCell(2)));
+                                       inSheetProduct.setColor(getCellValueAsString(row.getCell(3)));
+                                       inSheetProduct.setSize(i + 35); // Ajustar la talla según la columna
+                                       inSheetProduct.setNumberOfElements(stock);
+
+                                       inSheetProduct.setShoeType(shoeType);  // Tipo de zapato (nombre de la hoja)
+                                       inSheetProduct.setGender(gender);  // 0 para hombre, 1 para mujer
+                                       inSheetProduct.setInFactory(isFactory);
+                                       
+                                       //Solo podemos actualizar la cantidad de elementos pero no mas
+                                       //Dado que la fabrica es quien maneja el stock
+                                       if (inSheetProduct.sameProduct(product)) {
+                                    	   stockCell.setCellValue(product.getNumberOfElements());
+                                    	   updated = true;
+                                    	   }
+                                       }
+                                   }
+                               }
+                           }
+                       }
+                   }
+               } catch (FileNotFoundException e) {
+				log.error("Error, no se encontro el archivo al intentar actualizar archivos excel desde el sistema.");
+				e.printStackTrace();
+			} catch (IOException e) {
+				log.error("Error de tipo I/O, causado al intentar actualizar archivos excel desde el sistema.");
+				e.printStackTrace();
+			}
+            finally{
+            	excelUpdateWatcherManager.setAppUpdatingFile(false);
             }
-        } else {
-            log.warn("El archivo está siendo actualizado por otro proceso. Intente más tarde.");
-        }
-    }
+           }
+    	}
+
+	// Método para encontrar el índice de la columna de un talle específico
+	private int getSizeColumnIndex(Sheet sheet, int size) {
+		Row headerRow = sheet.getRow(0); // Fila de encabezado
+		if (headerRow != null) {
+			for (Cell cell : headerRow) {
+				if (cell.getCellType() == CellType.NUMERIC && cell.getNumericCellValue() == size) {
+					return cell.getColumnIndex();
+				}
+			}
+		}
+		return -1; // No se encontró la columna del talle
+	}
+
+	private boolean isArticleRow(Row row) {
+		Cell cell = row.getCell(2);
+		return cell != null && cell.getCellType() == CellType.STRING && cell.getStringCellValue().startsWith("ART.");
+	}
+
+	private boolean isHeaderRow(Row row) {
+		Cell cell = row.getCell(1);
+		return cell != null && cell.getCellType() == CellType.STRING
+				&& cell.getStringCellValue().equalsIgnoreCase("CUERO");
+	}
+
+	private boolean isFactoryRow(Row row) {
+		Cell cell = row.getCell(1);
+		return cell != null && cell.getCellType() == CellType.STRING
+				&& cell.getStringCellValue().equalsIgnoreCase("FABRICA");
+	}
+
+	private boolean isStoreRow(Row row) {
+		Cell cell = row.getCell(1);
+		return cell != null && cell.getCellType() == CellType.STRING
+				&& cell.getStringCellValue().equalsIgnoreCase("TIENDA");
+	}
+
+	private boolean isEmptyRow(Row row) {
+		for (Cell cell : row) {
+			if (cell != null && cell.getCellType() != CellType.BLANK) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private String getCellValueAsString(Cell cell) {
+		if (cell == null) {
+			return null;
+		}
+		switch (cell.getCellType()) {
+		case STRING:
+			return cell.getStringCellValue();
+		case NUMERIC:
+			return String.valueOf((int) cell.getNumericCellValue());
+		default:
+			return null;
+		}
+	}
 }
