@@ -40,8 +40,10 @@ public class ExcelUpdateService {
 	@Autowired
 	ExcelUpdateWatcherManager excelUpdateWatcherManager;
 
-	private String filePathHombre = "C:\\Users\\walte\\Documents\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK HOMBRE.xlsx";
-	private String filePathDama = "C:\\Users\\walte\\Documents\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK DAMA.xlsx";
+	private String filePathHombre = "D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK HOMBRE.xlsx";
+	private String filePathDama = "D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK DAMA.xlsx";
+	//private String filePathHombre = "C:\\Users\\walte\\Documents\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK HOMBRE.xlsx";
+	//private String filePathDama = "C:\\Users\\walte\\Documents\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK DAMA.xlsx";
 
 	
 	public synchronized void updateExcelStock(List<Product> products) {
