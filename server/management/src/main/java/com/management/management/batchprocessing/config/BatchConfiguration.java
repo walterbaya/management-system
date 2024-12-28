@@ -65,7 +65,7 @@ public class BatchConfiguration {
     public Step step1(JobRepository jobRepository, DataSourceTransactionManager transactionManager,
                       ItemReader<Product> reader, ItemProcessor<Product, Product> processor, ItemWriter<Product> writer) {
         return new StepBuilder("step1", jobRepository)
-                .<Product, Product>chunk(3, transactionManager)
+                .<Product, Product>chunk(100, transactionManager)
                 .reader(reader)
                 .processor(processor)
                 .writer(writer)

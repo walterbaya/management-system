@@ -94,29 +94,41 @@ void writeAllFemaleBotasProductsData() {
 		List<Product> updatedProducts = new ArrayList<>();
 
 		for (Product p : products) {
-			if(Objects.equals(p.getShoeType().toUpperCase(), "BOTAS") || Objects.equals("ZAPATOS", p.getShoeType().toUpperCase())){
-				p.setNumberOfElements(31);
+			if(Objects.equals("ZAPATOS", p.getShoeType().toUpperCase())){
+				p.setNumberOfElements(17);
 				updatedProducts.add(p);
 			}
 		}
 
 
-		ExcelUtils excelUtils = new ExcelUtils(false);
+		ExcelUtils excelUtilsFemale = new ExcelUtils(false);
+		ExcelUtils excelUtilsMale = new ExcelUtils(true);
 
 		excelUpdateService.updateExcelStock(updatedProducts);
 
-		List<Product> excelProducts = excelUtils.readExcelFile();
+		List<Product> femaleExcelProducts = excelUtilsFemale.readExcelFile();
+		List<Product> maleExcelProducts = excelUtilsMale.readExcelFile();
 
 		int counter = 0;
 
 		for(Product updatedProduct : updatedProducts){
-			for (Product excelProduct : excelProducts) {
+			for (Product excelProduct : femaleExcelProducts) {
 				if (updatedProduct.sameProduct(excelProduct)) {
 					counter++;
-					break;
+					femaleExcelProducts.remove(excelProduct);
+				}
+			}
+
+			for (Product excelProduct : maleExcelProducts) {
+				if (updatedProduct.sameProduct(excelProduct)) {
+					counter++;
+					femaleExcelProducts.remove(excelProduct);
 				}
 			}
 		}
+
+		assertEquals(0,femaleExcelProducts.size());
+		assertEquals(0, maleExcelProducts.size());
 		assertEquals(counter, updatedProducts.size());
 	}
 
