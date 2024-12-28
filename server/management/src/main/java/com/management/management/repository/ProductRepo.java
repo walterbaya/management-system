@@ -36,6 +36,8 @@ public interface ProductRepo extends JpaRepository<Product, Long> {
         @Param("inFactory") Boolean inFactory
     );
 
+    List<Product> findProductByGenderAndShoeTypeAndName(Boolean gender, String shoeType, Integer name);
+
 
 /*function get_date() {
   const date = new Date();

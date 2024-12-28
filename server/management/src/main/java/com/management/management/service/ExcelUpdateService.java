@@ -19,10 +19,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -47,7 +44,7 @@ public class ExcelUpdateService {
 
 	
 	public synchronized void updateExcelStock(List<Product> products) {
-		List<Product> maleProducts = products.stream().filter(product -> product.getGender())
+		List<Product> maleProducts = products.stream().filter(Product::getGender)
 				.collect(Collectors.toList());
 
 		List<Product> femaleProducts = products.stream().filter(product -> !product.getGender())
@@ -77,7 +74,6 @@ public class ExcelUpdateService {
             	   //Entramos en la hoja
             	   Sheet sheet = workbook.getSheet(shoeType.toUpperCase());
 
-                   
                    if (sheet == null) {
                        log.error("La hoja " + shoeType.toUpperCase() + " no existe en el archivo.");
                        return;
@@ -119,7 +115,7 @@ public class ExcelUpdateService {
                            }
 
                            // Procesar filas de encabezado, fabrica y tienda
-                           if (currentArticle != null && currentArticle.equals(product)) {
+                           if (Objects.equals(currentArticle, product.getName().toString())) {
                                if (isHeaderRow(row)) {
                                    continue;
                                } else if (isFactoryRow(row) || isStoreRow(row)) {
@@ -127,10 +123,8 @@ public class ExcelUpdateService {
                                    
                                    //Acá seteamos el valor, hasta entonces ya sabe cual es el articulo que tiene que cambiar
                                    //Ahora faltaria que lo cambie
-                                    
-                                   
 
-                                  for (int i = 4; i <= 11; i++) { // Columnas de tallas (39 a 46)
+                                  for (int i = 4; i <= 11; i++) { // Columnas de tallas
                                 	   Cell stockCell = row.getCell(i);
                                 	   if (stockCell == null) {
                                            stockCell = row.createCell(i);
@@ -141,7 +135,17 @@ public class ExcelUpdateService {
                                        inSheetProduct.setName(Integer.parseInt(currentArticle));
                                        inSheetProduct.setLeatherType(getCellValueAsString(row.getCell(2)));
                                        inSheetProduct.setColor(getCellValueAsString(row.getCell(3)));
-                                       inSheetProduct.setSize(i + 35); // Ajustar la talla según la columna
+
+									   if(gender){
+										   inSheetProduct.setSize(i + 35); // Ajustar la talla según la columna
+									   }
+									   else{
+										   if(i != 11){
+											   inSheetProduct.setSize(i + 31);
+										   }
+									   }
+
+
                                        inSheetProduct.setNumberOfElements(stock);
 
                                        inSheetProduct.setShoeType(shoeType);  // Tipo de zapato (nombre de la hoja)
@@ -155,36 +159,31 @@ public class ExcelUpdateService {
                                     	   updated = true;
                                     	   }
                                        }
-                                   }
-                               }
-                           }
-                       }
-                   }
-               } catch (FileNotFoundException e) {
+							   }
+						   }
+					   }
+				   }
+
+			   }
+
+
+				try (FileOutputStream fos = new FileOutputStream(filePath)) {
+					workbook.write(fos);
+				} catch (IOException e) {
+					log.error("Error al guardar los cambios en el archivo Excel.", e);
+				}
+
+			} catch (FileNotFoundException e) {
 				log.error("Error, no se encontro el archivo al intentar actualizar archivos excel desde el sistema.");
 				e.printStackTrace();
 			} catch (IOException e) {
 				log.error("Error de tipo I/O, causado al intentar actualizar archivos excel desde el sistema.");
 				e.printStackTrace();
-			}
-            finally{
+			} finally{
             	excelUpdateWatcherManager.setAppUpdatingFile(false);
             }
            }
     	}
-
-	// Método para encontrar el índice de la columna de un talle específico
-	private int getSizeColumnIndex(Sheet sheet, int size) {
-		Row headerRow = sheet.getRow(0); // Fila de encabezado
-		if (headerRow != null) {
-			for (Cell cell : headerRow) {
-				if (cell.getCellType() == CellType.NUMERIC && cell.getNumericCellValue() == size) {
-					return cell.getColumnIndex();
-				}
-			}
-		}
-		return -1; // No se encontró la columna del talle
-	}
 
 	private boolean isArticleRow(Row row) {
 		Cell cell = row.getCell(2);

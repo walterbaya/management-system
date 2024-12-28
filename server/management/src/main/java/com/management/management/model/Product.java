@@ -47,11 +47,14 @@ public class Product {
     private Boolean inFactory;
     
     public boolean sameProduct(Product product) {
-    	return Objects.equals(color, product.color) &&
+    	return Objects.equals(color != null ? color.toUpperCase() : null,
+                              product.color != null ? product.color.toUpperCase() : null) &&
                 Objects.equals(gender, product.gender) &&
-                Objects.equals(leatherType, product.leatherType) &&
+                Objects.equals(leatherType != null ? leatherType.toUpperCase() : null,
+                               product.leatherType != null ? product.leatherType.toUpperCase() : null) &&
                 Objects.equals(name, product.name) &&
-                Objects.equals(shoeType, product.shoeType) &&
+                Objects.equals(shoeType != null ? shoeType.toUpperCase() : null,
+                               product.shoeType != null ? product.shoeType.toUpperCase() : null) &&
                 Objects.equals(size, product.size) &&
                 Objects.equals(inFactory, product.inFactory);
                 }

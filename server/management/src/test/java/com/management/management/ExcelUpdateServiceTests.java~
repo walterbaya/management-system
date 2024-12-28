@@ -107,17 +107,7 @@ void writeAllFemaleBotasProductsData() {
 
 		List<Product> excelProducts = excelUtils.readExcelFile();
 
-		int counter = 0;
-
-		for(Product updatedProduct : updatedProducts){
-			for (Product excelProduct : excelProducts) {
-				if (updatedProduct.sameProduct(excelProduct)) {
-					counter++;
-					break;
-				}
-			}
-		}
-		assertEquals(counter, updatedProducts.size());
+		assertTrue(excelProducts.containsAll(updatedProducts));
 	}
 
 
