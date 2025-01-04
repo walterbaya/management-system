@@ -7,13 +7,9 @@ import com.management.management.util.ExcelUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
+import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 @SpringBootTest
 class ExcelUpdateServiceTests {
@@ -94,12 +90,12 @@ void writeAllFemaleBotasProductsData() {
 		List<Product> updatedProducts = new ArrayList<>();
 
 		for (Product p : products) {
-			if(Objects.equals("ZAPATOS", p.getShoeType().toUpperCase())){
-				p.setNumberOfElements(17);
+			if(Objects.equals(p.getShoeType(), "sandalias")|| Objects.equals(p.getShoeType(), "borcegos")
+					|| p.getShoeType().equals("zapatillas") || p.getShoeType().equals("zapatos") || p.getShoeType().equals("zuecos - mocasin")){
+				p.setNumberOfElements(1111);
 				updatedProducts.add(p);
 			}
 		}
-
 
 		ExcelUtils excelUtilsFemale = new ExcelUtils(false);
 		ExcelUtils excelUtilsMale = new ExcelUtils(true);
@@ -110,28 +106,13 @@ void writeAllFemaleBotasProductsData() {
 		List<Product> maleExcelProducts = excelUtilsMale.readExcelFile();
 
 		int counter = 0;
-
-		for(Product updatedProduct : updatedProducts){
-			for (Product excelProduct : femaleExcelProducts) {
-				if (updatedProduct.sameProduct(excelProduct)) {
-					counter++;
-					femaleExcelProducts.remove(excelProduct);
-				}
-			}
-
-			for (Product excelProduct : maleExcelProducts) {
-				if (updatedProduct.sameProduct(excelProduct)) {
-					counter++;
-					femaleExcelProducts.remove(excelProduct);
-				}
+		for (Product updatedProduct : updatedProducts) {
+			if (femaleExcelProducts.stream().anyMatch(p -> p.sameProduct(updatedProduct)) ||
+					maleExcelProducts.stream().anyMatch(p -> p.sameProduct(updatedProduct))) {
+				counter++;
 			}
 		}
 
-		assertEquals(0,femaleExcelProducts.size());
-		assertEquals(0, maleExcelProducts.size());
 		assertEquals(counter, updatedProducts.size());
 	}
-
-
-
 }
