@@ -1,6 +1,5 @@
 package com.management.management;
 
-import com.management.management.batchprocessing.job.step1.ExcelProductReader;
 import com.management.management.model.Product;
 import com.management.management.repository.ProductRepo;
 import com.management.management.service.ExcelUpdateService;
@@ -8,11 +7,9 @@ import com.management.management.util.ExcelUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 @SpringBootTest
 class ExcelUpdateServiceTests {
@@ -20,31 +17,102 @@ class ExcelUpdateServiceTests {
 	@Autowired
 	ExcelUpdateService excelUpdateService;
 
+	@Autowired
+	ProductRepo productRepo;
+
 	@Test
-	void writeBotaUppercaseData() {
+	void writeBota() {
 		List products = new ArrayList<Product>();
 
 		Product bota = new Product();
 		bota.setName(1849);
-		bota.setShoeType("BOTA");
+		bota.setShoeType("BOTAS");
 		bota.setColor("NEGRO");
 		bota.setLeatherType("WANAMA");
-		bota.setGender(true); // Assuming 'true' indicates male
-		bota.setSize(41); // Example size
-		bota.setNumberOfElements(10000); // Example stock quantity
+		bota.setGender(false); // Assuming 'true' indicates male
+		bota.setSize(35); // Example size
+		bota.setInFactory(true);
+		bota.setNumberOfElements(666); // Example stock quantity
 
 		products.add(bota);
 
-		ExcelUtils excelUtils = new ExcelUtils();
+		ExcelUtils excelUtils = new ExcelUtils(false);
 
 		excelUpdateService.updateExcelStock(products);
 
-		List<Product> productsAfterUpdate = excelUtils.readExcelFile();
-		Product botaUpdated = productsAfterUpdate.stream()
-				.filter(p -> p.getName().equals(bota.getName()) && p.getShoeType().equals(bota.getShoeType()) && p.getColor().equals(bota.getColor()) && p.getLeatherType().equals(bota.getLeatherType()) && p.getGender().equals(bota.getGender()))
-				.findFirst().orElseThrow();
-		assertEquals(10000, botaUpdated.getNumberOfElements());
+		// Verify the updated data in the Excel file
+		List<Product> updatedProducts = excelUtils.readExcelFile();
+		Product updatedBota = null;
+		for (Product p : updatedProducts) {
+			if (bota.sameProduct(p)			) {
+				updatedBota = p;
+				break;
+			}
+		}
+
+		assertEquals(666, updatedBota.getNumberOfElements());
 	}
 
 
+@Test
+void writeAllFemaleBotasProductsData() {
+	List<Product> products = productRepo.findProductByGenderAndShoeTypeAndName(false, "botas", 1849);
+	List<Product> updatedProducts = new ArrayList<>();
+
+	for (Product p : products) {
+			p.setNumberOfElements(11);
+			updatedProducts.add(p);
+	}
+
+	ExcelUtils excelUtils = new ExcelUtils(false);
+
+	excelUpdateService.updateExcelStock(updatedProducts);
+
+	List<Product> excelProducts = excelUtils.readExcelFile();
+
+	int counter = 0;
+
+	for(Product updatedProduct : updatedProducts){
+		for (Product excelProduct : excelProducts) {
+			if (updatedProduct.sameProduct(excelProduct)) {
+				counter++;
+				break;
+			}
+		}
+	}
+	assertEquals(counter, updatedProducts.size());
+	}
+
+
+	@Test
+	void writeMaleAndFemaleDifferentCategoriesProductsData() {
+		List<Product> products = productRepo.findAll();
+		List<Product> updatedProducts = new ArrayList<>();
+
+		for (Product p : products) {
+			if(Objects.equals(p.getShoeType(), "sandalias")|| Objects.equals(p.getShoeType(), "borcegos")
+					|| p.getShoeType().equals("zapatillas") || p.getShoeType().equals("zapatos") || p.getShoeType().equals("zuecos - mocasin")){
+				p.setNumberOfElements(1111);
+				updatedProducts.add(p);
+			}
+		}
+
+		ExcelUtils excelUtilsFemale = new ExcelUtils(false);
+		ExcelUtils excelUtilsMale = new ExcelUtils(true);
+
+		excelUpdateService.updateExcelStock(updatedProducts);
+
+		List<Product> femaleExcelProducts = excelUtilsFemale.readExcelFile();
+		List<Product> maleExcelProducts = excelUtilsMale.readExcelFile();
+
+		int counter = 0;
+		for (Product updatedProduct : updatedProducts) {
+			if (femaleExcelProducts.stream().anyMatch(p -> p.sameProduct(updatedProduct)) ||
+					maleExcelProducts.stream().anyMatch(p -> p.sameProduct(updatedProduct))) {
+				counter++;
+			}
+		}
+
+		assertEquals(counter, updatedProducts.size());
+	}
 }

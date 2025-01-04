@@ -32,3 +32,4 @@ build/
 ### VS Code ###
 .vscode/
 /.apt_generated_tests/
+/src/main/java/com/management/management/batchprocessing/

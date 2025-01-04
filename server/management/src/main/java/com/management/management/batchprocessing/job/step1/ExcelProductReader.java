@@ -62,7 +62,7 @@ public class ExcelProductReader implements ItemReader<Product> {
 
             // Obtener el nombre del archivo para determinar el género
             String fileName = filePath.getFileName().toString();
-            Boolean gender = !fileName.contains("STOCK HOMBRE");
+            Boolean gender = fileName.contains("STOCK HOMBRE");
 
             for (Sheet sheet : workbook) {
                 if (sheet.getSheetName().equalsIgnoreCase("VENTAS")) {
@@ -119,12 +119,19 @@ public class ExcelProductReader implements ItemReader<Product> {
                                         product.setName(Integer.parseInt(currentArticle));
                                         product.setLeatherType(getCellValueAsString(row.getCell(2)));
                                         product.setColor(getCellValueAsString(row.getCell(3)));
-                                        product.setSize(i + 35); // Ajustar la talla según la columna
+                                        if(gender){
+                                            product.setSize(i + 35); // Ajustar la talla según la columna
+                                        }
+                                        else{
+                                            if(i != 11){
+                                                product.setSize(i + 31);
+                                            }
+                                        }
                                         product.setNumberOfElements(stock);
 
                                         // Agregar shoeType y gender
                                         product.setShoeType(shoeType);  // Tipo de zapato (nombre de la hoja)
-                                        product.setGender(gender);  // 0 para hombre, 1 para mujer
+                                        product.setGender(gender);  // 1 para hombre, 0 para mujer
                                         product.setInFactory(isFactory);
                                         products.add(product);
                                     }
