@@ -54,7 +54,6 @@ public class JobRunner implements CommandLineRunner {
         watchService = FileSystems.getDefault().newWatchService();
         filePathHombre.getParent().register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
         filePathDama.getParent().register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
-       
     }
 
     @Scheduled(fixedRate = 800)

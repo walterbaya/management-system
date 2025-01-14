@@ -1,5 +1,6 @@
 package com.management.management.batchprocessing.config;
 
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -22,13 +23,14 @@ public class BatchDatabaseConfig {
             @Value("${batch.datasource.username}") String username,
             @Value("${batch.datasource.password}") String password,
             @Value("${batch.datasource.driver-class-name}") String driverClassName) {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setUrl(url);
+        HikariDataSource dataSource = new HikariDataSource();
+        dataSource.setJdbcUrl(url);
         dataSource.setUsername(username);
         dataSource.setPassword(password);
         dataSource.setDriverClassName(driverClassName);
         return dataSource;
     }
+
 
     @Primary
     @Bean

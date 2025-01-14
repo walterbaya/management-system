@@ -1,6 +1,7 @@
 package com.management.management;
 
 import com.management.management.model.Product;
+import com.management.management.model.Purchase;
 import com.management.management.repository.ProductRepo;
 import com.management.management.service.ExcelUpdateService;
 import com.management.management.util.ExcelUtils;
@@ -8,12 +9,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 @SpringBootTest
 class ExcelUpdateServiceTests {
@@ -57,9 +61,8 @@ class ExcelUpdateServiceTests {
 		assertEquals(666, updatedBota.getNumberOfElements());
 	}
 
-
 @Test
-void writeAllFemaleBotasProductsData() {
+	void writeAllFemaleBotasProductsData() {
 	List<Product> products = productRepo.findProductByGenderAndShoeTypeAndName(false, "botas", 1849);
 	List<Product> updatedProducts = new ArrayList<>();
 
@@ -92,16 +95,14 @@ void writeAllFemaleBotasProductsData() {
 	void writeMaleAndFemaleDifferentCategoriesProductsData() {
 		List<Product> products = productRepo.findAll();
 		List<Product> updatedProducts = new ArrayList<>();
-		List<Product> updatedProductsResult = new ArrayList<>();
-
 
 		for (Product p : products) {
-			if(Objects.equals("ZAPATOS", p.getShoeType().toUpperCase())){
-				p.setNumberOfElements(17);
+			if(Objects.equals(p.getShoeType(), "sandalias")|| Objects.equals(p.getShoeType(), "borcegos")
+					|| p.getShoeType().equals("zapatillas") || p.getShoeType().equals("zapatos") || p.getShoeType().equals("zuecos - mocasin")){
+				p.setNumberOfElements(1111);
 				updatedProducts.add(p);
 			}
 		}
-
 
 		ExcelUtils excelUtilsFemale = new ExcelUtils(false);
 		ExcelUtils excelUtilsMale = new ExcelUtils(true);
@@ -111,45 +112,90 @@ void writeAllFemaleBotasProductsData() {
 		List<Product> femaleExcelProducts = excelUtilsFemale.readExcelFile();
 		List<Product> maleExcelProducts = excelUtilsMale.readExcelFile();
 
-
 		int counter = 0;
-
-
-		for(Product updatedProduct : updatedProducts){
-			for (Product excelProduct : femaleExcelProducts) {
-				if (updatedProduct.sameProduct(excelProduct)) {
-					counter++;
-				}
-			}
-
-			for (Product excelProduct : maleExcelProducts) {
-				if (updatedProduct.sameProduct(excelProduct)) {
-					counter++;
-				}
+		for (Product updatedProduct : updatedProducts) {
+			if (femaleExcelProducts.stream().anyMatch(p -> p.sameProduct(updatedProduct)) ||
+					maleExcelProducts.stream().anyMatch(p -> p.sameProduct(updatedProduct))) {
+				counter++;
 			}
 		}
 
-		List<Product> noUpdatedProducts = new ArrayList<>();
-
-		for (Product p : updatedProductsResult) {
-			boolean updated = false;
-			for (Product p2 : updatedProducts) {
-				if (p.sameProduct(p2)) {
-					updated = true;
-					break;
-				}
-			}
-
-			if (!updated) {
-				noUpdatedProducts.add(p);
-			}
-		}
-
-
-		assertTrue(noUpdatedProducts.isEmpty());
 		assertEquals(counter, updatedProducts.size());
 	}
 
 
+	@Test
+	void saleBota() {
+		List<Purchase> purchases = new ArrayList<>();
 
+		Purchase bota = new Purchase();
+		bota.setName("1849");
+		bota.setShoeType("BOTAS");
+		bota.setColor("NEGRO");
+		bota.setLeatherType("WANAMA");
+		bota.setGender(false); // Assuming 'true' indicates male
+		bota.setSize(35.0); // Example size
+		bota.setNumberOfElements(2); // Example stock quantity
+
+
+		// Define el formato del DateTimeFormatter
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/M/yyyy");
+
+		// Parsear la fecha como LocalDate
+		LocalDate localDate = LocalDate.parse("18/4/2024", formatter);
+
+		// Convertir LocalDate a ZonedDateTime usando una zona horaria específica
+		ZonedDateTime zonedDateTime = localDate.atStartOfDay(ZoneId.of("America/Argentina/Buenos_Aires"));
+
+		// Asignar el ZonedDateTime a la fecha de emisión de bota
+		bota.setEmissionDate(zonedDateTime);
+
+		purchases.add(bota);
+
+		excelUpdateService.updateVentas(purchases);
+	}
+
+	@Test
+	void saleManyZapatos() {
+
+		List<Product> products = productRepo.findAll();
+		List<Purchase> purchases = new ArrayList<>();
+
+		for (Product p : products) {
+			if(Objects.equals(p.getShoeType(), "sandalias")|| Objects.equals(p.getShoeType(), "borcegos")
+					|| p.getShoeType().equals("zapatillas") || p.getShoeType().equals("zapatos") || p.getShoeType().equals("zuecos - mocasin")){
+
+				Purchase purchase = new Purchase();
+				purchase.setName(p.getName().toString());
+				purchase.setColor(p.getColor());
+				purchase.setSize(p.getSize().doubleValue());
+				purchase.setGender(p.getGender());
+
+				purchases.add(purchase);
+
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/M/yyyy");
+
+				// Parsear la fecha como LocalDate
+
+
+				int day = ThreadLocalRandom.current().nextInt(1, 29);
+				LocalDate localDate = LocalDate.parse(day + "/4/2024", formatter);
+
+				// Convertir LocalDate a ZonedDateTime usando una zona horaria específica
+				ZonedDateTime zonedDateTime = localDate.atStartOfDay(ZoneId.of("America/Argentina/Buenos_Aires"));
+
+				// Asignar el ZonedDateTime a la fecha de emisión de bota
+				purchase.setEmissionDate(zonedDateTime);
+
+				purchases.add(purchase);
+
+
+			}
+		}
+
+		// Define el formato del DateTimeFormatter
+
+
+		excelUpdateService.updateVentas(purchases);
+	}
 }

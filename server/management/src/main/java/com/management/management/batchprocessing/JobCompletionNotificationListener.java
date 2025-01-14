@@ -24,7 +24,7 @@ public class JobCompletionNotificationListener implements JobExecutionListener {
     public void afterJob(JobExecution jobExecution) {
         if(jobExecution.getStatus() == BatchStatus.COMPLETED) {
             log.info("!JOB FINISHED! Time to verify the results");
-            productRepo.findAll().forEach(System.out::println);
+            //productRepo.findAll().forEach(System.out::println);
         }
     }
 }

@@ -11,7 +11,8 @@ public class ProductRow {
     private int name;
     private String leatherType;
     private String color;
-    private double price;
+    private double factoryPrice;
+    private double salesPrice;
     private String gender;
     private String shoeType;
     private int[] sizes = new int[11]; // Talles de 35 a 45
@@ -20,7 +21,8 @@ public class ProductRow {
         this.name = product.getName();
         this.leatherType = product.getLeatherType();
         this.color = product.getColor();
-        this.price = product.getPrice();
+        this.factoryPrice = product.getFactoryPrice();
+        this.salesPrice = product.getSalesPrice();
         this.gender = product.getGender() ? "M" : "F";
         this.shoeType = product.getShoeType();
     }

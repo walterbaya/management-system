@@ -1,7 +1,7 @@
 package com.management.management.service;
 
 import com.management.management.model.Product;
-import com.management.management.model.util.ProductRow;
+import com.management.management.model.Purchase;
 import lombok.RequiredArgsConstructor;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -19,7 +19,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 
@@ -55,7 +60,7 @@ public class ExcelUpdateService {
 
 	}
 
-	public synchronized void updateExcelStockAux(String filePath, List<Product> products, Boolean gender) {
+	private synchronized void updateExcelStockAux(String filePath, List<Product> products, Boolean gender) {
     	if (!excelUpdateWatcherManager.isAppUpdatingFile()) {
             excelUpdateWatcherManager.setAppUpdatingFile(true);
             try (FileInputStream fis = new FileInputStream(filePath)) {
@@ -184,6 +189,72 @@ public class ExcelUpdateService {
             }
            }
     	}
+
+	public synchronized void updateVentas(List<Purchase> purchases) {
+		List<Purchase> maleProducts = purchases.stream().filter(Purchase::getGender)
+				.collect(Collectors.toList());
+
+		List<Purchase> femaleProducts = purchases.stream().filter(purchase -> !purchase.getGender())
+				.collect(Collectors.toList());
+
+		updateExcelVentasAux(filePathHombre, maleProducts, true);
+		updateExcelVentasAux(filePathDama, femaleProducts, false);
+
+	}
+
+	private synchronized void updateExcelVentasAux(String filePath, List<Purchase> purchases, Boolean gender) {
+		if (!excelUpdateWatcherManager.isAppUpdatingFile()) {
+			excelUpdateWatcherManager.setAppUpdatingFile(true);
+			try (FileInputStream fis = new FileInputStream(filePath);
+				 Workbook workbook = new XSSFWorkbook(fis)) {
+
+				// Obtenemos la hoja "VENTAS"
+				Sheet sheet = workbook.getSheet("VENTAS");
+				if (sheet == null) {
+					log.error("La hoja de VENTAS no existe en el archivo.");
+					return;
+				}
+
+				// Determinamos la última fila ocupada
+				int lastRowNum = sheet.getLastRowNum();
+
+				// Agregamos las compras en nuevas filas
+				for (Purchase purchase : purchases) {
+					Row row = sheet.createRow(++lastRowNum);
+
+					// Configuramos el formato de fecha
+					DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+					DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MMM");
+
+					// Convertimos y formateamos la fecha
+					String formattedDate = ZonedDateTime
+							.parse(purchase.getEmissionDate().toString()) // Parsea la fecha completa
+							.toLocalDate() // Extrae solo la parte de la fecha
+							.format(outputFormatter); // Formatea la fecha
+
+					// Creamos y llenamos las celdas
+					row.createCell(0).setCellValue(formattedDate);
+					row.createCell(1).setCellValue(purchase.getName());
+					row.createCell(2).setCellValue(purchase.getColor());
+					row.createCell(3).setCellValue(purchase.getSize());
+					row.createCell(4).setCellValue("Flor");
+				}
+
+				// Guardamos los cambios en el archivo
+				try (FileOutputStream fos = new FileOutputStream(filePath)) {
+					workbook.write(fos);
+				}
+
+			} catch (FileNotFoundException e) {
+				log.error("No se encontró el archivo al intentar actualizarlo: {}", filePath, e);
+			} catch (IOException e) {
+				log.error("Error de tipo I/O al intentar actualizar el archivo Excel: {}", filePath, e);
+			} finally {
+				excelUpdateWatcherManager.setAppUpdatingFile(false);
+			}
+		}
+	}
+
 
 	private boolean isArticleRow(Row row) {
 		Cell cell = row.getCell(2);

@@ -3,18 +3,37 @@ import Table from "react-bootstrap/Table";
 import { Typeahead } from "react-bootstrap-typeahead";
 import axios from "axios";
 import QRCodeModule from "./Utilities/QRCodeModule";
-
+import ReactPaginate from "react-paginate"; // Importar react-paginate
 
 function getArticuloFullDescription(articulo) {
-  return (articulo.id + "-" + articulo.name + "-" + articulo.leatherType + "-" + articulo.color + "-" + (articulo.gender ? "Hombre" : "Mujer") + "-" + articulo.shoeType + "-" + articulo.size).toLowerCase();
+  return (
+    articulo.id +
+    "-" +
+    articulo.name +
+    "-" +
+    articulo.leatherType +
+    "-" +
+    articulo.color +
+    "-" +
+    (articulo.gender ? "Hombre" : "Mujer") +
+    "-" +
+    articulo.shoeType +
+    "-" +
+    articulo.size
+  ).toLowerCase();
 }
 
 function TableArticulos(props) {
+  const { articulos, currentPage, itemsPerPage, handlePageClick } = props;
+  
+  // Calcula los artículos que se mostrarán en la página actual
+  const startIndex = currentPage * itemsPerPage;
+  const displayedArticulos = articulos.slice(startIndex, startIndex + itemsPerPage);
+
   let rows = <tr></tr>;
-  let res = <div className="fixed_height p-4"></div>;
-  if (props.articulos !== undefined && props.articulos.length > 0) {
-    rows = props.articulos.map((articulo, index) => (
-      <tr key={articulo.id} style={{ backgroundColor: index % 2 === 0 ? '#f8f9fa' : 'white' }}>
+  if (displayedArticulos.length > 0) {
+    rows = displayedArticulos.map((articulo, index) => (
+      <tr key={articulo.id} style={{ backgroundColor: index % 2 === 0 ? "#f8f9fa" : "white" }}>
         <td>
           <QRCodeModule url={articulo.id} data={getArticuloFullDescription(articulo) + ".png"} />
         </td>
@@ -26,55 +45,54 @@ function TableArticulos(props) {
         <td>{articulo.gender ? "Hombre" : "Mujer"}</td>
         <td>{articulo.numberOfElements}</td>
         <td>{articulo.price}</td>
-        <td>
-          <button
-            className="btn btn-info text-white"
-            onClick={(e) => props.restar(articulo.id, props.articulos)}
-            style={{ backgroundColor: '#007bff', borderColor: '#007bff' }} // Azul
-          >
-            -
-          </button>
-        </td>
-        <td>
-          <button
-            className="btn btn-danger text-white"
-            onClick={(e) => props.eliminar(articulo.id, props.articulos)}
-            style={{ backgroundColor: '#dc3545', borderColor: '#dc3545' }} // Rojo
-          >
-            X
-          </button>
-        </td>
       </tr>
     ));
-  
-
-    res = (
-      <div className="fixed_height p-4 ">
-        <Table className="table" style={{ border: '2px solid blue' }} size="sm">
-          <thead className="bg-primary text-white">
-            <tr>
-              <th>Identificador de Articulo</th>
-              <th>Nombre Artículo</th>
-              <th>Talle</th>
-              <th>Color</th>
-              <th>Cuero</th>
-              <th>Tipo</th>
-              <th>Genero</th>
-              <th>Cantidad</th>
-              <th>Precio</th>
-              <th></th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>{rows}</tbody>
-        </Table>
-      </div>
-    );
   }
 
-  return res;
+  return (
+    <div className="fixed_height p-4">
+      <Table className="table" style={{ border: "2px solid blue" }} size="sm">
+        <thead className="bg-primary text-white">
+          <tr>
+            <th>Identificador de Articulo</th>
+            <th>Nombre Artículo</th>
+            <th>Talle</th>
+            <th>Color</th>
+            <th>Cuero</th>
+            <th>Tipo</th>
+            <th>Genero</th>
+            <th>Cantidad</th>
+            <th>Precio</th>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>{rows}</tbody>
+      </Table>
+
+      {/* Paginación */}
+      <ReactPaginate
+        previousLabel={"Anterior"}
+        nextLabel={"Siguiente"}
+        breakLabel={"..."}
+        pageCount={Math.ceil(articulos.length / itemsPerPage)}
+        marginPagesDisplayed={2}
+        pageRangeDisplayed={5}
+        onPageChange={handlePageClick}
+        containerClassName={"pagination justify-content-center"}
+        pageClassName={"page-item"}
+        pageLinkClassName={"page-link"}
+        previousClassName={"page-item"}
+        previousLinkClassName={"page-link"}
+        nextClassName={"page-item"}
+        nextLinkClassName={"page-link"}
+        activeClassName={"active"}
+      />
+    </div>
+  );
 }
 
+/** */
 class Disponibilidad extends Component {
   constructor(props) {
     super(props);
@@ -82,10 +100,14 @@ class Disponibilidad extends Component {
       name: [],
       articulos: [],
       articulos_typehead: [],
+      currentPage: 0, // Página inicial
+      itemsPerPage: 50, // Artículos por página
     };
+
     this.cambiar_name = this.cambiar_name.bind(this);
     this.mostrar_articulo = this.mostrar_articulo.bind(this);
     this.show_complete_stock = this.show_complete_stock.bind(this);
+    this.handlePageClick = this.handlePageClick.bind(this);
   }
 
   cambiar_name(event) {
@@ -111,7 +133,7 @@ class Disponibilidad extends Component {
     });
     axios
       .delete("http://localhost:8080/api/public/product/delete_product", {
-        params: { id: id }
+        params: { id: id },
       })
       .then((response) => console.log(response.data))
       .catch((error) => console.log(error));
@@ -171,6 +193,10 @@ class Disponibilidad extends Component {
       .catch((error) => console.log(error));
   }
 
+  handlePageClick(event) {
+    this.setState({ currentPage: event.selected });
+  }
+
   render() {
     return (
       <div className="bg-white h-100">
@@ -197,10 +223,14 @@ class Disponibilidad extends Component {
             Regresar Stock a Versión Anterior
           </button>
         </form>
+
         <TableArticulos
           articulos={this.state.articulos}
-          restar={this.restar_articulo.bind(this)}
-          eliminar={this.eliminar.bind(this)}
+          currentPage={this.state.currentPage}
+          itemsPerPage={this.state.itemsPerPage}
+          //restar={this.restar_articulo.bind(this)}
+          //eliminar={this.eliminar.bind(this)}
+          handlePageClick={this.handlePageClick}
         />
       </div>
     );

@@ -307,7 +307,7 @@ class AgregarArticulo extends Component {
               />
             </div>
             <div className="col-4">
-              <label className="pb-2"> Precio </label>
+              <label className="pb-2"> Precio de Fábrica</label>
               <input
                 type="number"
                 className="form-control"

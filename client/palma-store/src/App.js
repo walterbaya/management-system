@@ -10,7 +10,7 @@ import ControlCatalogos from "./components/ControlCatalogos";
 class App extends Component {
   render() {
     return (
-      <div className="container">
+      <div className="container-fluid">
         <Router>
           <header>
             <h1 className="main-title w-100 m-0">

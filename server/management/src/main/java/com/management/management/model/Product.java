@@ -37,8 +37,12 @@ public class Product {
     //Esto deberia ser un enum por ejemplo
     @Column(name = "genero")
     private Boolean gender;
-    @Column(name = "precio")
-    private Double price;
+
+    @Column(name = "precio_fabrica")
+    private Double factoryPrice;
+
+    @Column(name = "precio_venta")
+    private Double salesPrice;
 
     @Column(name = "cantidad")
     private Integer numberOfElements;
@@ -72,7 +76,9 @@ public class Product {
                 Objects.equals(shoeType, product.shoeType) &&
                 Objects.equals(size, product.size) &&
                 Objects.equals(inFactory, product.inFactory) &&
-                Objects.equals(numberOfElements, product.numberOfElements);
+                Objects.equals(numberOfElements, product.numberOfElements) &&
+                Objects.equals(factoryPrice, product.factoryPrice) &&
+                Objects.equals(salesPrice, product.salesPrice);
     }
 
 

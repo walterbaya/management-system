@@ -125,7 +125,6 @@ public class ExcelUtils {
         return products;
     }
 
-
     private boolean isArticleRow(Row row) {
         Cell cell = row.getCell(2);
         return cell != null && cell.getCellType() == CellType.STRING && cell.getStringCellValue().startsWith("ART.");

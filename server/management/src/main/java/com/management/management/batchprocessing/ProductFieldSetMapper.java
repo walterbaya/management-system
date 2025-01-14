@@ -14,7 +14,8 @@ public class ProductFieldSetMapper implements FieldSetMapper<Product> {
         product.setLeatherType(fieldSet.readString("cuero"));
         product.setColor(fieldSet.readString("color"));
         product.setSize(fieldSet.readInt("talle"));
-        product.setPrice(fieldSet.readDouble("precio"));
+        product.setFactoryPrice(fieldSet.readDouble("precio_fabrica"));
+        product.setSalesPrice(fieldSet.readDouble("precio_venta"));
         product.setGender(fieldSet.readString("genero").equals("M"));
         product.setShoeType(fieldSet.readString("tipo"));
         product.setNumberOfElements(fieldSet.readInt("stock"));

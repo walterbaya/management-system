@@ -4,9 +4,11 @@ import Table from "react-bootstrap/Table";
 import axios from "axios";
 
 function validarFormulario(articulo, es_articulo) {
+  console.log(articulo.cantidad);
+  console.log(articulo.cantidad <= 0);
+
   if (
-    es_articulo &&
-    parseInt(articulo.numberOfElements) - parseInt(articulo.numberOfElements) < 0
+    es_articulo && (parseInt(articulo.numberOfElements) < 0)
   ) {
     return "No hay suficientes: " + articulo.name + " en el stock!";
   }
@@ -17,9 +19,10 @@ function validarFormulario(articulo, es_articulo) {
   if (!articulo.price || articulo.price <= 0) {
     return "Error, se debe ingresar el precio de venta y debe ser mayor a 0";
   }
-  if (!articulo.numberOfElements) {
+  if (articulo.cantidad <= 0 || !articulo.cantidad) {
     return "Error, se debe ingresar una cantidad de elementos mayor a 0";
   }
+
 
   return "ok";
 }
@@ -39,11 +42,11 @@ function Tableproducts(props) {
         <td>{articulo.color}</td>
         <td>{articulo.leatherType}</td>
         <td>{articulo.shoeType}</td>
-        <td>{articulo.gender ? "Mujer" : "Hombre"}</td>
-        <td>{articulo.numberOfElements}</td>
+        <td>{articulo.gender ? "Hombre" : "Mujer"}</td>
+        <td>{articulo.cantidad}</td>
         <td>{carrito.clientInfo.clientNameAndSurname}</td>
         <td>{carrito.clientInfo.clientDni}</td>
-        <td>{articulo.price * articulo.numberOfElements}</td>
+        <td>{articulo.price * articulo.cantidad}</td>
         <td>
           <button className="btn btn-info text-white" onClick={e => props.restar(articulo.idProduct, props.carrito.products)}>-</button>
         </td>
@@ -59,15 +62,15 @@ function Tableproducts(props) {
           <thead className="table-primary text-center">
             <tr>
               <th scope="col">Nombre Artículo</th>
-              <th scope="col">size</th>
+              <th scope="col">Talle</th>
               <th scope="col">Color</th>
-              <th scope="col">leatherType</th>
-              <th scope="col">shoeType</th>
-              <th scope="col">gender</th>
-              <th scope="col">numberOfElements</th>
+              <th scope="col">Cuero</th>
+              <th scope="col">Tipo</th>
+              <th scope="col">Genero</th>
+              <th scope="col">Cantidad</th>
               <th scope="col">Nombre y Apellido</th>
               <th scope="col">Dni Cliente</th>
-              <th scope="col">price</th>
+              <th scope="col">Precio</th>
               <th scope="col"></th>
               <th scope="col"></th>
             </tr>
@@ -94,6 +97,7 @@ class Registrar extends Component {
       numberOfElements: 1,
       articulo: "",
       numberOfElements: "",
+      cantidad: 0,
       name: "",
       size: "",
       color: "",
@@ -109,6 +113,7 @@ class Registrar extends Component {
     this.cambiar_clientDni = this.cambiar_clientDni.bind(this);
     this.cambiar_clientNameAndSurname = this.cambiar_clientNameAndSurname.bind(this);
     this.cambiar_numberOfElements = this.cambiar_numberOfElements.bind(this);
+    this.cambiar_cantidad = this.cambiar_cantidad.bind(this);
     this.traer_articulo = this.traer_articulo.bind(this);
     this.agregar_al_carrito = this.agregar_al_carrito.bind(this);
     //this.seleccionar_forma_pago = this.seleccionar_forma_pago.bind(this);
@@ -123,7 +128,7 @@ class Registrar extends Component {
       leatherType: this.state.leatherType,
       shoeType: this.state.shoeType,
       gender: this.state.gender === "hombre",
-      numberOfElements: this.state.numberOfElements,
+      cantidad: this.state.cantidad,
       price: this.state.price,
     };
 
@@ -144,9 +149,7 @@ class Registrar extends Component {
         carrito.products = carrito.products.filter(
           (elem) => elem.idProduct !== this.state.idProduct
         );
-        products_encontrados[0].numberOfElements =
-          parseInt(products_encontrados[0].numberOfElements) +
-          parseInt(this.state.numberOfElements);
+        products_encontrados[0].cantidad = parseInt(this.state.cantidad);
         carrito.products.push(products_encontrados[0]);
       } else {
         carrito.products.push(articulo);
@@ -180,14 +183,14 @@ class Registrar extends Component {
       (elem) => elem.idProduct === idProduct
     );
 
-    //Si habia articulo tengo que restarle la numberOfElements
+    //Si habia articulo tengo que restarle la cantidad
     if (articulo.length !== 0) {
       //Lo que tendria que hacer es cambiar
       const index = carrito.products.findIndex(articulo => articulo.idProduct === idProduct);
 
-      articulo[0].numberOfElements = parseInt(articulo[0].numberOfElements) - 1;
+      articulo[0].cantidad = parseInt(articulo[0].cantidad) - 1;
 
-      if (articulo[0].numberOfElements === 0) {
+      if (articulo[0].cantidad === 0) {
         carrito.products.splice(index, 1);
       }
       else {
@@ -209,7 +212,8 @@ class Registrar extends Component {
       this.setState({ leatherType: articulo.leatherType });
       this.setState({ gender: articulo.gender });
       this.setState({ shoeType: articulo.shoeType });
-      this.setState({ price: articulo.price });
+      this.setState({ price: articulo.price || 0 });
+      this.setState({ cantidad: 0 });
       this.setState({ numberOfElements: articulo.numberOfElements });
     }
   }
@@ -220,6 +224,7 @@ class Registrar extends Component {
     this.setState({ clientDni: "" });
     this.setState({ clientNameAndSurname: "" });
     this.setState({ numberOfElements: 1 });
+    this.setState({ cantidad: 0 });
     this.setState({ articulo: "" });
     this.setState({ name: "" })
     this.setState({ carrito: { products: [], clientInfo: { clientNameAndSurname: "", clientDni: "" } } });
@@ -235,7 +240,7 @@ class Registrar extends Component {
       .then((response) => {
         let res = response.data;
         res.forEach((element) => {
-          element.gender = element.gender ? "Mujer" : "Hombre";
+          element.gender = element.gender ? "Hombre" : "Mujer";
         });
 
         this.setState({ products_typehead: res });
@@ -252,6 +257,10 @@ class Registrar extends Component {
   }
   cambiar_numberOfElements(event) {
     this.setState({ numberOfElements: event.target.value });
+  }
+
+  cambiar_cantidad(event) {
+    this.setState({ cantidad: event.target.value });
   }
 
   cambiar_clientDni = (event) => {
@@ -344,7 +353,7 @@ class Registrar extends Component {
             >
               <h1 className="row px-2"> Registrar Venta </h1>
               <div className="row mt-3">
-                <div className="form-group col-12 mt-2 mt-md-0 col-md-4">
+                <div className="form-group col-12 mt-2 mt-md-0">
                   <label className="pb-2"> Nombre de Artículo </label>
                   <Typeahead
                     id="typeahead-products"
@@ -363,8 +372,10 @@ class Registrar extends Component {
                     }
                   />
                 </div>
+              </div>
 
-                <div className="form-group col-12 mt-2 mt-md-0 col-md-4">
+              <div className="row mt-3">
+                <div className="form-group col-12 mt-2 mt-md-0 col-md-6">
                   <label className="pb-2"> DNI del Cliente (Opcional) </label>
                   <input
                     type="text"
@@ -373,7 +384,7 @@ class Registrar extends Component {
                     onChange={this.cambiar_clientDni}
                   />
                 </div>
-                <div className="form-group col-12 mt-2 mt-md-0 col-md-4">
+                <div className="form-group col-12 mt-2 mt-md-0 col-md-6">
                   <label className="pb-2">
                     Nombre y Apellido del Cliente(Opcional)
                   </label>
@@ -387,25 +398,58 @@ class Registrar extends Component {
               </div>
 
               <div className="row mt-3">
-                <div className="form-group col-12 mt-2 mt-md-0 col-md-4">
-                  <label className="pb-2"> price Por Unidad</label>
+                <div className="form-group col-12 mt-2 mt-md-0 col-md-3">
+                  <label className="pb-2"> Precio Por Unidad</label>
                   <input
                     type="number"
                     className="form-control"
                     value={this.state.price}
                     onChange={this.cambiar_price}
+                    onFocus={(e) => {
+                      if (this.state.price === 0) {
+                        this.setState({ price: '' }); // Borra el 0 cuando se hace clic
+                      }
+                    }}
                   />
                 </div>
-                <div className="form-group col-12 mt-2 mt-md-0 col-md-4">
-                  <label className="pb-2"> numberOfElements </label>
+                <div className="form-group col-12 mt-2 mt-md-0 col-md-3">
+                  <label className="pb-2"> Quedan Disponibles:  </label>
                   <input
                     type="number"
-                    className="form-control"
+                    className={`form-control ${this.state.numberOfElements <= 0 ? 'is-invalid' : ''}`}
+                    readOnly
                     value={this.state.numberOfElements}
-                    onChange={this.cambiar_numberOfElements}
                   />
+                  {this.state.numberOfElements <= 0 && (
+                    <div className="invalid-feedback">Agotado</div>
+                  )}
                 </div>
+
+                <div className="form-group col-12 mt-2 mt-md-0 col-md-3">
+                  <label className="pb-2">Cantidad</label>
+                  <input
+                    type="number"
+                    className={`form-control ${this.state.numberOfElements <= 0 ? 'is-invalid' : ''}`}
+                    value={this.state.cantidad}
+                    onChange={this.cambiar_cantidad} // Permite editar cuando no está bloqueado
+                    onFocus={(e) => {
+                      if (this.state.cantidad === 0 && this.state.numberOfElements > 0) {
+                        // Solo borra el valor inicial si no está bloqueado
+                        this.setState({ cantidad: '' });
+                      }
+                    }}
+                    disabled={this.state.numberOfElements <= 0} // Bloquea el campo si no hay elementos
+                  />
+                  {this.state.numberOfElements <= 0 && (
+                    <div className="invalid-feedback">Elemento bloqueado</div>
+                  )}
+                </div>
+
+
               </div>
+
+
+
               <button
                 className="btn btn-primary mt-3"
                 onClick={this.agregar_al_carrito}

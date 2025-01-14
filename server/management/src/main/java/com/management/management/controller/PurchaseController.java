@@ -56,7 +56,7 @@ public class PurchaseController {
 
 
     @PostMapping("/add_purchase")
-    public void savePurchase(@RequestBody List<Purchase> purchaseList){
+    public String savePurchase(@RequestBody List<Purchase> purchaseList){
         purchaseList.forEach(purchase -> {
             ZonedDateTime emissionDate = purchase.getEmissionDate();
 
@@ -93,6 +93,9 @@ public class PurchaseController {
         productRepo.saveAll(products);
 
         excelUpdateService.updateExcelStock(productRepo.findAll());
+        excelUpdateService.updateVentas(purchaseList);
+
+        return "ok";
     }
 
 
@@ -147,7 +150,10 @@ public class PurchaseController {
             var excelRow = sheet.createRow(rowNum++);
             excelRow.createCell(0).setCellValue(purchase.getName());
             excelRow.createCell(1).setCellValue(purchase.getShoeType());
-            excelRow.createCell(2).setCellValue(purchase.getGender());
+
+            String gender = purchase.getGender() ?  "Hombre" : "Dama";
+
+            excelRow.createCell(2).setCellValue(gender);
             excelRow.createCell(3).setCellValue(purchase.getSize());
             excelRow.createCell(4).setCellValue(purchase.getColor());
             excelRow.createCell(5).setCellValue(purchase.getLeatherType());
