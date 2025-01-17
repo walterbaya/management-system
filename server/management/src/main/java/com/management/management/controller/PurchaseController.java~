@@ -5,6 +5,7 @@ import com.management.management.model.Purchase;
 import com.management.management.repository.ProductRepo;
 import com.management.management.repository.PurchaseRepo;
 import com.management.management.service.ExcelUpdateService;
+import com.management.management.service.ExcelUpdateWatcherManager;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -42,6 +43,9 @@ public class PurchaseController {
 
     @Autowired
     ExcelUpdateService excelUpdateService;
+
+    @Autowired
+    ExcelUpdateWatcherManager excelUpdateWatcherManager;
 
     @GetMapping("/get_facturas")
     public List<Purchase> getAllPurchases(){
@@ -92,8 +96,11 @@ public class PurchaseController {
 
         productRepo.saveAll(products);
 
+        excelUpdateWatcherManager.setAppUpdatingFile(true);
         excelUpdateService.updateExcelStock(productRepo.findAll());
         excelUpdateService.updateVentas(purchaseList);
+
+        return "ok";
     }
 
 

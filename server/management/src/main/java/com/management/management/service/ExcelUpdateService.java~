@@ -205,63 +205,56 @@ public class ExcelUpdateService {
 	private synchronized void updateExcelVentasAux(String filePath, List<Purchase> purchases, Boolean gender) {
 		if (!excelUpdateWatcherManager.isAppUpdatingFile()) {
 			excelUpdateWatcherManager.setAppUpdatingFile(true);
-			try (FileInputStream fis = new FileInputStream(filePath)) {
+			try (FileInputStream fis = new FileInputStream(filePath);
+				 Workbook workbook = new XSSFWorkbook(fis)) {
 
-				Workbook workbook = new XSSFWorkbook(fis);
-
-				//Seteamos los productos por tipo
-				//Entramos en la hoja
+				// Obtenemos la hoja "VENTAS"
 				Sheet sheet = workbook.getSheet("VENTAS");
-
 				if (sheet == null) {
 					log.error("La hoja de VENTAS no existe en el archivo.");
 					return;
 				}
 
-				Iterator<Row> rowIterator = sheet.iterator();
-				Row row = rowIterator.next();
-				AtomicInteger rowNumber = new AtomicInteger(1);
-				while (rowIterator.hasNext()) {
-					row = rowIterator.next();
-					if (row == null) {
-						break;
-					}
-					rowNumber.getAndIncrement();
-				}
+				// Determinamos la última fila ocupada
+				int lastRowNum = sheet.getLastRowNum();
 
+				// Agregamos las compras en nuevas filas
 				for (Purchase purchase : purchases) {
-					DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd"); // Solo necesitamos la parte de la fecha
-					DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MMM"); // Formato de salida
+					Row row = sheet.createRow(++lastRowNum);
 
-// Convierte la fecha completa con zona horaria a LocalDate
+					// Configuramos el formato de fecha
+					DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+					DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MMM");
+
+					// Convertimos y formateamos la fecha
 					String formattedDate = ZonedDateTime
 							.parse(purchase.getEmissionDate().toString()) // Parsea la fecha completa
 							.toLocalDate() // Extrae solo la parte de la fecha
 							.format(outputFormatter); // Formatea la fecha
 
-// Establece el valor en la celda
-					row.getCell(0).setCellValue(formattedDate);
-					row.getCell(1).setCellValue(purchase.getName());
-					row.getCell(2).setCellValue(purchase.getColor());
-					row.getCell(3).setCellValue(purchase.getSize());
-					row.getCell(4).setCellValue("Flor");
-					row = rowIterator.next();
+					// Creamos y llenamos las celdas
+					row.createCell(0).setCellValue(formattedDate);
+					row.createCell(1).setCellValue(purchase.getName());
+					row.createCell(2).setCellValue(purchase.getColor());
+					row.createCell(3).setCellValue(purchase.getSize());
+					row.createCell(4).setCellValue("Flor");
 				}
 
+				// Guardamos los cambios en el archivo
 				try (FileOutputStream fos = new FileOutputStream(filePath)) {
 					workbook.write(fos);
 				}
+
 			} catch (FileNotFoundException e) {
-				log.error("Error, no se encontro el archivo al intentar actualizar archivos excel desde el sistema.");
-				e.printStackTrace();
+				log.error("No se encontró el archivo al intentar actualizarlo: {}", filePath, e);
 			} catch (IOException e) {
-				log.error("Error de tipo I/O, causado al intentar actualizar archivos excel desde el sistema.");
-				e.printStackTrace();
-			} finally{
+				log.error("Error de tipo I/O al intentar actualizar el archivo Excel: {}", filePath, e);
+			} finally {
 				excelUpdateWatcherManager.setAppUpdatingFile(false);
 			}
 		}
 	}
+
 
 	private boolean isArticleRow(Row row) {
 		Cell cell = row.getCell(2);
