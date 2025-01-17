@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.management.management.model.Product;
 import com.management.management.repository.ProductRepo;
 import com.management.management.service.ExcelUpdateService;
+import com.management.management.service.ExcelUpdateWatcherManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
@@ -32,12 +33,17 @@ public class ProductController {
     @Autowired
     ExcelUpdateService excelUpdateService;
 
+    @Autowired
+    ExcelUpdateWatcherManager excelUpdateWatcherManager;
+
     @PostMapping("/add_product")
     public String addProduct(@RequestBody Product product) {
         if (validate(product).equals("ok")) {
             repo.save(product);
             //Actualizamos el Excel
+            excelUpdateWatcherManager.setAppUpdatingFile(true);
             excelUpdateService.updateExcelStock(repo.findAll());
+            excelUpdateWatcherManager.setAppUpdatingFile(false);
         }
 
         return validate(product);
@@ -99,7 +105,9 @@ public class ProductController {
             });
 
             //Actualizamos el Excel
+            excelUpdateWatcherManager.setAppUpdatingFile(true);
             excelUpdateService.updateExcelStock(repo.findAll());
+            excelUpdateWatcherManager.setAppUpdatingFile(false);
         }
         return res;
     }
@@ -109,7 +117,9 @@ public class ProductController {
         repo.deleteById(id);
 
         //Actualizamos el Excel
+        excelUpdateWatcherManager.setAppUpdatingFile(true);
         excelUpdateService.updateExcelStock(repo.findAll());
+        excelUpdateWatcherManager.setAppUpdatingFile(false);
     }
 
     private String validate(Product product) {
