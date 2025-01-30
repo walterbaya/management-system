@@ -6,13 +6,12 @@ import com.management.management.batchprocessing.job.step1.ExcelProductReader;
 import com.management.management.batchprocessing.job.step1.ProductItemProcessor;
 import com.management.management.batchprocessing.job.step1.ProductItemWriter;
 
+import com.management.management.batchprocessing.job.step2.ExcelProductPriceReader;
+import com.management.management.util.ProductPrice;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.launch.support.TaskExecutorJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
@@ -31,8 +30,8 @@ public class BatchConfiguration {
 
     @Bean
     @StepScope
-    public ItemReader<Product> reader(@Qualifier("excelProductReader") ExcelProductReader excelProductReader) {
-        return excelProductReader;
+    public ItemReader<ProductPrice> reader(@Qualifier("excelProductPriceReader") ExcelProductPriceReader excelProductPriceReader) {
+        return excelProductPriceReader;
     }
 
     @Bean
@@ -52,6 +51,8 @@ public class BatchConfiguration {
     public ItemWriter<Product> writer() {
         return new ProductItemWriter();
     }
+
+
 
     @Bean
     public Job importUserJob(JobRepository jobRepository, Step step1, JobCompletionNotificationListener listener, ReaderResetListener readerResetListener) {

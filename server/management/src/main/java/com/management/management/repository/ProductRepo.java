@@ -38,6 +38,8 @@ public interface ProductRepo extends JpaRepository<Product, Long> {
 
     List<Product> findProductByGenderAndShoeTypeAndName(Boolean gender, String shoeType, Integer name);
 
+    void updateProductPriceByName(Integer name, Double price);
+
 
 /*function get_date() {
   const date = new Date();
