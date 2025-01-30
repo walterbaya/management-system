@@ -1,5 +1,6 @@
 package com.management.management.batchprocessing;
 
+import com.management.management.batchprocessing.job.step2.ExcelProductPriceReader;
 import com.management.management.service.ExcelUpdateWatcherManager;
 import com.management.management.batchprocessing.job.step1.ExcelProductReader;
 import org.springframework.batch.core.Job;
@@ -24,7 +25,13 @@ public class JobRunner implements CommandLineRunner {
     private ExcelProductReader excelProductReader;
 
     @Autowired
+    private ExcelProductPriceReader excelProductPriceReader;
+
+    @Autowired
     private Job importUserJob;
+
+    @Autowired
+    private Job updatePreciosJob;
 
     @Autowired
     private ExcelUpdateWatcherManager excelUpdateWatcherManager;
@@ -32,6 +39,7 @@ public class JobRunner implements CommandLineRunner {
     private WatchService watchService;
     private final Path filePathHombre = Paths.get("D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK HOMBRE.xlsx");
     private final Path filePathDama = Paths.get("D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK DAMA.xlsx");
+    private final Path filePathPrecios = Paths.get("D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\LISTA PRECIOS.xlsx");
     //private final Path filePathHombre = Paths.get("D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK HOMBRE.xlsx");
     //private final Path filePathDama = Paths.get("D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK DAMA.xlsx");
 
@@ -54,6 +62,7 @@ public class JobRunner implements CommandLineRunner {
         watchService = FileSystems.getDefault().newWatchService();
         filePathHombre.getParent().register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
         filePathDama.getParent().register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+        filePathPrecios.getParent().register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
     }
 
     @Scheduled(fixedRate = 800)
@@ -66,6 +75,10 @@ public class JobRunner implements CommandLineRunner {
                     if (changed.endsWith(filePathHombre.getFileName()) && changed.endsWith(filePathDama.getFileName()) && !excelUpdateWatcherManager.isAppUpdatingFile()) {
                         Thread.sleep(500); // Avoid concurrent operation conflicts
                         executeJob();
+                    }
+                    if(changed.endsWith(filePathPrecios.getFileName())){
+                        Thread.sleep(500); // Avoid concurrent operation conflicts
+                        executeJobPrecios();
                     }
                 }
             }
@@ -83,6 +96,20 @@ public class JobRunner implements CommandLineRunner {
                     .toJobParameters();
 
             jobLauncher.run(importUserJob, jobParameters);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void executeJobPrecios() {
+        try {
+            excelProductPriceReader.resetReader();
+
+            JobParameters jobParameters = new JobParametersBuilder()
+                    .addLong("timestamp", System.currentTimeMillis()) // Parámetro único
+                    .toJobParameters();
+
+            jobLauncher.run(updatePreciosJob, jobParameters);
         } catch (Exception e) {
             e.printStackTrace();
         }

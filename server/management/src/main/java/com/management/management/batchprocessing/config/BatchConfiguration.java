@@ -7,6 +7,9 @@ import com.management.management.batchprocessing.job.step1.ProductItemProcessor;
 import com.management.management.batchprocessing.job.step1.ProductItemWriter;
 
 import com.management.management.batchprocessing.job.step2.ExcelProductPriceReader;
+import com.management.management.batchprocessing.job.step2.ProductPriceItemProcessor;
+import com.management.management.batchprocessing.job.step2.ProductPriceItemWriter;
+
 import com.management.management.util.ProductPrice;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -28,17 +31,11 @@ import com.management.management.model.Product;
 @Configuration
 public class BatchConfiguration {
 
+    // PRODUCT
     @Bean
-    @StepScope
-    public ItemReader<ProductPrice> reader(@Qualifier("excelProductPriceReader") ExcelProductPriceReader excelProductPriceReader) {
-        return excelProductPriceReader;
-    }
-
-    @Bean
-    public ExcelProductReader excelProductReader(){
+    public ExcelProductReader excelProductReader() {
         return new ExcelProductReader();
     }
-
 
     @Bean
     @StepScope
@@ -52,13 +49,39 @@ public class BatchConfiguration {
         return new ProductItemWriter();
     }
 
+    // PRODUCT PRICE
+    @Bean(name = "priceReader")
+    @StepScope
+    public ExcelProductPriceReader priceReader() {
+        return new ExcelProductPriceReader();
+    }
 
+    @Bean(name = "priceProcessor")
+    @StepScope
+    public ProductPriceItemProcessor priceProcessor() {
+        return new ProductPriceItemProcessor();
+    }
+
+    @Bean(name = "priceWriter")
+    @StepScope
+    public ItemWriter<ProductPrice> priceWriter() {
+        return new ProductPriceItemWriter();
+    }
 
     @Bean
-    public Job importUserJob(JobRepository jobRepository, Step step1, JobCompletionNotificationListener listener, ReaderResetListener readerResetListener) {
+    public Job importUserJob(JobRepository jobRepository, Step step1, Step step2, JobCompletionNotificationListener listener) {
         return new JobBuilder("importUserJob", jobRepository)
                 .listener(listener)
                 .start(step1)
+                .next(step2)
+                .build();
+    }
+
+    @Bean
+    public Job updatePreciosJob(JobRepository jobRepository, Step step2, JobCompletionNotificationListener listener) {
+        return new JobBuilder("updatePreciosJob", jobRepository)
+                .listener(listener)
+                .start(step2)
                 .build();
     }
 
@@ -70,6 +93,20 @@ public class BatchConfiguration {
                 .reader(reader)
                 .processor(processor)
                 .writer(writer)
+                .allowStartIfComplete(true)
+                .build();
+    }
+
+    @Bean
+    public Step step2(JobRepository jobRepository, DataSourceTransactionManager transactionManager,
+                      @Qualifier("priceReader") ItemReader<ProductPrice> priceReader,
+                      @Qualifier("priceProcessor") ItemProcessor<ProductPrice, ProductPrice> priceProcessor,
+                      @Qualifier("priceWriter") ItemWriter<ProductPrice> priceWriter) {
+        return new StepBuilder("step2", jobRepository)
+                .<ProductPrice, ProductPrice>chunk(100, transactionManager)
+                .reader(priceReader)
+                .processor(priceProcessor)
+                .writer(priceWriter)
                 .allowStartIfComplete(true)
                 .build();
     }

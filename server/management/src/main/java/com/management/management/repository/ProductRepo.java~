@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -40,7 +39,6 @@ public interface ProductRepo extends JpaRepository<Product, Long> {
     List<Product> findProductByGenderAndShoeTypeAndName(Boolean gender, String shoeType, Integer name);
 
     @Modifying
-    @Transactional
     @Query("UPDATE Product p SET p.factoryPrice = :factoryPrice WHERE p.name = :name")
     void updateProductPriceByName(@Param("name") Integer name, @Param("factoryPrice") Double price);
 
