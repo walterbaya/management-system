@@ -25,7 +25,7 @@ function getArticuloFullDescription(articulo) {
 
 function TableArticulos(props) {
   const { articulos, currentPage, itemsPerPage, handlePageClick } = props;
-  
+
   // Calcula los artículos que se mostrarán en la página actual
   const startIndex = currentPage * itemsPerPage;
   const displayedArticulos = articulos.slice(startIndex, startIndex + itemsPerPage);
@@ -51,7 +51,9 @@ function TableArticulos(props) {
 
   return (
     <div className="fixed_height p-4">
-      <Table className="table" style={{ border: "2px solid blue" }} size="sm">
+      <Table className={`table ${displayedArticulos.length > 0 ? "" : "d-none"}`}
+
+       style={{ border: "2px solid blue" }} size="sm">
         <thead className="bg-primary text-white">
           <tr>
             <th>Identificador de Articulo</th>
@@ -70,24 +72,6 @@ function TableArticulos(props) {
         <tbody>{rows}</tbody>
       </Table>
 
-      {/* Paginación */}
-      <ReactPaginate
-        previousLabel={"Anterior"}
-        nextLabel={"Siguiente"}
-        breakLabel={"..."}
-        pageCount={Math.ceil(articulos.length / itemsPerPage)}
-        marginPagesDisplayed={2}
-        pageRangeDisplayed={5}
-        onPageChange={handlePageClick}
-        containerClassName={"pagination justify-content-center"}
-        pageClassName={"page-item"}
-        pageLinkClassName={"page-link"}
-        previousClassName={"page-item"}
-        previousLinkClassName={"page-link"}
-        nextClassName={"page-item"}
-        nextLinkClassName={"page-link"}
-        activeClassName={"active"}
-      />
     </div>
   );
 }
@@ -207,21 +191,19 @@ class Disponibilidad extends Component {
               id="typeahead-articulos"
               onChange={this.mostrar_articulo}
               options={this.state.articulos_typehead}
-              filterBy={() => true}
+              filterBy={[
+                "name",
+                "shoeType",
+                "leatherType",
+                "color",
+                "size",
+                "gender",
+              ]}
               labelKey={(option) =>
                 `${option.name} ${option.shoeType} ${option.leatherType} ${option.color} ${option.size}`
               }
             />
           </div>
-          <button
-            className="btn btn-primary mt-3"
-            onClick={this.show_complete_stock}
-          >
-            Mostrar Stock Actual Completo
-          </button>
-          <button className="btn btn-primary mt-3 ms-3">
-            Regresar Stock a Versión Anterior
-          </button>
         </form>
 
         <TableArticulos

@@ -164,10 +164,22 @@ class AgregarArticulo extends Component {
       this.setState({ numberOfElements: articulo.numberOfElements });
       this.setState({ size: articulo.size });
       this.setState({ leatherType: articulo.leatherType });
-      this.setState({ gender: articulo.gender});
+      this.setState({ gender: articulo.gender });
       this.setState({ shoeType: articulo.shoeType });
       this.setState({ price: articulo.price });
+
+      axios
+        .post("http://localhost:8080/api/public/product/add_product", articulo)
+        .then((response) => {
+          console.log("datos:");
+          articulo = response.data[0];
+          console.log(articulo.cantidad);
+          articulo.cantidad = articulo.cantidad + 1;
+        })
+        .catch((error) => console.log(error));
     }
+
+
   }
 
   render() {
@@ -327,7 +339,7 @@ class AgregarArticulo extends Component {
               <LoadExcel />
             </div>
             <div className="mt-3 ms-3">
-              <QrReaderModule></QrReaderModule>
+              <QrReaderModule onArticleScanned={this.traer_articulo}></QrReaderModule>
             </div>
           </div>
         </form>

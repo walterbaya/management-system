@@ -4,7 +4,7 @@ import Modal from "react-bootstrap/Modal";
 import QrReader from "react-qr-scanner";
 import axios from "axios";
 
-function QrReaderModule() {
+function QrReaderModule({ onArticleScanned }) {
   const [show, setShow] = useState(false);
   const [scanned, setScanned] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -17,36 +17,24 @@ function QrReaderModule() {
     if (data) {
       console.log(data.text);
       setResult(data.text);
-      console.log(data.text);
       saveArticle(data.text);
       setScanned(true);
     }
   };
 
   const saveArticle = (id) => {
-    //Traemos el articulo desde la base de datos primero y luego lo pisamos
-
-    let articulo = {};
-
     axios
       .get("http://localhost:8080/api/public/product/get_product/" + id)
       .then((response) => {
-        console.log("datos:");
-        articulo = response.data[0];
-        console.log(articulo.cantidad);
-        articulo.cantidad = articulo.cantidad + 1;
+        const articulo = response.data[0];
+        setArticulo(articulo);
+        setSuccess(true);
+        // Llama a la función de callback pasando el artículo escaneado
+        if (onArticleScanned) {
+          onArticleScanned(articulo);
+        }
       })
-      .catch((error) => console.log(error))
-      .finally(() => {
-        console.log(articulo.cantidad);
-        axios
-          .post("http://localhost:8080/api/public/product/add_product", articulo)
-          .then((response) => {
-            setSuccess(true);
-            setArticulo(articulo);
-          })
-          .catch((error) => console.log(error));
-      });
+      .catch((error) => console.log(error));
   };
 
   return (
@@ -64,7 +52,7 @@ function QrReaderModule() {
         <Modal.Header closeButton>
           <Modal.Title>Escanear Articulos</Modal.Title>
         </Modal.Header>
-        <Modal.Body className="scanner-altura-fija">
+        <Modal.Body>
           {(scanned && (
             <button
               className="btn btn-primary"

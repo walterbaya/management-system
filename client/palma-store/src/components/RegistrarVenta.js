@@ -1,5 +1,6 @@
 import { Component } from "react";
 import { Typeahead } from "react-bootstrap-typeahead"; // ES2015
+import QrReaderModule from "./Utilities/QrReaderModule";
 import Table from "react-bootstrap/Table";
 import axios from "axios";
 
@@ -448,14 +449,16 @@ class Registrar extends Component {
 
               </div>
 
+              <div className="mt-3 d-flex w-100">
 
-
-              <button
-                className="btn btn-primary mt-3"
-                onClick={this.agregar_al_carrito}
-              >
-                Agregar al Carrito
-              </button>
+                <button
+                  className="btn btn-primary me-2"
+                  onClick={this.agregar_al_carrito}
+                >
+                  Agregar al Carrito
+                </button>
+                <QrReaderModule onArticleScanned={this.traer_articulo}></QrReaderModule>
+              </div>
             </form>
           </div>
           <div className={`col-12 my-2 ${this.state.carrito.products.length > 0 ? 'd-block' : 'd-none'}`}>
