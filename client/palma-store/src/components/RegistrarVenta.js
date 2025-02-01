@@ -91,11 +91,9 @@ class Registrar extends Component {
     this.state = {
       error: "",
       exito: "",
-
       //Articulo
       idProduct: "",
       price: 0,
-      numberOfElements: 1,
       articulo: "",
       numberOfElements: "",
       cantidad: 0,
@@ -203,6 +201,7 @@ class Registrar extends Component {
     this.setState({ carrito: carrito });
   }
 
+  //Number of elements es la cantidad de productos que hay en la base de datos
   traer_articulo(selected) {
     if (selected[0] !== undefined) {
       const articulo = selected[0];
@@ -224,7 +223,7 @@ class Registrar extends Component {
     this.setState({ price: 0 });
     this.setState({ clientDni: "" });
     this.setState({ clientNameAndSurname: "" });
-    this.setState({ numberOfElements: 1 });
+    this.setState({ numberOfElements: "" });
     this.setState({ cantidad: 0 });
     this.setState({ articulo: "" });
     this.setState({ name: "" })
@@ -298,21 +297,19 @@ class Registrar extends Component {
       }
     })
 
-
-    console.log(this.state.carrito.products);
-
     if (validacion === "ok") {
 
       this.state.carrito.products.forEach(product => {
         product.clientNameAndSurname = this.state.carrito.clientInfo.clientNameAndSurname;
         product.clientDni = this.state.carrito.clientInfo.clientDni;
+        product.numberOfElements = product.cantidad;
         product.emissionDate = new Date();
       })
 
       axios
         .post("http://localhost:8080/api/public/purchase/add_purchase", this.state.carrito.products)
         .then((response) => {
-          if (response.data === "success") {
+          if (response.data === "ok") {
             this.setState({ exito: "Factura Cargada Con Exito" });
             this.setState({ error: "" });
             this.resetState();
@@ -356,20 +353,23 @@ class Registrar extends Component {
               <div className="row mt-3">
                 <div className="form-group col-12 mt-2 mt-md-0">
                   <label className="pb-2"> Nombre de Artículo </label>
+
                   <Typeahead
                     id="typeahead-products"
                     onChange={this.traer_articulo}
                     options={this.state.products_typehead}
-                    filterBy={[
-                      "name",
-                      "shoeType",
-                      "leatherType",
-                      "color",
-                      "size",
-                      "gender",
-                    ]}
+                    filterBy={(option, props) => {
+                      const searchText = props.text.toLowerCase();
+                      const searchWords = searchText.split(" ").filter(word => word.length > 0); // Divide y elimina palabras vacías
+
+                      // Combina todos los campos relevantes en una sola cadena para facilitar la búsqueda
+                      const optionText = `${option.name} ${option.shoeType} ${option.leatherType} ${option.color} ${option.size} ${option.gender}`.toLowerCase();
+
+                      // Verifica si todas las palabras de búsqueda están presentes en la cadena combinada
+                      return searchWords.every(word => optionText.includes(word));
+                    }}
                     labelKey={(option) =>
-                      `${option.name} ${option.shoeType} ${option.leatherType} ${option.color} ${option.size} ${option.gender}`
+                      `${option.name} ${option.shoeType} ${option.leatherType} ${option.color} ${option.size}`
                     }
                   />
                 </div>
