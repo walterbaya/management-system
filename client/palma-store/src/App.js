@@ -23,19 +23,19 @@ class App extends Component {
               <div className="main-buttons-container col-md-2 col-sm-12 justify-content-start">
                 <div id="main-buttons" className="main-buttons d-flex justify-content-start  flex-md-column flex-sm-row">
                   <Link className="btn-main m-1" to={`/agregar_articulo`}>
-                    Agregar Articulo Modificar Articulo
+                    Agregar al Stock del Local
                   </Link>
                   <Link className="btn-main m-1" to="/registrar">
-                    Registrar Venta
+                    Vender
                   </Link>
                   <Link className="btn-main m-1" to={`/`}>
-                    Stock
+                    Consultar Stock
                   </Link>
                   <Link className="btn-main m-1" to={`/consultar_ventas`}>
-                    Consultar Ventas Bajar Excel
+                    Consultar Ventas 
                   </Link>
                   <Link className="btn-main m-1" to={`/control_catalogos`}>
-                    Control Catalogos
+                    Cargar Catalogo Tienda Yes
                   </Link>
                 </div>
               </div>
