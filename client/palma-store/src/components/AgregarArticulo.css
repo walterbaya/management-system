@@ -1,0 +1,61 @@
+/* Estilos específicos para el componente */
+.typeahead-custom .rbt-input {
+    height: 46px;
+    border-radius: 8px;
+    border: 2px solid #dee2e6;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+  }
+  
+  .typeahead-custom .rbt-input:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  }
+  
+  .typeahead-custom .rbt-menu {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+  }
+  
+  .typeahead-custom .rbt-menu .dropdown-item {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f8f9fa;
+  }
+  
+  .typeahead-custom .rbt-menu .dropdown-item:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .card-header {
+    border-radius: 8px 8px 0 0;
+  }
+  
+  .form-label {
+    color: #495057;
+    margin-bottom: 0.5rem;
+  }
+  
+  .form-control-lg {
+    border-radius: 8px;
+    border: 2px solid #dee2e6;
+    transition: all 0.3s ease;
+  }
+  
+  .form-control-lg:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  }
+  
+  .btn-lg {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-lg:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }

@@ -1,6 +1,7 @@
+import "./AgregarArticulo.css";
 import { Component } from "react";
 import LoadExcel from "./Utilities/LoadExcel";
-import { Typeahead } from "react-bootstrap-typeahead"; // ES2015
+import { Typeahead } from "react-bootstrap-typeahead";
 import QrReaderModule from "./Utilities/QrReaderModule";
 import axios from "axios";
 
@@ -38,6 +39,13 @@ class AgregarArticulo extends Component {
       price: 0,
       articulos_typehead: [],
       editar_articulo: "agregar",
+      isSubmitting: false,
+      formValidations: {
+        name: true,
+        size: true,
+        color: true,
+        // ... otras validaciones
+      }
     };
 
     this.enviar_formulario = this.enviar_formulario.bind(this);
@@ -136,6 +144,9 @@ class AgregarArticulo extends Component {
 
 
     if (validacion === "ok") {
+
+      this.setState({ isSubmitting: true });
+
       axios
         .post("http://localhost:8080/api/public/product/add_product", factura)
         .then((response) => {
@@ -146,6 +157,7 @@ class AgregarArticulo extends Component {
             .then((response) => {
               this.setState({ articulos_typehead: response.data });
               this.reset_state();
+              this.setState({ isSubmitting: false });
             })
             .catch((error) => console.log(error));
         })
@@ -183,10 +195,11 @@ class AgregarArticulo extends Component {
   }
 
   render() {
-    let message = <div> </div>;
+    let message = <div></div>;
     if (this.state.error) {
       message = (
-        <div className="alert alert-warning" role="alert">
+        <div className="alert alert-warning shadow-sm" role="alert">
+          <i className="fas fa-exclamation-circle me-2"></i>
           {this.state.error}
         </div>
       );
@@ -194,157 +207,180 @@ class AgregarArticulo extends Component {
 
     if (this.state.exito) {
       message = (
-        <div className="alert alert-success" role="alert">
+        <div className="alert alert-success shadow-sm" role="alert">
+          <i className="fas fa-check-circle me-2"></i>
           {this.state.exito}
         </div>
       );
     }
 
     return (
-      <div>
-        {message}
-        <form
-          className="bg-white p-4"
-          onSubmit={(event) => event.preventDefault()}
-        >
-          <h1> Agregar Articulo / Modificar Articulo en Stock Tienda </h1>
-          <select
-            className="form-select w-25 my-4"
-            aria-label="Default select example"
-            value={this.state.editar_articulo}
-            onChange={this.editar_articulo}
-          >
-            <option defaultValue value="agregar">
-              Agregar articulo
-            </option>
-            <option value="editar">Editar articulo</option>
-          </select>
-          <div className="form-group row mt-3">
-            <div className="form-group col-6">
-              <label className="pb-2"> Nombre de Artículo </label>
-              {(this.state.editar_articulo === "editar" && (
-                <Typeahead
-                  id="typeahead-articulos"
-                  onInputChange={(text) => {
-                    this.setState({ name: text });
-                  }}
-                  onChange={this.traer_articulo}
-                  options={this.state.articulos_typehead}
-                  filterBy={(option, props) => {
-                    const searchText = props.text.toLowerCase();
-                    const searchWords = searchText.split(" ").filter(word => word.length > 0); // Divide y elimina palabras vacías
+      <div className="container-fluid p-4">
+        <div className="card shadow border-0">
+          <div className="card-header bg-primary text-white">
+            <h2 className="mb-0">
+              <i className="fas fa-shoe-prints me-2"></i>
+              Gestión de Artículos
+            </h2>
+            <small>Agregar/Modificar artículos en stock</small>
+          </div>
 
-                    // Combina todos los campos relevantes en una sola cadena para facilitar la búsqueda
-                    const optionText = `${option.name} ${option.shoeType} ${option.leatherType} ${option.color} ${option.size} ${option.gender}`.toLowerCase();
+          <div className="card-body">
+            {message}
 
-                    // Verifica si todas las palabras de búsqueda están presentes en la cadena combinada
-                    return searchWords.every(word => optionText.includes(word));
-                  }}
-                  labelKey={(option) =>
-                    `${option.name} ${option.shoeType} ${option.leatherType} ${option.color} ${option.size}`
-                  }
-                />
-              )) ||
-                (this.state.editar_articulo === "agregar" && (
-                  <input
-                    type="text"
-                    className="form-control col-6"
-                    onChange={(event) => {
-                      this.setState({ name: event.target.value });
-                    }}
-                  />
-                ))}
-            </div>
-            <div className="col-6">
-              <label className="pb-2"> Genero </label>
-
+            <div className="mb-4">
               <select
-                className="form-select"
-                aria-label="Default select example"
-                value={this.state.gender}
-                onChange={this.cambiar_gender}
+                className="form-select form-select-lg w-25"
+                value={this.state.editar_articulo}
+                onChange={this.editar_articulo}
               >
-                <option defaultValue value="Mujer">
-                  Mujer
-                </option>
-                <option value="Hombre">Hombre</option>
+                <option value="agregar">Agregar artículo</option>
+                <option value="editar">Editar artículo</option>
               </select>
             </div>
-          </div>
-          <div className="row align-items-center mt-3">
-            <div className="col-4">
-              <label className="pb-2"> Tipo </label>
-              <input
-                type="text"
-                className="form-control"
-                value={this.state.shoeType}
-                onChange={this.cambiar_shoeType}
-              />
-            </div>
-            <div className="col-4">
-              <label className="pb-2"> Color </label>
-              <input
-                type="text"
-                className="form-control"
-                value={this.state.color}
-                onChange={this.cambiar_color}
-              />
-            </div>
-            <div className="col-4">
-              <label className="pb-2"> Cuero </label>
-              <input
-                type="text"
-                className="form-control"
-                value={this.state.leatherType}
-                onChange={this.cambiar_leatherType}
-              />
-            </div>
-          </div>
-          <div className="row align-items-center mt-3">
-            <div className="col-4">
-              <label className="pb-2"> Cantidad </label>
-              <input
-                type="number"
-                className="form-control"
-                value={this.state.numberOfElements}
-                onChange={this.cambiar_numberOfElements}
-              />
+
+            <div className="row g-4">
+              {/* Columna Izquierda */}
+              <div className="col-md-6">
+                <div className="mb-3">
+                  <label className="form-label fw-bold">Nombre del Artículo</label>
+                  {this.state.editar_articulo === "editar" ? (
+                    <Typeahead
+                      id="typeahead-articulos"
+                      className="typeahead-custom"
+                      onInputChange={(text) => this.setState({ name: text })}
+                      onChange={this.traer_articulo}
+                      options={this.state.articulos_typehead}
+                      filterBy={(option, props) => {
+                        const searchText = props.text.toLowerCase();
+                        const searchWords = searchText.split(" ").filter(word => word.length > 0);
+                        const optionText = `${option.name} ${option.shoeType} ${option.leatherType} ${option.color} ${option.size} ${option.gender}`.toLowerCase();
+                        return searchWords.every(word => optionText.includes(word));
+                      }}
+                      labelKey={(option) =>
+                        `${option.name} ${option.shoeType} ${option.leatherType} ${option.color} ${option.size}`
+                      }
+
+                    />
+                  ) : (
+                    <input
+                      type="text"
+                      className="form-control form-control-lg"
+                      value={this.state.name}
+                      onChange={(e) => this.setState({ name: e.target.value })}
+                    />
+                  )}
+                </div>
+
+                <div className="row g-3">
+                  <div className="col-md-6">
+                    <label className="form-label fw-bold">Género</label>
+                    <select
+                      className="form-select form-select-lg"
+                      value={this.state.gender}
+                      onChange={this.cambiar_gender}
+                    >
+                      <option value="Mujer">Mujer</option>
+                      <option value="Hombre">Hombre</option>
+                    </select>
+                  </div>
+
+                  <div className="col-md-6">
+                    <label className="form-label fw-bold">Tipo de Calzado</label>
+                    <input
+                      type="text"
+                      className="form-control form-control-lg"
+                      value={this.state.shoeType}
+                      onChange={this.cambiar_shoeType}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Columna Derecha */}
+              <div className="col-md-6">
+                <div className="row g-3">
+                  <div className="col-md-6">
+                    <label className="form-label fw-bold">Color</label>
+                    <input
+                      type="text"
+                      className="form-control form-control-lg"
+                      value={this.state.color}
+                      onChange={this.cambiar_color}
+                    />
+                  </div>
+
+                  <div className="col-md-6">
+                    <label className="form-label fw-bold">Tipo de Cuero</label>
+                    <input
+                      type="text"
+                      className="form-control form-control-lg"
+                      value={this.state.leatherType}
+                      onChange={this.cambiar_leatherType}
+                    />
+                  </div>
+
+                  <div className="col-md-4">
+                    <label className="form-label fw-bold">Cantidad</label>
+                    <input
+                      type="number"
+                      className="form-control form-control-lg"
+                      value={this.state.numberOfElements}
+                      onChange={this.cambiar_numberOfElements}
+                    />
+
+                  </div>
+
+                  <div className="col-md-4">
+                    <label className="form-label fw-bold">Talle</label>
+                    <input
+                      type="number"
+                      className="form-control form-control-lg"
+                      value={this.state.size}
+                      onChange={this.cambiar_size}
+                    />
+                  </div>
+
+                  <div className="col-md-4">
+                    <label className="form-label fw-bold">Precio</label>
+                    <input
+                      type="number"
+                      className="form-control form-control-lg"
+                      value={this.state.price}
+                      onChange={this.cambiar_price}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="col-4">
-              <label className="pb-2"> Talle </label>
-              <input
-                type="number"
-                className="form-control"
-                value={this.state.size}
-                onChange={this.cambiar_size}
-              />
-            </div>
-            <div className="col-4">
-              <label className="pb-2"> Precio de Fábrica</label>
-              <input
-                type="number"
-                className="form-control"
-                value={this.state.price}
-                onChange={this.cambiar_price}
+            <div className="d-flex gap-3 mt-4">
+              <button
+                className={`btn btn-primary btn-lg ${this.state.isSubmitting ? 'btn-save' : ''}`}
+                onClick={this.enviar_formulario}
+                disabled={this.state.isSubmitting}
+              >
+                {this.state.isSubmitting ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                    Guardando...
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-save me-2"></i>
+                    Guardar Artículo
+                  </>
+                )}
+              </button>
+
+              <LoadExcel className="btn btn-secondary btn-lg" />
+              <QrReaderModule
+                className="btn btn-info btn-lg"
+                onArticleScanned={this.traer_articulo}
               />
             </div>
           </div>
-          <div className="form-group mt-3 d-flex">
-            <button
-              className="btn btn-primary mt-3"
-              onClick={this.enviar_formulario}
-            >
-              Agregar Artículo
-            </button>
-            <div className="mt-3 ms-3">
-              <LoadExcel />
-            </div>
-            <div className="mt-3 ms-3">
-              <QrReaderModule onArticleScanned={this.traer_articulo}></QrReaderModule>
-            </div>
-          </div>
-        </form>
+        </div>
       </div>
     );
   }
