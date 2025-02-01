@@ -230,16 +230,18 @@ class AgregarArticulo extends Component {
                   }}
                   onChange={this.traer_articulo}
                   options={this.state.articulos_typehead}
-                  filterBy={[
-                    "name",
-                    "shoeType",
-                    "leatherType",
-                    "color",
-                    "size",
-                    "gender"
-                  ]}
+                  filterBy={(option, props) => {
+                    const searchText = props.text.toLowerCase();
+                    const searchWords = searchText.split(" ").filter(word => word.length > 0); // Divide y elimina palabras vacías
+
+                    // Combina todos los campos relevantes en una sola cadena para facilitar la búsqueda
+                    const optionText = `${option.name} ${option.shoeType} ${option.leatherType} ${option.color} ${option.size} ${option.gender}`.toLowerCase();
+
+                    // Verifica si todas las palabras de búsqueda están presentes en la cadena combinada
+                    return searchWords.every(word => optionText.includes(word));
+                  }}
                   labelKey={(option) =>
-                    `${option.name} ${option.shoeType} ${option.leatherType} ${option.color} ${option.size} ${option.gender}`
+                    `${option.name} ${option.shoeType} ${option.leatherType} ${option.color} ${option.size}`
                   }
                 />
               )) ||
