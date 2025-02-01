@@ -50,7 +50,14 @@ class App extends Component {
               </div>
             </div>
           </section>
-
+          <footer>
+            <p>
+              Propiedad de Palma Store, sistema de uso personal y privado. <br />{" "}
+              <br />
+              Este sitio fue diseñado y desarrollado por Walter Ariel Baya
+            </p>
+            @Copyright{" "}
+          </footer>
         </Router></div>
     );
   }

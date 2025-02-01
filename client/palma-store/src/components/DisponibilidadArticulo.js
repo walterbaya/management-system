@@ -3,7 +3,7 @@ import Table from "react-bootstrap/Table";
 import { Typeahead } from "react-bootstrap-typeahead";
 import axios from "axios";
 import QRCodeModule from "./Utilities/QRCodeModule";
-import ReactPaginate from "react-paginate"; // Importar react-paginate
+
 
 function getArticuloFullDescription(articulo) {
   return (
@@ -24,7 +24,7 @@ function getArticuloFullDescription(articulo) {
 }
 
 function TableArticulos(props) {
-  const { articulos, currentPage, itemsPerPage, handlePageClick } = props;
+  const { articulos, currentPage, itemsPerPage } = props;
 
   // Calcula los artículos que se mostrarán en la página actual
   const startIndex = currentPage * itemsPerPage;
@@ -45,6 +45,7 @@ function TableArticulos(props) {
         <td>{articulo.gender ? "Hombre" : "Mujer"}</td>
         <td>{articulo.numberOfElements}</td>
         <td>{articulo.price}</td>
+        <td></td>
       </tr>
     ));
   }
@@ -53,7 +54,7 @@ function TableArticulos(props) {
     <div className="fixed_height p-4">
       <Table className={`table ${displayedArticulos.length > 0 ? "" : "d-none"}`}
 
-       style={{ border: "2px solid blue" }} size="sm">
+        style={{ border: "2px solid blue" }} size="sm">
         <thead className="bg-primary text-white">
           <tr>
             <th>Identificador de Articulo</th>
@@ -91,7 +92,6 @@ class Disponibilidad extends Component {
     this.cambiar_name = this.cambiar_name.bind(this);
     this.mostrar_articulo = this.mostrar_articulo.bind(this);
     this.show_complete_stock = this.show_complete_stock.bind(this);
-    this.handlePageClick = this.handlePageClick.bind(this);
   }
 
   cambiar_name(event) {
@@ -115,19 +115,6 @@ class Disponibilidad extends Component {
     this.setState({
       articulos: carrito.filter((elem) => elem.id !== id),
     });
-    axios
-      .delete("http://localhost:8080/api/public/product/delete_product", {
-        params: { id: id },
-      })
-      .then((response) => console.log(response.data))
-      .catch((error) => console.log(error));
-
-    axios
-      .get("http://localhost:8080/api/public/product/get_products")
-      .then((response) => {
-        this.setState({ articulos_typehead: response.data });
-      })
-      .catch((error) => console.log(error));
   }
 
   restar_articulo(id, carrito) {
@@ -177,28 +164,27 @@ class Disponibilidad extends Component {
       .catch((error) => console.log(error));
   }
 
-  handlePageClick(event) {
-    this.setState({ currentPage: event.selected });
-  }
 
   render() {
     return (
       <div className="bg-white h-100">
         <form className="p-4" onSubmit={(event) => event.preventDefault()}>
-          <h1>Consultar Stock</h1>
+          <h1>Consultar Stock de Articulo</h1>
           <div className="form-group mt-3">
             <Typeahead
               id="typeahead-articulos"
               onChange={this.mostrar_articulo}
               options={this.state.articulos_typehead}
-              filterBy={[
-                "name",
-                "shoeType",
-                "leatherType",
-                "color",
-                "size",
-                "gender",
-              ]}
+              filterBy={(option, props) => {
+                const searchText = props.text.toLowerCase();
+                const searchWords = searchText.split(" ").filter(word => word.length > 0); // Divide y elimina palabras vacías
+
+                // Combina todos los campos relevantes en una sola cadena para facilitar la búsqueda
+                const optionText = `${option.name} ${option.shoeType} ${option.leatherType} ${option.color} ${option.size} ${option.gender}`.toLowerCase();
+
+                // Verifica si todas las palabras de búsqueda están presentes en la cadena combinada
+                return searchWords.every(word => optionText.includes(word));
+              }}
               labelKey={(option) =>
                 `${option.name} ${option.shoeType} ${option.leatherType} ${option.color} ${option.size}`
               }
@@ -210,9 +196,6 @@ class Disponibilidad extends Component {
           articulos={this.state.articulos}
           currentPage={this.state.currentPage}
           itemsPerPage={this.state.itemsPerPage}
-          //restar={this.restar_articulo.bind(this)}
-          //eliminar={this.eliminar.bind(this)}
-          handlePageClick={this.handlePageClick}
         />
       </div>
     );
