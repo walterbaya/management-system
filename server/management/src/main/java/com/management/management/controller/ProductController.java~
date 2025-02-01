@@ -58,7 +58,7 @@ public class ProductController {
 
     @GetMapping("/get_products_not_in_factory")
     public List<Product> getProductsNotInFactory() {
-        return repo.findAllNotInFactory();
+        return repo.findAll();
     }
     // Ruta para obtener artículo por ID (tu código original)
 

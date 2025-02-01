@@ -92,7 +92,7 @@ class AgregarArticulo extends Component {
 
   componentDidMount() {
     axios
-      .get("http://localhost:8080/api/public/product/get_products")
+      .get("http://localhost:8080/api/public/product/get_products_not_in_factory")
       .then((response) => {
         console.log(response.data)
         let res = response.data;
@@ -207,7 +207,7 @@ class AgregarArticulo extends Component {
           className="bg-white p-4"
           onSubmit={(event) => event.preventDefault()}
         >
-          <h1> Agregar Articulo / Modificar Articulo </h1>
+          <h1> Agregar Articulo / Modificar Articulo en Stock Tienda </h1>
           <select
             className="form-select w-25 my-4"
             aria-label="Default select example"
