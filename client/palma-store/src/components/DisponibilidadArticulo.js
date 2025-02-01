@@ -99,10 +99,23 @@ class Disponibilidad extends Component {
   }
 
   componentDidMount() {
+    this.bringArticles();
+  }
+
+  bringArticles() {
     axios
       .get("http://localhost:8080/api/public/product/get_products")
       .then((response) => {
-        this.setState({ articulos_typehead: response.data });
+        let res = response.data;
+
+        console.log(response.data);
+
+        res.forEach((element) => {
+          element.gender = element.gender ? "Hombre" : "Dama";
+          element.enFabrica = element.inFactory ? "En Fabrica" : "En Local";
+        });
+
+        this.setState({ articulos_typehead: res });
       })
       .catch((error) => console.log(error));
   }
@@ -174,19 +187,19 @@ class Disponibilidad extends Component {
             <Typeahead
               id="typeahead-articulos"
               onChange={this.mostrar_articulo}
-              options={this.state.articulos_typehead}
+              options={this.state.articulos_typehead.map(option => ({
+                ...option,
+                searchText: `${option.name} ${option.shoeType} ${option.leatherType} ${option.color} ${option.size} ${option.gender} ${option.enFabrica}`.toLowerCase(),
+              }))}
               filterBy={(option, props) => {
-                const searchText = props.text.toLowerCase();
-                const searchWords = searchText.split(" ").filter(word => word.length > 0); // Divide y elimina palabras vacías
+                const searchText = props.text.toLowerCase().trim(); // Normaliza el texto de búsqueda
+                const searchWords = searchText.split(" ").filter(word => word.length > 0);
 
-                // Combina todos los campos relevantes en una sola cadena para facilitar la búsqueda
-                const optionText = `${option.name} ${option.shoeType} ${option.leatherType} ${option.color} ${option.size} ${option.gender}`.toLowerCase();
-
-                // Verifica si todas las palabras de búsqueda están presentes en la cadena combinada
-                return searchWords.every(word => optionText.includes(word));
+                // Usa la propiedad searchText preprocesada para el filtrado
+                return searchWords.every(word => option.searchText.includes(word));
               }}
               labelKey={(option) =>
-                `${option.name} ${option.shoeType} ${option.leatherType} ${option.color} ${option.size}`
+                `${option.name} ${option.shoeType} ${option.leatherType} ${option.color} ${option.size} ${option.gender} ${option.enFabrica}`
               }
             />
           </div>

@@ -43,7 +43,7 @@ function Tableproducts(props) {
         <td>{articulo.color}</td>
         <td>{articulo.leatherType}</td>
         <td>{articulo.shoeType}</td>
-        <td>{articulo.gender ? "Hombre" : "Mujer"}</td>
+        <td>{articulo.gender ? "Hombre" : "Dama"}</td>
         <td>{articulo.cantidad}</td>
         <td>{carrito.clientInfo.clientNameAndSurname}</td>
         <td>{carrito.clientInfo.clientDni}</td>
@@ -126,7 +126,7 @@ class Registrar extends Component {
       color: this.state.color,
       leatherType: this.state.leatherType,
       shoeType: this.state.shoeType,
-      gender: this.state.gender === "hombre",
+      gender: this.state.gender === "Hombre",
       cantidad: this.state.cantidad,
       price: this.state.price,
     };
@@ -216,6 +216,8 @@ class Registrar extends Component {
       this.setState({ cantidad: 0 });
       this.setState({ numberOfElements: articulo.numberOfElements });
     }
+
+    console.log(selected);
   }
 
   resetState() {
@@ -240,7 +242,8 @@ class Registrar extends Component {
       .then((response) => {
         let res = response.data;
         res.forEach((element) => {
-          element.gender = element.gender ? "Hombre" : "Mujer";
+          element.gender = element.gender ? "Hombre" : "Dama";
+          element.enFabrica = element.inFactory ? "En Fabrica" : "En Local";
         });
 
         this.setState({ products_typehead: res });
@@ -353,23 +356,22 @@ class Registrar extends Component {
               <div className="row mt-3">
                 <div className="form-group col-12 mt-2 mt-md-0">
                   <label className="pb-2"> Nombre de Artículo </label>
-
                   <Typeahead
                     id="typeahead-products"
                     onChange={this.traer_articulo}
-                    options={this.state.products_typehead}
+                    options={this.state.products_typehead.map(option => ({
+                      ...option,
+                      searchText: `${option.name} ${option.shoeType} ${option.leatherType} ${option.color} ${option.size} ${option.gender} ${option.enFabrica}`.toLowerCase(),
+                    }))}
                     filterBy={(option, props) => {
-                      const searchText = props.text.toLowerCase();
-                      const searchWords = searchText.split(" ").filter(word => word.length > 0); // Divide y elimina palabras vacías
+                      const searchText = props.text.toLowerCase().trim(); // Normaliza el texto de búsqueda
+                      const searchWords = searchText.split(" ").filter(word => word.length > 0);
 
-                      // Combina todos los campos relevantes en una sola cadena para facilitar la búsqueda
-                      const optionText = `${option.name} ${option.shoeType} ${option.leatherType} ${option.color} ${option.size} ${option.gender}`.toLowerCase();
-
-                      // Verifica si todas las palabras de búsqueda están presentes en la cadena combinada
-                      return searchWords.every(word => optionText.includes(word));
+                      // Usa la propiedad searchText preprocesada para el filtrado
+                      return searchWords.every(word => option.searchText.includes(word));
                     }}
                     labelKey={(option) =>
-                      `${option.name} ${option.shoeType} ${option.leatherType} ${option.color} ${option.size}`
+                      `${option.name} ${option.shoeType} ${option.leatherType} ${option.color} ${option.size} ${option.gender} ${option.enFabrica}`
                     }
                   />
                 </div>

@@ -13,6 +13,9 @@ import java.util.List;
 @Repository
 public interface ProductRepo extends JpaRepository<Product, Long> {
 
+    @Query("SELECT p FROM Product p WHERE p.inFactory = false")
+    List<Product> findAllNotInFactory();
+
     //delete_articulo
     void deleteById(Long id);
 
