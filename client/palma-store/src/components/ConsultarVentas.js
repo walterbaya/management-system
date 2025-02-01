@@ -2,7 +2,6 @@ import { Component } from "react";
 import axios from "axios";
 import PurchaseTable from "./Tables/PurchaseTable";
 
-
 function get_date(val) {
   const date = new Date(val);
   let day = date.getDate();
@@ -14,7 +13,7 @@ function get_date(val) {
     month = "0" + month;
   }
 
-  return date.getFullYear() + "-" + month + "-" + (day + 1);
+  return date.getFullYear() + "-" + month + "-" + day;
 }
 
 function validarFormulario(consulta) {
@@ -24,7 +23,7 @@ function validarFormulario(consulta) {
   if (!consulta.fecha_hasta) {
     return "Error, se debe ingresar una fecha hasta";
   }
-  if (!consulta.fecha_desde > consulta.fecha_hasta) {
+  if (consulta.fecha_desde > consulta.fecha_hasta) {
     return "Error, fecha hasta tiene que ser superior o igual a fecha desde.";
   }
 
@@ -37,7 +36,8 @@ class Consultar extends Component {
     this.state = {
       fecha_hasta: get_date(new Date()),
       fecha_desde: get_date(new Date(new Date().setDate(new Date().getDate() - 1))),
-      purchases: []
+      purchases: [],
+      error: null,
     };
 
     this.cambiar_fecha_desde = this.cambiar_fecha_desde.bind(this);
@@ -47,11 +47,11 @@ class Consultar extends Component {
   }
 
   cambiar_fecha_desde(event) {
-    console.log(this.state.fecha_desde);
-    this.setState({ fecha_desde: get_date(event.target.value) });
+    this.setState({ fecha_desde: event.target.value });
   }
+
   cambiar_fecha_hasta(event) {
-    this.setState({ fecha_hasta: get_date(event.target.value) });
+    this.setState({ fecha_hasta: event.target.value });
   }
 
   obtener_excel() {
@@ -59,70 +59,60 @@ class Consultar extends Component {
       fecha_desde: this.state.fecha_desde,
       fecha_hasta: this.state.fecha_hasta
     };
-  
-    // Validación del formulario (opcional)
+
     const validacion = validarFormulario(consulta);
     if (validacion !== "ok") {
       this.setState({ error: validacion });
       return;
     }
-  
-    axios({
-      url: "http://localhost:8080/api/public/purchase/get_excel", // Cambia a la URL correcta de tu backend
-      method: 'GET',
-      responseType: 'blob', // Indica que la respuesta será un blob (binario)
-      params: {
-        fecha_desde: this.state.fecha_desde,
-        fecha_hasta: this.state.fecha_hasta
-      }
+
+    axios.get("http://localhost:8080/api/public/purchase/get_excel", {
+      responseType: 'blob',
+      params: consulta
     })
-    .then((response) => {
-      // Crear un enlace de descarga para el archivo Excel
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'archivo.xlsx'); // Nombre del archivo
-      document.body.appendChild(link);
-      link.click();
-      link.remove(); // Remover el enlace después de la descarga
-    })
-    .catch((error) => {
-      console.log("Error al intentar obtener el Excel: " + error);
-    });
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'archivo.xlsx');
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      })
+      .catch((error) => {
+        console.error("Error al intentar obtener el Excel:", error);
+        this.setState({ error: "No se pudo descargar el archivo." });
+      });
   }
-  
 
   enviar_formulario() {
-
     let consulta = {
       fecha_desde: this.state.fecha_desde,
       fecha_hasta: this.state.fecha_hasta
     };
 
     const validacion = validarFormulario(consulta);
-
-    if (validacion === "ok") {
-      axios.get("http://localhost:8080/api/public/purchase/get_facturas_between", {
-        params: {
-          fecha_desde: this.state.fecha_desde,
-          fecha_hasta: this.state.fecha_hasta
-        }
-      })
-        .then((response) => this.setState({ purchases: response.data }))
-        .catch((error) => console.log("Error al intentar obtener las facturas: " + error));
-    } else {
+    if (validacion !== "ok") {
       this.setState({ error: validacion });
+      return;
     }
+
+    axios.get("http://localhost:8080/api/public/purchase/get_facturas_between", {
+      params: consulta
+    })
+      .then((response) => this.setState({ purchases: response.data, error: null }))
+      .catch((error) => {
+        console.error("Error al obtener las facturas:", error);
+        this.setState({ error: "No se pudieron obtener las facturas." });
+      });
   }
 
   render() {
     return (
       <div>
-        <form
-          className="bg-white p-4 h-100"
-          onSubmit={(event) => event.preventDefault()}
-        >
+        <form className="bg-white p-4 h-100" onSubmit={(event) => event.preventDefault()}>
           <h1>Consultar Ventas</h1>
+          {this.state.error && <div className="alert alert-danger">{this.state.error}</div>}
           <div className="form-group mt-3">
             <label className="pb-2">Fecha Desde</label>
             <input
@@ -141,20 +131,18 @@ class Consultar extends Component {
               onChange={this.cambiar_fecha_hasta}
             />
           </div>
-          <button
-            className="btn btn-primary mt-3"
-            onClick={this.enviar_formulario}
-          >
+          <button className="btn btn-primary mt-3" onClick={this.enviar_formulario}>
             Obtener Ventas Registradas
           </button>
-          <button
-            className="btn btn-success mt-3 mx-3"
-            onClick={this.obtener_excel}
-          >
+          <button className="btn btn-success mt-3 mx-3" onClick={this.obtener_excel}>
             Obtener Excel
           </button>
         </form>
-        <div className={`p-4 bg-white ${this.state.purchases.length > 0 ? 'd-block' : 'd-none'}`}><PurchaseTable listOfPurchases={this.state.purchases}></PurchaseTable></div>
+        {this.state.purchases.length > 0 && (
+          <div className="p-4 bg-white">
+            <PurchaseTable listOfPurchases={this.state.purchases} />
+          </div>
+        )}
       </div>
     );
   }

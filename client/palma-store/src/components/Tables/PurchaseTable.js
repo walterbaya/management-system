@@ -22,7 +22,7 @@ const PurchaseTable = ({ listOfPurchases }) => {
     console.log(listOfPurchases);
 
     return (
-        <div className="container mt-4">
+        <div className="container-fluid mt-4">
             <h2 className="mb-4">Tabla de Productos</h2>
             <table className="table" style={{ border: '2px solid blue' }}>
                 <thead className="bg-primary text-white">
