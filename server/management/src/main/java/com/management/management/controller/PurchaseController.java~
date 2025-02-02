@@ -105,92 +105,313 @@ public class PurchaseController {
     }
 
 
+//    @GetMapping("/get_excel")
+//    public ResponseEntity<byte[]> getExcel(
+//            @RequestParam(value = "fecha_desde", required = false) String fechaDesde,
+//            @RequestParam(value = "fecha_hasta", required = false) String fechaHasta) throws ParseException {
+//
+//        // Obtener las facturas desde el servicio
+//        HashMap<Long, Purchase> dataMap = new HashMap<>();
+//
+//        getPurchasesBetweenAux(fechaDesde, fechaHasta).forEach(purchase -> {
+//            Long id = purchase.getIdProduct();
+//            if (dataMap.get(id) == null) {
+//                dataMap.put(id, purchase);
+//            } else {
+//                Purchase p = dataMap.get(id);
+//                p.setNumberOfElements(purchase.getNumberOfElements() + p.getNumberOfElements());
+//                dataMap.put(id, p);
+//            }
+//        });
+//
+//        List<Purchase> data = new ArrayList<>(dataMap.values());
+//
+//        // Crear un libro de trabajo de Excel
+//        Workbook workbook = new XSSFWorkbook();
+//        Sheet sheet = workbook.createSheet("Facturas");
+//
+//        // Crear estilos
+//        // 1. Estilo para el encabezado
+//        CellStyle headerStyle = workbook.createCellStyle();
+//        Font headerFont = workbook.createFont();
+//        headerFont.setBold(true);
+//        headerFont.setColor(IndexedColors.WHITE.getIndex());
+//        headerFont.setFontHeightInPoints((short) 12);
+//        headerStyle.setFont(headerFont);
+//        headerStyle.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex());
+//        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+//        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+//        headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+//        // Bordes para el encabezado
+//        headerStyle.setBorderBottom(BorderStyle.THIN);
+//        headerStyle.setBorderTop(BorderStyle.THIN);
+//        headerStyle.setBorderLeft(BorderStyle.THIN);
+//        headerStyle.setBorderRight(BorderStyle.THIN);
+//
+//        // 2. Estilo para celdas de datos
+//        CellStyle dataStyle = workbook.createCellStyle();
+//        dataStyle.setAlignment(HorizontalAlignment.LEFT);
+//        dataStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+//        dataStyle.setBorderBottom(BorderStyle.THIN);
+//        dataStyle.setBorderTop(BorderStyle.THIN);
+//        dataStyle.setBorderLeft(BorderStyle.THIN);
+//        dataStyle.setBorderRight(BorderStyle.THIN);
+//        // Fuente para datos
+//        Font dataFont = workbook.createFont();
+//        dataFont.setFontHeightInPoints((short) 11);
+//        dataStyle.setFont(dataFont);
+//
+//        // 3. Estilo para la fecha
+//        CellStyle dateStyle = workbook.createCellStyle();
+//        dateStyle.cloneStyleFrom(dataStyle);
+//        DataFormat dataFormat = workbook.createDataFormat();
+//        dateStyle.setDataFormat(dataFormat.getFormat("yyyy-mm-dd"));
+//
+//        // Opcional: estilo para filas alternadas (para mejorar la legibilidad)
+//        CellStyle altDataStyle = workbook.createCellStyle();
+//        altDataStyle.cloneStyleFrom(dataStyle);
+//        altDataStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+//        altDataStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+//
+//        CellStyle altDateStyle = workbook.createCellStyle();
+//        altDateStyle.cloneStyleFrom(dateStyle);
+//        altDateStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+//        altDateStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+//
+//        // Crear encabezados de columna
+//        Row headerRow = sheet.createRow(0);
+//        String[] columnHeaders = {"Nombre Artículo", "Tipo", "Género", "Talle", "Color", "Cuero", "Cantidad", "Fecha"};
+//        for (int i = 0; i < columnHeaders.length; i++) {
+//            Cell cell = headerRow.createCell(i);
+//            cell.setCellValue(columnHeaders[i]);
+//            cell.setCellStyle(headerStyle);
+//        }
+//
+//        // Llenar la hoja de trabajo con los datos
+//        int rowNum = 1;
+//        for (Purchase purchase : data) {
+//            Row excelRow = sheet.createRow(rowNum);
+//            // Para filas alternadas, aplicar diferente estilo
+//            boolean isAlternate = (rowNum % 2 == 0);
+//
+//            // Celda 0: Nombre Artículo
+//            Cell cell0 = excelRow.createCell(0);
+//            cell0.setCellValue(purchase.getName());
+//            cell0.setCellStyle(isAlternate ? altDataStyle : dataStyle);
+//
+//            // Celda 1: Tipo
+//            Cell cell1 = excelRow.createCell(1);
+//            cell1.setCellValue(purchase.getShoeType());
+//            cell1.setCellStyle(isAlternate ? altDataStyle : dataStyle);
+//
+//            // Celda 2: Género
+//            String gender = purchase.getGender() ? "Hombre" : "Dama";
+//            Cell cell2 = excelRow.createCell(2);
+//            cell2.setCellValue(gender);
+//            cell2.setCellStyle(isAlternate ? altDataStyle : dataStyle);
+//
+//            // Celda 3: Talle
+//            Cell cell3 = excelRow.createCell(3);
+//            cell3.setCellValue(purchase.getSize());
+//            cell3.setCellStyle(isAlternate ? altDataStyle : dataStyle);
+//
+//            // Celda 4: Color
+//            Cell cell4 = excelRow.createCell(4);
+//            cell4.setCellValue(purchase.getColor());
+//            cell4.setCellStyle(isAlternate ? altDataStyle : dataStyle);
+//
+//            // Celda 5: Cuero
+//            Cell cell5 = excelRow.createCell(5);
+//            cell5.setCellValue(purchase.getLeatherType());
+//            cell5.setCellStyle(isAlternate ? altDataStyle : dataStyle);
+//
+//            // Celda 6: Cantidad
+//            Cell cell6 = excelRow.createCell(6);
+//            cell6.setCellValue(purchase.getNumberOfElements());
+//            cell6.setCellStyle(isAlternate ? altDataStyle : dataStyle);
+//
+//            // Celda 7: Fecha
+//            Cell cell7 = excelRow.createCell(7);
+//            // Convertir la fecha (suponiendo que purchase.getEmissionDate() es un java.util.Date o similar)
+//            // Si es String, puedes convertirlo a Date con SimpleDateFormat o similar.
+//            cell7.setCellValue(purchase.getEmissionDate().toString().substring(0,10));
+//            cell7.setCellStyle(isAlternate ? altDateStyle : dateStyle);
+//
+//            rowNum++;
+//        }
+//
+//        // Ajustar el ancho de las columnas automáticamente
+//        for (int i = 0; i < columnHeaders.length; i++) {
+//            sheet.autoSizeColumn(i);
+//        }
+//
+//        // Congelar la fila del encabezado
+//        sheet.createFreezePane(0, 1);
+//
+//        // Escribir el archivo a un flujo de salida
+//        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+//            workbook.write(outputStream);
+//            workbook.close();
+//            byte[] bytes = outputStream.toByteArray();
+//
+//            // Establecer los encabezados de respuesta
+//            HttpHeaders headers = new HttpHeaders();
+//            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=archivo.xlsx");
+//            headers.add(HttpHeaders.CONTENT_TYPE, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+//
+//            return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
+
     @GetMapping("/get_excel")
     public ResponseEntity<byte[]> getExcel(
             @RequestParam(value = "fecha_desde", required = false) String fechaDesde,
             @RequestParam(value = "fecha_hasta", required = false) String fechaHasta) throws ParseException {
 
-        // Obtener las facturas desde el servicio
         HashMap<Long, Purchase> dataMap = new HashMap<>();
 
         getPurchasesBetweenAux(fechaDesde, fechaHasta).forEach(purchase -> {
             Long id = purchase.getIdProduct();
-            if (dataMap.get(id) == null) {
-                dataMap.put(id, purchase);
-            } else {
-                Purchase p = dataMap.get(id);
-                p.setNumberOfElements(purchase.getNumberOfElements() + p.getNumberOfElements());
-                dataMap.put(id, p);
-            }
+            dataMap.merge(id, purchase, (p1, p2) -> {
+                p1.setNumberOfElements(p1.getNumberOfElements() + p2.getNumberOfElements());
+                return p1;
+            });
         });
 
         List<Purchase> data = new ArrayList<>(dataMap.values());
 
-        // Crear un libro de trabajo de Excel
         Workbook workbook = new XSSFWorkbook();
-        var sheet = workbook.createSheet("Facturas");
+        Sheet sheet = workbook.createSheet("Facturas");
 
-        // Crear estilo para encabezados de columna
+        // Estilo encabezado mejorado
         CellStyle headerStyle = workbook.createCellStyle();
         Font headerFont = workbook.createFont();
         headerFont.setBold(true);
-        headerFont.setColor(IndexedColors.WHITE.getIndex()); // Texto blanco
+        headerFont.setColor(IndexedColors.WHITE.getIndex());
+        headerFont.setFontHeightInPoints((short) 14);
         headerStyle.setFont(headerFont);
-
-        // Establecer color de fondo azul para el encabezado
-        headerStyle.setFillForegroundColor(IndexedColors.BLUE.getIndex());
+        headerStyle.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex());
         headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        headerStyle.setBorderBottom(BorderStyle.MEDIUM);
+        headerStyle.setBorderTop(BorderStyle.THIN);
+        headerStyle.setBorderLeft(BorderStyle.THIN);
+        headerStyle.setBorderRight(BorderStyle.THIN);
 
-        // Crear encabezados de columna con el nuevo estilo
-        var headerRow = sheet.createRow(0);
-        String[] columnHeaders = {"Nombre Artículo", "Tipo", "Género", "Talle", "Color", "Cuero", "Cantidad", "Fecha"}; // Ajusta los encabezados
-        for (int i = 0; i < columnHeaders.length; i++) {
-            var cell = headerRow.createCell(i);
-            cell.setCellValue(columnHeaders[i]);
-            cell.setCellStyle(headerStyle); // Aplicar el estilo a las celdas de encabezado
+        // Estilo base para datos
+        CellStyle dataStyle = workbook.createCellStyle();
+        dataStyle.setAlignment(HorizontalAlignment.LEFT);
+        dataStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        dataStyle.setBorderBottom(BorderStyle.THIN);
+        dataStyle.setBorderTop(BorderStyle.THIN);
+        dataStyle.setBorderLeft(BorderStyle.THIN);
+        dataStyle.setBorderRight(BorderStyle.THIN);
+        Font dataFont = workbook.createFont();
+        dataFont.setFontHeightInPoints((short) 11);
+        dataStyle.setFont(dataFont);
+
+        // Estilo para números (alineación derecha)
+        CellStyle dataStyleNumeric = workbook.createCellStyle();
+        dataStyleNumeric.cloneStyleFrom(dataStyle);
+        dataStyleNumeric.setAlignment(HorizontalAlignment.RIGHT);
+
+        // Estilo para fechas
+        CellStyle dateStyle = workbook.createCellStyle();
+        dateStyle.cloneStyleFrom(dataStyle);
+        dateStyle.setDataFormat(workbook.createDataFormat().getFormat("yyyy-MM-dd"));
+
+        // Estilos alternos
+        CellStyle altDataStyle = workbook.createCellStyle();
+        altDataStyle.cloneStyleFrom(dataStyle);
+        altDataStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        altDataStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        CellStyle altDataStyleNumeric = workbook.createCellStyle();
+        altDataStyleNumeric.cloneStyleFrom(altDataStyle);
+        altDataStyleNumeric.setAlignment(HorizontalAlignment.RIGHT);
+
+        CellStyle altDateStyle = workbook.createCellStyle();
+        altDateStyle.cloneStyleFrom(dateStyle);
+        altDateStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        altDateStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        // Encabezados
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"Nombre Artículo", "Tipo", "Género", "Talle", "Color", "Cuero", "Cantidad", "Fecha"};
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
         }
 
-        // Llenar la hoja de trabajo con los datos
+        // Datos
         int rowNum = 1;
         for (Purchase purchase : data) {
-            var excelRow = sheet.createRow(rowNum++);
-            excelRow.createCell(0).setCellValue(purchase.getName());
-            excelRow.createCell(1).setCellValue(purchase.getShoeType());
+            Row row = sheet.createRow(rowNum);
+            boolean isAlternate = (rowNum % 2 == 0);
 
-            String gender = purchase.getGender() ?  "Hombre" : "Dama";
+            // Nombre
+            createCell(row, 0, purchase.getName(), isAlternate ? altDataStyle : dataStyle);
 
-            excelRow.createCell(2).setCellValue(gender);
-            excelRow.createCell(3).setCellValue(purchase.getSize());
-            excelRow.createCell(4).setCellValue(purchase.getColor());
-            excelRow.createCell(5).setCellValue(purchase.getLeatherType());
-            excelRow.createCell(6).setCellValue(purchase.getNumberOfElements());
-            excelRow.createCell(7).setCellValue(purchase.getEmissionDate().toString());
+            // Tipo
+            createCell(row, 1, purchase.getShoeType(), isAlternate ? altDataStyle : dataStyle);
+
+            // Género
+            String gender = purchase.getGender() ? "Hombre" : "Dama";
+            createCell(row, 2, gender, isAlternate ? altDataStyle : dataStyle);
+
+            // Talle
+            createCell(row, 3, purchase.getSize().toString(), isAlternate ? altDataStyle : dataStyle);
+
+            // Color
+            createCell(row, 4, purchase.getColor(), isAlternate ? altDataStyle : dataStyle);
+
+            // Cuero
+            createCell(row, 5, purchase.getLeatherType(), isAlternate ? altDataStyle : dataStyle);
+
+            // Cantidad (numérico)
+            Cell qtyCell = row.createCell(6);
+            qtyCell.setCellValue(purchase.getNumberOfElements());
+            qtyCell.setCellStyle(isAlternate ? altDataStyleNumeric : dataStyleNumeric);
+
+            // Fecha
+            Cell dateCell = row.createCell(7);
+            dateCell.setCellValue(purchase.getEmissionDate().toString().substring(0, 10));
+            dateCell.setCellStyle(isAlternate ? altDateStyle : dateStyle);
+
+            rowNum++;
         }
 
-        // Ajustar el ancho de las columnas automáticamente
-        for (int i = 0; i < columnHeaders.length; i++) {
-            sheet.autoSizeColumn(i); // Ajustar el tamaño de cada columna según el contenido
+        // Ajuste fino de columnas
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+            sheet.setColumnWidth(i, Math.max(sheet.getColumnWidth(i), 3000)); // Mínimo 3000 (~12 caracteres)
         }
 
-        // Escribir el archivo a un flujo de salida
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            workbook.write(outputStream);
+        sheet.createFreezePane(0, 1);
+
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            workbook.write(out);
             workbook.close();
-            byte[] bytes = outputStream.toByteArray();
-
-            // Establecer los encabezados de respuesta
-            HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=archivo.xlsx");
-            headers.add(HttpHeaders.CONTENT_TYPE, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-
-            return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=reporte.xlsx")
+                    .header(HttpHeaders.CONTENT_TYPE, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                    .body(out.toByteArray());
         } catch (IOException e) {
-            // Manejo de errores
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
+    // Método auxiliar para crear celdas
+    private void createCell(Row row, int column, String value, CellStyle style) {
+        Cell cell = row.createCell(column);
+        cell.setCellValue(value);
+        cell.setCellStyle(style);
+    }
 
     public List<Purchase> getPurchasesBetweenAux(String firstDate, String endDate) throws ParseException {
 
