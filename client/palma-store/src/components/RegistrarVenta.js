@@ -77,6 +77,7 @@ class Registrar extends Component {
         idProduct: articulo.id,
         name: articulo.name,
         color: articulo.color,
+        gender: articulo.gender,
         size: articulo.size,
         leatherType: articulo.leatherType,
         shoeType: articulo.shoeType,
@@ -110,13 +111,14 @@ class Registrar extends Component {
   }
 
   agregar_al_carrito() {
-    const { idProduct, name, size, color, leatherType, shoeType, price, cantidad, numberOfElements } = this.state;
+    const { idProduct, name, size, color, gender, leatherType, shoeType, price, cantidad, numberOfElements } = this.state;
 
     const nuevoArticulo = {
       idProduct,
       name,
       size,
       color,
+      gender,
       leatherType,
       shoeType,
       price: parseFloat(price),
@@ -127,13 +129,33 @@ class Registrar extends Component {
     const validacion = validarFormulario(nuevoArticulo, true);
 
     if (validacion === "ok") {
-      this.setState(prevState => ({
-        carrito: {
-          ...prevState.carrito,
-          products: [...prevState.carrito.products, nuevoArticulo]
-        },
-        error: null
-      }), () => {
+      this.setState(prevState => {
+        // Buscar si ya existe un artículo con las mismas características
+        const existingProductIndex = prevState.carrito.products.findIndex(
+          item =>
+            item.size === nuevoArticulo.size &&
+            item.color === nuevoArticulo.color &&
+            item.gender === nuevoArticulo.gender
+        );
+
+        let newProducts = [...prevState.carrito.products];
+
+        if (existingProductIndex !== -1) {
+          // Reemplazar el artículo existente
+          newProducts[existingProductIndex] = nuevoArticulo;
+        } else {
+          // Agregar nuevo artículo
+          newProducts.push(nuevoArticulo);
+        }
+
+        return {
+          carrito: {
+            ...prevState.carrito,
+            products: newProducts
+          },
+          error: null
+        };
+      }, () => {
         this.setState({
           idProduct: "",
           price: "",
@@ -141,6 +163,7 @@ class Registrar extends Component {
           name: "",
           size: "",
           color: "",
+          gender: "",
           leatherType: "",
           shoeType: "",
           numberOfElements: 0
@@ -187,18 +210,19 @@ class Registrar extends Component {
     try {
       this.setState({ isSubmitting: true });
 
-      const facturaData = {
-        clientInfo: carrito.clientInfo,
-        products: carrito.products.map(product => ({
-          productId: product.idProduct,
-          quantity: product.cantidad,
-          price: product.price
-        }))
-      };
+      carrito.products.forEach(product => {
+        product.gender = product.gender === "Hombre";
+        product.clientDni = carrito.clientInfo.clientDni;
+        product.clientNameAndSurname = carrito.clientInfo.clientNameAndSurname;
+        product.emissionDate = new Date();
+        product.numberOfElements = product.cantidad;
+        console.log(product);
+      })
+
 
       const response = await axios.post(
         "http://localhost:8080/api/public/purchase/add_purchase",
-        facturaData
+        carrito.products
       );
 
       if (response.status === 200) {
@@ -373,6 +397,7 @@ class Registrar extends Component {
                         <th>Artículo</th>
                         <th>Talle</th>
                         <th>Color</th>
+                        <th>Genero</th>
                         <th>Precio Unit.</th>
                         <th>Cantidad</th>
                         <th>Subtotal</th>
@@ -385,6 +410,7 @@ class Registrar extends Component {
                           <td>{item.name}</td>
                           <td>{item.size}</td>
                           <td>{item.color}</td>
+                          <td>{item.gender}</td>
                           <td>${item.price}</td>
                           <td>{item.cantidad}</td>
                           <td>${(item.price * item.cantidad).toFixed(2)}</td>

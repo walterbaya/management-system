@@ -164,7 +164,7 @@ public class PurchaseController {
             excelRow.createCell(4).setCellValue(purchase.getColor());
             excelRow.createCell(5).setCellValue(purchase.getLeatherType());
             excelRow.createCell(6).setCellValue(purchase.getNumberOfElements());
-            excelRow.createCell(7).setCellValue(purchase.getEmissionDate().toString().substring(0,10));
+            excelRow.createCell(7).setCellValue(purchase.getEmissionDate().toString());
         }
 
         // Ajustar el ancho de las columnas automáticamente
