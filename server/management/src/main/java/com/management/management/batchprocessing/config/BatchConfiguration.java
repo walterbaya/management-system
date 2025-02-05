@@ -23,6 +23,7 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import com.management.management.model.Product;
@@ -69,6 +70,7 @@ public class BatchConfiguration {
     }
 
     @Bean
+    @Primary
     public Job importUserJob(JobRepository jobRepository, Step step1, Step step2, JobCompletionNotificationListener listener) {
         return new JobBuilder("importUserJob", jobRepository)
                 .listener(listener)
