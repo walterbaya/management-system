@@ -1,52 +1,86 @@
-package com.management.management.controller;
+package com.management.management.service.impl;
+
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.management.management.dto.ProductDto;
 import com.management.management.model.Product;
 import com.management.management.repository.ProductRepo;
 import com.management.management.service.ExcelUpdateService;
 import com.management.management.service.ExcelUpdateWatcherManager;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.management.management.service.ProductService;
+import lombok.AllArgsConstructor;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-@RestController
-@RequestMapping("api/public/product")
-@RequiredArgsConstructor
-@Transactional
-public class ProductController {
+@AllArgsConstructor
+@Service
+public class IProductService implements ProductService {
 
-    @Autowired
+
     ProductRepo repo;
-
-    @Autowired
     ExcelUpdateService excelUpdateService;
-
-    @Autowired
     ExcelUpdateWatcherManager excelUpdateWatcherManager;
 
+    @Override
+    public boolean addProduct(ProductDto productDto) {
+        return false;
+    }
+
+    @Override
+    public boolean addProducts(List<ProductDto> products) {
+        return false;
+    }
+
+    @Override
+    public boolean deleteProduct(Long id) {
+        return false;
+    }
+
+    @Override
+    public ProductDto getProduct(int id) {
+        return null;
+    }
+
+    @Override
+    public List<ProductDto> getProducts() {
+        return List.of();
+    }
+
+    @Override
+    public List<ProductDto> getProductsNotInFactory() {
+        return List.of();
+    }
+
+    @Override
+    public String guardarJson(List<Map<String, Object>> jsonData) {
+        return "";
+    }
+
+
+
     @PostMapping("/add_product")
-    public String addProduct(@RequestBody Product product) {
-        if (validate(product).equals("ok")) {
-            repo.save(product);
+    public String addProduct(@RequestBody ProductDto productDto) {
+
+
+        if (validate(productDto).equals("ok")) {
+            repo.save(productDto);
             //Actualizamos el Excel
             excelUpdateWatcherManager.setAppUpdatingFile(true);
             excelUpdateService.updateExcelStock(repo.findAll());
             excelUpdateWatcherManager.setAppUpdatingFile(false);
         }
 
-        return validate(product);
+        return validate(productDto);
     }
     // Ruta para obtener todos los artículos (tu código original)
 
@@ -58,7 +92,7 @@ public class ProductController {
 
     @GetMapping("/get_products_not_in_factory")
     public List<Product> getProductsNotInFactory() {
-        return repo.findAll();
+        return repo.findAllNotInFactory();
     }
     // Ruta para obtener artículo por ID (tu código original)
 
@@ -128,7 +162,7 @@ public class ProductController {
         excelUpdateWatcherManager.setAppUpdatingFile(false);
     }
 
-    private String validate(Product product) {
+    private String validate(ProductDto product) {
         System.out.println(product);
         if (product.getName() == null) {
             return "Error, se debe ingresar el nombre del articulo";
