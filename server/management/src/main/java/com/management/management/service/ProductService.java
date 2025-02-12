@@ -17,15 +17,15 @@ import java.util.Map;
 
 public interface ProductService {
 
-    boolean addProduct(ProductDto productDto);
-    boolean addProducts(List<ProductDto> products);
-    boolean deleteProduct(Long id);
+    void addProduct(ProductDto productDto);
+    void addProducts(List<ProductDto> productDtos);
+    void deleteProduct(Long id);
 
-    ProductDto getProduct(int id);
+    ProductDto getProduct(Long id);
     List<ProductDto> getProducts();
     List<ProductDto> getProductsNotInFactory();
 
-    String guardarJson(List<Map<String, Object>> jsonData);
+    ResponseEntity<String> guardarJson(List<Map<String, Object>> jsonData);
 
 
 }

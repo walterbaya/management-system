@@ -8,6 +8,7 @@ public class ProductMapper {
     public static Product toEntity(ProductDto productDto) {
         Product product = new Product();
         // Convertir ProductDto a Product
+        product.setId(productDto.getId());
         product.setName(productDto.getName());
         product.setSize(productDto.getSize());
         product.setColor(productDto.getColor());
@@ -24,6 +25,7 @@ public class ProductMapper {
     public static ProductDto toDto(Product product) {
         ProductDto productDto = new ProductDto();
         // Convertir Product a ProductDto
+        productDto.setId(product.getId());
         productDto.setName(product.getName());
         productDto.setSize(product.getSize());
         productDto.setColor(product.getColor());

@@ -8,6 +8,7 @@ import lombok.Data;
 
 @Data
 public class ProductDto {
+    private Long id;
     private Integer name;
     private Integer size;
     private String color;

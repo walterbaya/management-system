@@ -3,6 +3,7 @@ package com.management.management.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.management.management.dto.ProductDto;
+import com.management.management.mapper.ProductMapper;
 import com.management.management.model.Product;
 import com.management.management.repository.ProductRepo;
 import com.management.management.service.ExcelUpdateService;
@@ -21,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @AllArgsConstructor
 @Service
@@ -32,77 +34,72 @@ public class IProductService implements ProductService {
     ExcelUpdateWatcherManager excelUpdateWatcherManager;
 
     @Override
-    public boolean addProduct(ProductDto productDto) {
-        return false;
-    }
+    public void addProduct(ProductDto productDto) {
+        Product product = ProductMapper.toEntity(productDto);
+        boolean isValid = validate(product);
 
-    @Override
-    public boolean addProducts(List<ProductDto> products) {
-        return false;
-    }
-
-    @Override
-    public boolean deleteProduct(Long id) {
-        return false;
-    }
-
-    @Override
-    public ProductDto getProduct(int id) {
-        return null;
-    }
-
-    @Override
-    public List<ProductDto> getProducts() {
-        return List.of();
-    }
-
-    @Override
-    public List<ProductDto> getProductsNotInFactory() {
-        return List.of();
-    }
-
-    @Override
-    public String guardarJson(List<Map<String, Object>> jsonData) {
-        return "";
-    }
-
-
-
-    @PostMapping("/add_product")
-    public String addProduct(@RequestBody ProductDto productDto) {
-
-
-        if (validate(productDto).equals("ok")) {
-            repo.save(productDto);
+        if (isValid) {
+            repo.save(product);
             //Actualizamos el Excel
             excelUpdateWatcherManager.setAppUpdatingFile(true);
             excelUpdateService.updateExcelStock(repo.findAll());
             excelUpdateWatcherManager.setAppUpdatingFile(false);
         }
-
-        return validate(productDto);
-    }
-    // Ruta para obtener todos los artículos (tu código original)
-
-    @GetMapping("/get_products")
-    public List<Product> getProducts() {
-        return repo.findAll();
-    }
-    // Ruta para obtener artículo por ID (tu código original)
-
-    @GetMapping("/get_products_not_in_factory")
-    public List<Product> getProductsNotInFactory() {
-        return repo.findAllNotInFactory();
-    }
-    // Ruta para obtener artículo por ID (tu código original)
-
-    @GetMapping("/get_articulo/:id")
-    public void getProduct(@Param("id") int id) {
-
     }
 
-    @PostMapping("/update_catalogue")
-    public ResponseEntity<String> guardarJson(@RequestBody List<Map<String, Object>> jsonData) {
+    @Override
+    public void addProducts(List<ProductDto> productDtos) {
+
+        boolean res = false;
+        List<Product> products = productDtos.stream().map(ProductMapper::toEntity).toList();
+
+        for (int i = 0; i < products.size(); i++) {
+            if (!validate(products.get(i))) {
+                res = validate(products.get(i));
+            }
+        }
+
+        if (res) {
+            repo.saveAll(products);
+            //Actualizamos el Excel
+            excelUpdateWatcherManager.setAppUpdatingFile(true);
+            excelUpdateService.updateExcelStock(repo.findAll());
+            excelUpdateWatcherManager.setAppUpdatingFile(false);
+        }
+    }
+
+    @Override
+    public void deleteProduct(Long id) {
+        repo.deleteById(id);
+
+        //Actualizamos el Excel
+        excelUpdateWatcherManager.setAppUpdatingFile(true);
+        excelUpdateService.updateExcelStock(repo.findAll());
+        excelUpdateWatcherManager.setAppUpdatingFile(false);
+    }
+
+    @Override
+    public ProductDto getProduct(Long id) {
+        return repo.findById(id)
+                .map(ProductMapper::toDto)
+                .orElseThrow(() -> new NoSuchElementException("Producto con id " + id + " not found"));
+    }
+
+    @Override
+    public List<ProductDto> getProducts() {
+        return repo.findAll().stream().map(ProductMapper::toDto).toList();
+    }
+
+    @Override
+    public List<ProductDto> getProductsNotInFactory() {
+        return repo.findAllNotInFactory().stream().map(ProductMapper::toDto).toList();
+    }
+
+
+    //Hay que repensar en esto, pero por ahora lo dejamos asi.
+    @Override
+    public ResponseEntity<String> guardarJson(List<Map<String, Object>> jsonData) {
+
         try {
             // Verifica si la carpeta 'uploads' existe, si no, la crea
             Path uploadPath = Paths.get("uploads");
@@ -127,58 +124,22 @@ public class IProductService implements ProductService {
         }
     }
 
-    // Ruta para registrar varios artículos (tu código original)
-    @PostMapping("/add_products")
-    public String addProducts(@RequestBody List<Product> products) {
-
-        String res = "ok";
-
-        for (int i = 0; i < products.size(); i++) {
-            if (!validate(products.get(i)).equals("ok")) {
-                res = validate(products.get(i));
-            }
-        }
-
-        if (res.equals("ok")) {
-            products.forEach(product -> {
-                repo.save(product);
-            });
-
-            //Actualizamos el Excel
-            excelUpdateWatcherManager.setAppUpdatingFile(true);
-            excelUpdateService.updateExcelStock(repo.findAll());
-            excelUpdateWatcherManager.setAppUpdatingFile(false);
-        }
-        return res;
-    }
-
-    @DeleteMapping("/delete_product")
-    public void deleteProduct(@RequestParam("id") Long id) {
-        repo.deleteById(id);
-
-        //Actualizamos el Excel
-        excelUpdateWatcherManager.setAppUpdatingFile(true);
-        excelUpdateService.updateExcelStock(repo.findAll());
-        excelUpdateWatcherManager.setAppUpdatingFile(false);
-    }
-
-    private String validate(ProductDto product) {
-        System.out.println(product);
+    private boolean validate(Product product) {
         if (product.getName() == null) {
-            return "Error, se debe ingresar el nombre del articulo";
+            return false;
         }
 
         if (product.getNumberOfElements() == null || product.getNumberOfElements() <= 0) {
-            return "Error, se debe ingresar la cantidad y debe ser mayor a 0";
+            return false;
         }
         if (product.getSize() == null || product.getSize() <= 0) {
-            return "Error, se debe ingresar el talle y debe ser mayor a 0";
+            return false;
         }
         if (product.getColor().isEmpty()) {
-            return "Error, se debe ingresar el color ";
+            return false;
         }
 
-        return "ok";
+        return true;
     }
 
 
