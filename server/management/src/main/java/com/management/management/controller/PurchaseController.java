@@ -1,211 +1,49 @@
 package com.management.management.controller;
 
-import com.management.management.model.Product;
-import com.management.management.model.Purchase;
-import com.management.management.repository.ProductRepo;
-import com.management.management.repository.PurchaseRepo;
-import com.management.management.service.ExcelUpdateService;
-import com.management.management.service.ExcelUpdateWatcherManager;
-import lombok.RequiredArgsConstructor;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
+import java.util.List;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import com.management.management.dto.PurchaseDto;
+import com.management.management.service.impl.IPurchaseService;
+
+import lombok.AllArgsConstructor;
 
 @RestController
 @RequestMapping("api/public/purchase")
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class PurchaseController {
 
-    @Autowired
-    PurchaseRepo repo;
-
-    @Autowired
-    ProductRepo productRepo;
-
-    @Autowired
-    ExcelUpdateService excelUpdateService;
-
-    @Autowired
-    ExcelUpdateWatcherManager  excelUpdateWatcherManager;
-
+	IPurchaseService purchaseService;
+	
     @GetMapping("/get_facturas")
-    public List<Purchase> getAllPurchases(){
-        return repo.findAll();
+    public List<PurchaseDto> getAllPurchases(){
+        return purchaseService.getAllPurchases();
     };
 
-    // Ruta para obtener facturas entre dos fechas (tu código original)
     @GetMapping("/get_facturas_between")
-    public List<Purchase> getPurchasesBetween(@RequestParam("fecha_desde") String firstDate, @RequestParam("fecha_hasta") String endDate) throws ParseException {
-        return getPurchasesBetweenAux(firstDate, endDate);
+    public List<PurchaseDto> getPurchasesBetween(@RequestParam("fecha_desde") String firstDate, @RequestParam("fecha_hasta") String endDate) {
+        return purchaseService.getPurchasesBetween(firstDate, endDate);
     }
 
 
     @PostMapping("/add_purchase")
-    public String savePurchase(@RequestBody List<Purchase> purchaseList){
-        purchaseList.forEach(purchase -> {
-            ZonedDateTime emissionDate = purchase.getEmissionDate();
-
-            // Extraer día, mes y año
-            int day = emissionDate.getDayOfMonth();
-            int month = emissionDate.getMonthValue();
-            int year = emissionDate.getYear();
-
-            // Obtener la hora actual en Buenos Aires hubo que ajustarlo a 3 horas antes ya que el formato de mysql lo toma como 3 horas despues.
-            ZonedDateTime nowInBuenosAires = ZonedDateTime.now(ZoneId.of("America/Argentina/Buenos_Aires")).minusHours(3);
-
-            // Crear un nuevo ZonedDateTime combinando la fecha y la hora actual
-            ZonedDateTime newEmissionDate = ZonedDateTime.of(year, month, day, nowInBuenosAires.getHour(),
-                    nowInBuenosAires.getMinute(), nowInBuenosAires.getSecond(), nowInBuenosAires.getNano(),
-                    ZoneId.of("America/Argentina/Buenos_Aires"));
-
-            // Establecer la nueva fecha de emisión en la entidad Purchase
-            purchase.setEmissionDate(newEmissionDate);
-        });
-
-        purchaseList.forEach(System.out::println);
-        repo.saveAll(purchaseList);
-
-        List<Product> products = new ArrayList<>();
-
-        Map<Long, Product> productMap = productRepo.findAll().stream().collect(Collectors.toMap(Product::getId, product -> product));
-
-        for (Purchase purchase : purchaseList) {
-            Product product = productMap.get(purchase.getIdProduct());
-            product.setNumberOfElements(product.getNumberOfElements() - purchase.getNumberOfElements());
-            products.add(product);
-        }
-
-        productRepo.saveAll(products);
-
-        excelUpdateWatcherManager.setAppUpdatingFile(true);
-        excelUpdateService.updateExcelStock(productRepo.findAll());
-        excelUpdateService.updateVentas(purchaseList);
-        excelUpdateWatcherManager.setAppUpdatingFile(false);
-
-        return "ok";
+    public String savePurchase(@RequestBody List<PurchaseDto> purchaseList){
+        return purchaseService.savePurchase(purchaseList);
     }
 
 
     @GetMapping("/get_excel")
     public ResponseEntity<byte[]> getExcel(
             @RequestParam(value = "fecha_desde", required = false) String fechaDesde,
-            @RequestParam(value = "fecha_hasta", required = false) String fechaHasta) throws ParseException {
-
-        // Obtener las facturas desde el servicio
-        HashMap<Long, Purchase> dataMap = new HashMap<>();
-
-        getPurchasesBetweenAux(fechaDesde, fechaHasta).forEach(purchase -> {
-            Long id = purchase.getIdProduct();
-            if (dataMap.get(id) == null) {
-                dataMap.put(id, purchase);
-            } else {
-                Purchase p = dataMap.get(id);
-                p.setNumberOfElements(purchase.getNumberOfElements() + p.getNumberOfElements());
-                dataMap.put(id, p);
-            }
-        });
-
-        List<Purchase> data = new ArrayList<>(dataMap.values());
-
-        // Crear un libro de trabajo de Excel
-        Workbook workbook = new XSSFWorkbook();
-        var sheet = workbook.createSheet("Facturas");
-
-        // Crear estilo para encabezados de columna
-        CellStyle headerStyle = workbook.createCellStyle();
-        Font headerFont = workbook.createFont();
-        headerFont.setBold(true);
-        headerFont.setColor(IndexedColors.WHITE.getIndex()); // Texto blanco
-        headerStyle.setFont(headerFont);
-
-        // Establecer color de fondo azul para el encabezado
-        headerStyle.setFillForegroundColor(IndexedColors.BLUE.getIndex());
-        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-
-        // Crear encabezados de columna con el nuevo estilo
-        var headerRow = sheet.createRow(0);
-        String[] columnHeaders = {"Nombre Artículo", "Tipo", "Género", "Talle", "Color", "Cuero", "Cantidad", "Fecha"}; // Ajusta los encabezados
-        for (int i = 0; i < columnHeaders.length; i++) {
-            var cell = headerRow.createCell(i);
-            cell.setCellValue(columnHeaders[i]);
-            cell.setCellStyle(headerStyle); // Aplicar el estilo a las celdas de encabezado
-        }
-
-        // Llenar la hoja de trabajo con los datos
-        int rowNum = 1;
-        for (Purchase purchase : data) {
-            var excelRow = sheet.createRow(rowNum++);
-            excelRow.createCell(0).setCellValue(purchase.getName());
-            excelRow.createCell(1).setCellValue(purchase.getShoeType());
-
-            String gender = purchase.getGender() ?  "Hombre" : "Dama";
-
-            excelRow.createCell(2).setCellValue(gender);
-            excelRow.createCell(3).setCellValue(purchase.getSize());
-            excelRow.createCell(4).setCellValue(purchase.getColor());
-            excelRow.createCell(5).setCellValue(purchase.getLeatherType());
-            excelRow.createCell(6).setCellValue(purchase.getNumberOfElements());
-            excelRow.createCell(7).setCellValue(purchase.getEmissionDate().toString().substring(0,10));
-        }
-
-        // Ajustar el ancho de las columnas automáticamente
-        for (int i = 0; i < columnHeaders.length; i++) {
-            sheet.autoSizeColumn(i); // Ajustar el tamaño de cada columna según el contenido
-        }
-
-        // Escribir el archivo a un flujo de salida
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            workbook.write(outputStream);
-            workbook.close();
-            byte[] bytes = outputStream.toByteArray();
-
-            // Establecer los encabezados de respuesta
-            HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=archivo.xlsx");
-            headers.add(HttpHeaders.CONTENT_TYPE, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-
-            return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
-        } catch (IOException e) {
-            // Manejo de errores
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+            @RequestParam(value = "fecha_hasta", required = false) String fechaHasta){
+    	
+    		return purchaseService.getExcel(fechaDesde, fechaHasta);
     }
 
-
-    public List<Purchase> getPurchasesBetweenAux(String firstDate, String endDate) throws ParseException {
-
-        // Crear un formateador para la fecha
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-        // Parsear las fechas desde las cadenas
-        LocalDate startDate = LocalDate.parse(firstDate, dateFormatter);
-        LocalDate endDateLocal = LocalDate.parse(endDate, dateFormatter);
-
-        // Ajustar la hora a las 00:00:00 para el inicio y 23:59:59 para el final
-        ZonedDateTime start = startDate.atStartOfDay(ZoneId.of("America/Argentina/Buenos_Aires"));
-        ZonedDateTime end = endDateLocal.atTime(23, 59, 59).atZone(ZoneId.of("America/Argentina/Buenos_Aires"));
-
-        // Aquí llamas al repositorio con las fechas ajustadas
-        return repo.getPurchasesBetween(start, end);
-    }
 }

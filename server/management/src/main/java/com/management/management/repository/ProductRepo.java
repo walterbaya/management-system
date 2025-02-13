@@ -47,21 +47,4 @@ public interface ProductRepo extends JpaRepository<Product, Long> {
     @Query("UPDATE Product p SET p.factoryPrice = :factoryPrice WHERE p.name = :name")
     void updateProductPriceByName(@Param("name") Integer name, @Param("factoryPrice") Double price);
 
-
-
-/*function get_date() {
-  const date = new Date();
-    let day = date.getDate();
-    let month = date.getMonth() + 1;
-    if (day < 10) {
-        day = "0" + day;
-    }
-    if (month < 10) {
-        month = "0" + month;
-    }
-
-    console.log(day + "/" + month + "/" + date.getFullYear());
-    return date.getFullYear() + "/" + month + "/" + day;
-}*/
-
 }
