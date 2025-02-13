@@ -10,6 +10,8 @@ import java.time.ZonedDateTime;
 
 @Data
 public class PurchaseDto {
+	private Long id;
+	private Long idProduct;
     private String name;
     private Double size;
     private String color;
