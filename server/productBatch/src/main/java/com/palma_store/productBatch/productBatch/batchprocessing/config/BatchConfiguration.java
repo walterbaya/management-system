@@ -1,12 +1,10 @@
-package com.management.management.batchprocessing.config;
+package com.palma_store.productBatch.productBatch.batchprocessing.config;
 
 import com.management.management.batchprocessing.JobCompletionNotificationListener;
-import com.management.management.batchprocessing.ReaderResetListener;
 import com.management.management.batchprocessing.job.step1.ExcelProductReader;
 import com.management.management.batchprocessing.job.step1.ProductItemProcessor;
 import com.management.management.batchprocessing.job.step1.ProductItemWriter;
-
-import com.management.management.util.ProductPrice;
+import com.management.management.model.Product;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -16,13 +14,10 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-
-import com.management.management.model.Product;
 
 
 @Configuration

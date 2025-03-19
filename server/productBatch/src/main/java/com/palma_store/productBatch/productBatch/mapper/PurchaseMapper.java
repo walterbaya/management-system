@@ -1,0 +1,37 @@
+package com.palma_store.productBatch.productBatch.mapper;
+
+import com.management.management.dto.PurchaseDto;
+import com.management.management.model.Purchase;
+
+public class PurchaseMapper {
+    public static PurchaseDto toDto(Purchase purchase) {
+        PurchaseDto purchaseDto = new PurchaseDto();
+        // Convertir Purchase a PurchaseDto
+        purchaseDto.setColor(purchase.getColor());
+        purchaseDto.setEmissionDate(purchase.getEmissionDate());
+        purchaseDto.setClientDni(purchase.getClientDni());
+        purchaseDto.setClientNameAndSurname(purchase.getClientNameAndSurname());
+        purchaseDto.setGender(purchase.getGender());
+        purchaseDto.setLeatherType(purchase.getLeatherType());
+        purchaseDto.setPrice(purchase.getPrice());
+        purchaseDto.setShoeType(purchase.getShoeType());
+        purchaseDto.setSize(purchase.getSize());
+        return purchaseDto; // Implementa la conversión de Purchase a PurchaseDto
+    }
+
+    public static Purchase toEntity(PurchaseDto purchaseDto) {
+        Purchase purchase = new Purchase();
+        // Convertir PurchaseDto a Purchase
+        purchase.setColor(purchaseDto.getColor());
+        purchase.setEmissionDate(purchaseDto.getEmissionDate());
+        purchase.setClientDni(purchaseDto.getClientDni());
+        purchase.setClientNameAndSurname(purchaseDto.getClientNameAndSurname());
+        purchase.setGender(purchaseDto.getGender());
+        purchase.setLeatherType(purchaseDto.getLeatherType());
+        purchase.setPrice(purchaseDto.getPrice());
+        purchase.setShoeType(purchaseDto.getShoeType());
+        purchase.setSize(purchaseDto.getSize());
+        return purchase; // Implementa la conversión de PurchaseDto a Purchase
+    }
+
+}

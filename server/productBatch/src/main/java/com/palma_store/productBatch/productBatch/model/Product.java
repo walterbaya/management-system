@@ -1,0 +1,85 @@
+package com.palma_store.productBatch.productBatch.model;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.Objects;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+@Table(name = "articulos")
+public class Product {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
+    @Column(name = "nombre_articulo")
+    private Integer name;
+
+    @Column(name = "talle")
+    private Integer size;
+
+    @Column(name = "color")
+    private String color;
+
+    @Column(name = "cuero")
+    private String leatherType;
+
+    @Column(name = "tipo")
+    private String shoeType;
+
+    //Esto deberia ser un enum por ejemplo
+    @Column(name = "genero")
+    private Boolean gender;
+
+    @Column(name = "precio_fabrica")
+    private Double factoryPrice;
+
+    @Column(name = "precio_venta")
+    private Double salesPrice;
+
+    @Column(name = "cantidad")
+    private Integer numberOfElements;
+    
+    @Column(name = "en_fabrica")
+    private Boolean inFactory;
+    
+    public boolean sameProduct(Product product) {
+    	return Objects.equals(color != null ? color.toUpperCase() : null,
+                              product.color != null ? product.color.toUpperCase() : null) &&
+                Objects.equals(gender, product.gender) &&
+                Objects.equals(leatherType != null ? leatherType.toUpperCase() : null,
+                               product.leatherType != null ? product.leatherType.toUpperCase() : null) &&
+                Objects.equals(name, product.name) &&
+                Objects.equals(shoeType != null ? shoeType.toUpperCase() : null,
+                               product.shoeType != null ? product.shoeType.toUpperCase() : null) &&
+                Objects.equals(size, product.size) &&
+                Objects.equals(inFactory, product.inFactory);
+                }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Product product = (Product) obj;
+        return Objects.equals(id, product.id) &&
+        		Objects.equals(color, product.color) &&
+                Objects.equals(gender, product.gender) &&
+                Objects.equals(leatherType, product.leatherType) &&
+                Objects.equals(name, product.name) &&
+                Objects.equals(shoeType, product.shoeType) &&
+                Objects.equals(size, product.size) &&
+                Objects.equals(inFactory, product.inFactory) &&
+                Objects.equals(numberOfElements, product.numberOfElements) &&
+                Objects.equals(factoryPrice, product.factoryPrice) &&
+                Objects.equals(salesPrice, product.salesPrice);
+    }
+
+
+
+}

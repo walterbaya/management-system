@@ -1,7 +1,7 @@
-package com.management.management.batchprocessing;
+package com.palma_store.productBatch.productBatch.batchprocessing;
 
-import com.management.management.service.ExcelUpdateWatcherManager;
 import com.management.management.batchprocessing.job.step1.ExcelProductReader;
+import com.management.management.service.ExcelUpdateWatcherManager;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
