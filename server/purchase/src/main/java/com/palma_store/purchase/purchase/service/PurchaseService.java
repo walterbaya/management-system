@@ -1,6 +1,6 @@
 package com.palma_store.purchase.purchase.service;
 
-import com.management.management.dto.PurchaseDto;
+import com.palma_store.purchase.purchase.dto.PurchaseDto;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;

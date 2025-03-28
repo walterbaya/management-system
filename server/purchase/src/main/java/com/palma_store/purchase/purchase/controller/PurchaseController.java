@@ -1,7 +1,7 @@
 package com.palma_store.purchase.purchase.controller;
 
-import com.management.management.dto.PurchaseDto;
-import com.management.management.service.impl.IPurchaseService;
+import com.palma_store.purchase.purchase.dto.PurchaseDto;
+import com.palma_store.purchase.purchase.service.impl.IPurchaseService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,21 +15,21 @@ public class PurchaseController {
 
 	IPurchaseService purchaseService;
 	
-    @GetMapping("/get_facturas")
-    public List<PurchaseDto> getAllPurchases(){
-        return purchaseService.getAllPurchases();
-    };
+//    @GetMapping("/get_facturas")
+//    public List<PurchaseDto> getAllPurchases(){
+//        return purchaseService.getAllPurchases();
+//    };
 
-    @GetMapping("/get_facturas_between")
-    public List<PurchaseDto> getPurchasesBetween(@RequestParam("fecha_desde") String firstDate, @RequestParam("fecha_hasta") String endDate) {
-        return purchaseService.getPurchasesBetween(firstDate, endDate);
-    }
+//    @GetMapping("/get_facturas_between")
+//    public List<PurchaseDto> getPurchasesBetween(@RequestParam("fecha_desde") String firstDate, @RequestParam("fecha_hasta") String endDate) {
+//        return purchaseService.getPurchasesBetween(firstDate, endDate);
+//    }
 
 
-    @PostMapping("/add_purchase")
-    public String savePurchase(@RequestBody List<PurchaseDto> purchaseList){
-        return purchaseService.savePurchase(purchaseList);
-    }
+//    @PostMapping("/add_purchase")
+//    public String savePurchase(@RequestBody List<PurchaseDto> purchaseList){
+//        return purchaseService.savePurchase(purchaseList);
+//    }
 
 
     @GetMapping("/get_excel")

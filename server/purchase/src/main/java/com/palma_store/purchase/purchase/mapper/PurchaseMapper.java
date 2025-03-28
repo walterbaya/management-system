@@ -1,7 +1,7 @@
 package com.palma_store.purchase.purchase.mapper;
 
-import com.management.management.dto.PurchaseDto;
-import com.management.management.model.Purchase;
+import com.palma_store.purchase.purchase.dto.PurchaseDto;
+import com.palma_store.purchase.purchase.model.Purchase;
 
 public class PurchaseMapper {
     public static PurchaseDto toDto(Purchase purchase) {

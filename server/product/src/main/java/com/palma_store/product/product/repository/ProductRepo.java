@@ -1,6 +1,6 @@
 package com.palma_store.product.product.repository;
 
-import com.management.management.model.Product;
+import com.palma_store.product.product.model.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

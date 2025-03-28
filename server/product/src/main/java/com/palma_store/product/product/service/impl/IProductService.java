@@ -2,13 +2,11 @@ package com.palma_store.product.product.service.impl;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.management.management.dto.ProductDto;
-import com.management.management.mapper.ProductMapper;
-import com.management.management.model.Product;
-import com.management.management.repository.ProductRepo;
-import com.management.management.service.ExcelUpdateService;
-import com.management.management.service.ExcelUpdateWatcherManager;
-import com.management.management.service.ProductService;
+import com.palma_store.product.product.dto.ProductDto;
+import com.palma_store.product.product.mapper.ProductMapper;
+import com.palma_store.product.product.model.Product;
+import com.palma_store.product.product.repository.ProductRepo;
+import com.palma_store.product.product.service.ProductService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,8 +26,6 @@ public class IProductService implements ProductService {
 
 
     ProductRepo repo;
-    ExcelUpdateService excelUpdateService;
-    ExcelUpdateWatcherManager excelUpdateWatcherManager;
 
     @Override
     public void addProduct(ProductDto productDto) {
@@ -39,9 +35,9 @@ public class IProductService implements ProductService {
         if (isValid) {
             repo.save(product);
             //Actualizamos el Excel
-            excelUpdateWatcherManager.setAppUpdatingFile(true);
-            excelUpdateService.updateExcelStock(repo.findAll());
-            excelUpdateWatcherManager.setAppUpdatingFile(false);
+//            excelUpdateWatcherManager.setAppUpdatingFile(true);
+//            excelUpdateService.updateExcelStock(repo.findAll());
+//            excelUpdateWatcherManager.setAppUpdatingFile(false);
         }
     }
 
@@ -60,9 +56,9 @@ public class IProductService implements ProductService {
         if (res) {
             repo.saveAll(products);
             //Actualizamos el Excel
-            excelUpdateWatcherManager.setAppUpdatingFile(true);
-            excelUpdateService.updateExcelStock(repo.findAll());
-            excelUpdateWatcherManager.setAppUpdatingFile(false);
+//            excelUpdateWatcherManager.setAppUpdatingFile(true);
+//            excelUpdateService.updateExcelStock(repo.findAll());
+//            excelUpdateWatcherManager.setAppUpdatingFile(false);
         }
     }
 
@@ -71,9 +67,9 @@ public class IProductService implements ProductService {
         repo.deleteById(id);
 
         //Actualizamos el Excel
-        excelUpdateWatcherManager.setAppUpdatingFile(true);
-        excelUpdateService.updateExcelStock(repo.findAll());
-        excelUpdateWatcherManager.setAppUpdatingFile(false);
+//        excelUpdateWatcherManager.setAppUpdatingFile(true);
+//        excelUpdateService.updateExcelStock(repo.findAll());
+//        excelUpdateWatcherManager.setAppUpdatingFile(false);
     }
 
     @Override

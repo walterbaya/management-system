@@ -1,8 +1,8 @@
 package com.palma_store.product.product.mapper;
 
 
-import com.management.management.dto.ProductDto;
-import com.management.management.model.Product;
+import com.palma_store.product.product.dto.ProductDto;
+import com.palma_store.product.product.model.Product;
 
 public class ProductMapper {
     public static Product toEntity(ProductDto productDto) {

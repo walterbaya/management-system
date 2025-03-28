@@ -1,7 +1,7 @@
 package com.palma_store.product.product.controller;
 
-import com.management.management.dto.ProductDto;
-import com.management.management.service.impl.IProductService;
+import com.palma_store.product.product.dto.ProductDto;
+import com.palma_store.product.product.service.impl.IProductService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.MediaType;

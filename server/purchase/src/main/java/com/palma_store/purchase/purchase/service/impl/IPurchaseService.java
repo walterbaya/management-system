@@ -1,16 +1,13 @@
 package com.palma_store.purchase.purchase.service.impl;
 
-import com.management.management.dto.PurchaseDto;
-import com.management.management.mapper.PurchaseMapper;
-import com.management.management.model.Product;
-import com.management.management.repository.ProductRepo;
-import com.management.management.repository.PurchaseRepo;
-import com.management.management.service.ExcelUpdateService;
-import com.management.management.service.ExcelUpdateWatcherManager;
-import com.management.management.service.PurchaseService;
+import com.palma_store.purchase.purchase.dto.PurchaseDto;
+import com.palma_store.purchase.purchase.mapper.PurchaseMapper;
+import com.palma_store.purchase.purchase.repository.PurchaseRepo;
+import com.palma_store.purchase.purchase.service.PurchaseService;
 import lombok.AllArgsConstructor;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,12 +30,6 @@ import java.util.stream.Collectors;
 public class IPurchaseService implements PurchaseService{
 	
     PurchaseRepo repo;
-
-    ProductRepo productRepo;
-
-    ExcelUpdateService excelUpdateService;
-
-    ExcelUpdateWatcherManager  excelUpdateWatcherManager;
 
     public List<PurchaseDto> getAllPurchases(){
         return repo.findAll().stream().map(PurchaseMapper::toDto).toList();
@@ -70,24 +61,20 @@ public class IPurchaseService implements PurchaseService{
         });
 
         repo.saveAll(purchaseList.stream().map(PurchaseMapper::toEntity).toList());
+//
+//        List<Product> products = new ArrayList<>();
+//
+//        Map<Long, Product> productMap = productRepo.findAll().stream().collect(Collectors.toMap(Product::getId, product -> product));
+//
+//        for (PurchaseDto purchase : purchaseList) {
+//            Product product = productMap.get(purchase.getIdProduct());
+//            product.setNumberOfElements(product.getNumberOfElements() - purchase.getNumberOfElements());
+//            products.add(product);
+//        }
+//
+//        productRepo.saveAll(products);
 
-        List<Product> products = new ArrayList<>();
-
-        Map<Long, Product> productMap = productRepo.findAll().stream().collect(Collectors.toMap(Product::getId, product -> product));
-
-        for (PurchaseDto purchase : purchaseList) {
-            Product product = productMap.get(purchase.getIdProduct());
-            product.setNumberOfElements(product.getNumberOfElements() - purchase.getNumberOfElements());
-            products.add(product);
-        }
-
-        productRepo.saveAll(products);
-
-        excelUpdateWatcherManager.setAppUpdatingFile(true);
-        excelUpdateService.updateExcelStock(productRepo.findAll());
-        excelUpdateService.updateVentas(purchaseList.stream().map(PurchaseMapper::toEntity).toList());
-        excelUpdateWatcherManager.setAppUpdatingFile(false);
-
+       
         return "ok";
     }
 
@@ -111,7 +98,7 @@ public class IPurchaseService implements PurchaseService{
         List<PurchaseDto> data = new ArrayList<>(dataMap.values());
 
         // Crear un libro de trabajo de Excel
-        Workbook workbook = new XSSFWorkbook();
+        Workbook workbook = new HSSFWorkbook();
         var sheet = workbook.createSheet("Facturas");
 
         // Crear estilo para encabezados de columna

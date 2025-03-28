@@ -1,6 +1,6 @@
 package com.palma_store.product.product.service;
 
-import com.management.management.dto.ProductDto;
+import com.palma_store.product.product.dto.ProductDto;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
