@@ -1,0 +1,20 @@
+Para el init watch service se implenentaron los siguientes patrones:
+
+Template Method (parcial)
+
+    El método registerPathsForMonitoring define 
+    una estructura general que puede ser extendida,
+    de esta manera se proporciona un esqueleto para
+    registrar paths con variaciones posibles, aunque no hay
+    una función propiamente dicha.
+
+Principio DRY (Don't Repeat Yourself)
+
+    Siguiendo la idea, eliminamos el código duplicado en los múltiples
+    bloques try-catch que desarrollamos previamente, reducimos de esta forma 
+    los errores y facilitamos el mantenimiento.
+
+Principio Fail Fast
+
+    Lanzamos inmediatamente excepciones cuando falla el registro de algun archivo
+    detectando de esta forma los errores lo antes posible.

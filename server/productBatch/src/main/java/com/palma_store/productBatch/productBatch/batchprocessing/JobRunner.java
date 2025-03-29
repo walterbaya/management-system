@@ -1,7 +1,8 @@
 package com.palma_store.productBatch.productBatch.batchprocessing;
 
-import com.management.management.batchprocessing.job.step1.ExcelProductReader;
-import com.management.management.service.ExcelUpdateWatcherManager;
+import com.palma_store.productBatch.productBatch.batchprocessing.job.step1.ExcelProductReader;
+import com.palma_store.productBatch.productBatch.service.ExcelUpdateWatcherManager;
+
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -27,7 +28,7 @@ public class JobRunner implements CommandLineRunner {
 //    private ExcelProductPriceReader excelProductPriceReader;
 
     @Autowired
-    private Job importUserJob;
+    private Job updateProductsJob;
 
     @Autowired
     private Job updatePreciosJob;
@@ -39,17 +40,10 @@ public class JobRunner implements CommandLineRunner {
     private final Path filePathHombre = Paths.get("D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK HOMBRE.xlsx");
     private final Path filePathDama = Paths.get("D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK DAMA.xlsx");
     private final Path filePathPrecios = Paths.get("D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\LISTA PRECIOS.xlsx");
-    //private final Path filePathHombre = Paths.get("D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK HOMBRE.xlsx");
-    //private final Path filePathDama = Paths.get("D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK DAMA.xlsx");
 
-    public JobRunner(JobLauncher jobLauncher, Job importUserJob) {
-        try {
-            this.watchService = FileSystems.getDefault().newWatchService();
-        } catch (IOException e) {
-            throw new RuntimeException("Error initializing WatchService", e);
-        }
+    public JobRunner(JobLauncher jobLauncher, Job updateProductsJob) {
         this.jobLauncher = jobLauncher;
-        this.importUserJob = importUserJob;
+        this.updateProductsJob = updateProductsJob;
     }
 
     @Override
@@ -57,11 +51,29 @@ public class JobRunner implements CommandLineRunner {
         initWatchService();
     }
 
-    private void initWatchService() throws IOException {
-        watchService = FileSystems.getDefault().newWatchService();
-        filePathHombre.getParent().register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
-        filePathDama.getParent().register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
-        filePathPrecios.getParent().register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+    private void initWatchService() {
+        try {
+            this.watchService = FileSystems.getDefault().newWatchService();
+            registerPathsForMonitoring(watchService, 
+                filePathHombre.getParent(),
+                filePathDama.getParent(),
+                filePathPrecios.getParent()
+            );
+        } catch (IOException e) {
+            throw new RuntimeException("Error inicializando el WatchService", e);
+        }
+    }
+
+    private void registerPathsForMonitoring(WatchService watchService, Path... paths) {
+        for (Path path : paths) {
+            try {
+                if (path != null) {
+                    path.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException("Error registrando path " + path + " en WatchService", e);
+            }
+        }
     }
 
     @Scheduled(fixedRate = 800)
@@ -75,10 +87,10 @@ public class JobRunner implements CommandLineRunner {
                         Thread.sleep(500); // Avoid concurrent operation conflicts
                         executeJob();
                     }
-                    if(changed.endsWith(filePathPrecios.getFileName())){
-                        Thread.sleep(500); // Avoid concurrent operation conflicts
-                        executeJobPrecios();
-                    }
+//                    if(changed.endsWith(filePathPrecios.getFileName())){
+//                        Thread.sleep(500); // Avoid concurrent operation conflicts
+//                        executeJobPrecios();
+//                    }
                 }
             }
             // Reset the key after processing events
@@ -94,7 +106,7 @@ public class JobRunner implements CommandLineRunner {
                     .addLong("timestamp", System.currentTimeMillis()) // Parámetro único
                     .toJobParameters();
 
-            jobLauncher.run(importUserJob, jobParameters);
+            jobLauncher.run(updateProductsJob, jobParameters);
         } catch (Exception e) {
             e.printStackTrace();
         }

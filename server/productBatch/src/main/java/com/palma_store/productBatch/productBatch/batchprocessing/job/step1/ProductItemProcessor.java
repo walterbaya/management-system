@@ -1,6 +1,6 @@
 package com.palma_store.productBatch.productBatch.batchprocessing.job.step1;
 
-import com.management.management.model.Product;
+import com.palma_store.productBatch.productBatch.model.Product;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;

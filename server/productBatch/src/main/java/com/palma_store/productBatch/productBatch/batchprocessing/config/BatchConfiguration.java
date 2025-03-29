@@ -1,10 +1,5 @@
 package com.palma_store.productBatch.productBatch.batchprocessing.config;
 
-import com.management.management.batchprocessing.JobCompletionNotificationListener;
-import com.management.management.batchprocessing.job.step1.ExcelProductReader;
-import com.management.management.batchprocessing.job.step1.ProductItemProcessor;
-import com.management.management.batchprocessing.job.step1.ProductItemWriter;
-import com.management.management.model.Product;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -18,6 +13,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+
+import com.palma_store.productBatch.productBatch.batchprocessing.JobCompletionNotificationListener;
+import com.palma_store.productBatch.productBatch.batchprocessing.job.step1.ExcelProductReader;
+import com.palma_store.productBatch.productBatch.batchprocessing.job.step1.ProductItemProcessor;
+import com.palma_store.productBatch.productBatch.batchprocessing.job.step1.ProductItemWriter;
+import com.palma_store.productBatch.productBatch.model.Product;
 
 
 @Configuration
@@ -62,8 +63,8 @@ public class BatchConfiguration {
 
     @Bean
     @Primary
-    public Job importUserJob(JobRepository jobRepository, Step step1, Step step2, JobCompletionNotificationListener listener) {
-        return new JobBuilder("importUserJob", jobRepository)
+    public Job updateProductsJob(JobRepository jobRepository, Step step1, Step step2, JobCompletionNotificationListener listener) {
+        return new JobBuilder("updateProductsJob", jobRepository)
                 .listener(listener)
                 .start(step1)
                 .next(step2)

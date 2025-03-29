@@ -1,8 +1,9 @@
 package com.palma_store.productBatch.productBatch.batchprocessing;
 
-import com.management.management.model.Product;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.FieldSet;
+
+import com.palma_store.productBatch.productBatch.model.Product;
 
 
 public class ProductFieldSetMapper implements FieldSetMapper<Product> {

@@ -1,6 +1,6 @@
 package com.palma_store.productBatch.productBatch.model.util;
 
-import com.management.management.model.Product;
+import com.palma_store.productBatch.productBatch.model.Product;
 import lombok.Getter;
 import lombok.Setter;
 

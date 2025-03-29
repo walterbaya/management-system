@@ -1,8 +1,5 @@
 package com.palma_store.productBatch.productBatch.service;
 
-import com.management.management.model.Product;
-import com.management.management.model.Purchase;
-import com.management.management.service.ExcelUpdateWatcherManager;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -10,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.palma_store.productBatch.productBatch.model.Product;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

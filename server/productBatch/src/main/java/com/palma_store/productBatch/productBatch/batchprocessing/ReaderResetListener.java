@@ -1,11 +1,12 @@
 package com.palma_store.productBatch.productBatch.batchprocessing;
 
-import com.management.management.batchprocessing.job.step1.ExcelProductReader;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.palma_store.productBatch.productBatch.batchprocessing.job.step1.ExcelProductReader;
 
 @Component
 public class ReaderResetListener implements StepExecutionListener {

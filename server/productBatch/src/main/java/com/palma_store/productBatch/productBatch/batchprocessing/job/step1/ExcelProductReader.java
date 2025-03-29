@@ -1,12 +1,13 @@
 package com.palma_store.productBatch.productBatch.batchprocessing.job.step1;
 
-import com.management.management.model.Product;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import com.palma_store.productBatch.productBatch.model.Product;
+
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.stereotype.Component;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
