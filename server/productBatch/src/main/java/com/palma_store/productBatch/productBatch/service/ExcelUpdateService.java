@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.palma_store.productBatch.productBatch.model.Product;
+import com.palma_store.productBatch.productBatch.model.Purchase;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

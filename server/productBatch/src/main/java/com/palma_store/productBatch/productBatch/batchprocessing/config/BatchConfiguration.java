@@ -64,7 +64,7 @@ public class BatchConfiguration {
     @Bean
     @Primary
     public Job updateProductsJob(JobRepository jobRepository, Step step1, Step step2, JobCompletionNotificationListener listener) {
-        return new JobBuilder("updateProductsJob", jobRepository)
+    	return new JobBuilder("updateProductsJob", jobRepository)
                 .listener(listener)
                 .start(step1)
                 .next(step2)
