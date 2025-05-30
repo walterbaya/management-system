@@ -8,7 +8,14 @@
         <option value="$PROJECT_DIR$/purchase/pom.xml" />
         <option value="$PROJECT_DIR$/management/pom.xml" />
         <option value="$PROJECT_DIR$/productBatch/pom.xml" />
+        <option value="$PROJECT_DIR$/sales/pom.xml" />
       </list>
+    </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/product/pom.xml" />
+        <option value="$PROJECT_DIR$/productBatch/pom.xml" />
+      </set>
     </option>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_21" default="true" project-jdk-name="21" project-jdk-type="JavaSDK">
