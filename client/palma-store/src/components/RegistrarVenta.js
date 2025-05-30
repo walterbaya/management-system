@@ -221,7 +221,7 @@ class Registrar extends Component {
 
 
       const response = await axios.post(
-        "http://localhost:8080/api/public/purchase/add_purchase",
+        "http://localhost:8081/api/public/purchase/add_purchase",
         carrito.products
       );
 

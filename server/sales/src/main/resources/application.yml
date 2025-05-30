@@ -13,7 +13,7 @@ spring:
 app:
   datetime:
     zone: America/Argentina/Buenos_Aires
-    mysql-offset-hours: 3
+    mysql-offset: 3
 
 server:
   port: 8081

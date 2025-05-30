@@ -61,7 +61,7 @@ class Consultar extends Component {
 
     this.setState({ excelLoading: true });
 
-    axios.get("http://localhost:8080/api/public/purchase/get_excel", {
+    axios.get("http://localhost:8081/api/public/purchase/get_excel", {
       responseType: 'blob',
       params: consulta
     })
@@ -98,7 +98,7 @@ class Consultar extends Component {
 
     this.setState({ loading: true });
 
-    axios.get("http://localhost:8080/api/public/purchase/get_facturas_between", {
+    axios.get("http://localhost:8081/api/public/purchase/get_facturas_between", {
       params: consulta
     })
       .then((response) => {
