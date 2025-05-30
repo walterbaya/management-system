@@ -4,6 +4,7 @@ spring:
   batch:
     jdbc:
       initialize-schema: always
+
   datasource:
     url: jdbc:mysql://localhost:3306/palma_store
     username: root
@@ -11,6 +12,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 app:
-  datetime:
-    zone: America/Argentina/Buenos_Aires
-    mysql-offset-hours: 3
+ datetime:
+ zone: America/Argentina/Buenos_Aires
+ mysql-offset-hours: 3
+
