@@ -1,6 +1,6 @@
 package com.sales.service;
 
-import com.sales.dto.PurchaseDto;
+import com.sales.dto.SaleDto;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -8,11 +8,11 @@ import java.util.List;
 
 public interface SaleService {
 
-    List<PurchaseDto> getAllSales();
+    List<SaleDto> getAllSales();
 
-    List<PurchaseDto> getSalesBetweenDates(String startDate, String endDate);
+    List<SaleDto> getSalesBetweenDates(String startDate, String endDate);
 
-    String saveSales(List<PurchaseDto> purchaseList);
+    String saveSales(List<SaleDto> purchaseList);
 
     ResponseEntity<byte[]> generateExcelReport(String startDate, String endDate);
 

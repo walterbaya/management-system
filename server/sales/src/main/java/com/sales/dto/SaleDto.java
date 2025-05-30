@@ -5,13 +5,11 @@ import lombok.Data;
 import java.time.ZonedDateTime;
 
 @Data
-public class PurchaseDto {
+public class SaleDto {
 	private Long id;
     private ZonedDateTime emissionDate;
     private String clientNameAndSurname;
     private String clientDni;
-	
-	
 	private Long idProduct;
     private String name;
     private Double size;

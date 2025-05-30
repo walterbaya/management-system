@@ -1,7 +1,7 @@
 package com.sales.service.impl;
 
-import com.sales.dto.PurchaseDto;
-import com.sales.mapper.PurchaseMapper;
+import com.sales.dto.SaleDto;
+import com.sales.mapper.SaleMapper;
 import com.sales.repository.SalesRepo;
 import com.sales.service.SaleService;
 import lombok.AllArgsConstructor;
@@ -29,11 +29,11 @@ public class ISaleService implements SaleService {
 	
     SalesRepo repo;
 
-    public List<PurchaseDto> getAllSales(){
-        return repo.findAll().stream().map(PurchaseMapper::toDto).toList();
+    public List<SaleDto> getAllSales(){
+        return repo.findAll().stream().map(SaleMapper::toDto).toList();
     };
 
-    public List<PurchaseDto> getSalesBetweenDates(String startDate, String endDate) {
+    public List<SaleDto> getSalesBetweenDates(String startDate, String endDate) {
         // Crear un formateador para la fecha
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -46,10 +46,10 @@ public class ISaleService implements SaleService {
         ZonedDateTime end = endDateLocal.atTime(23, 59, 59).atZone(ZoneId.of("America/Argentina/Buenos_Aires"));
 
         // Aquí llamas al repositorio con las fechas ajustadas
-        return repo.getSalesBetween(start, end).stream().map(PurchaseMapper::toDto).toList();
+        return repo.getSalesBetween(start, end).stream().map(SaleMapper::toDto).toList();
     }
 
-    public String saveSales(List<PurchaseDto> purchaseList){
+    public String saveSales(List<SaleDto> purchaseList){
         purchaseList.forEach(purchase -> {
             ZonedDateTime emissionDate = purchase.getEmissionDate();
 
@@ -70,13 +70,13 @@ public class ISaleService implements SaleService {
             purchase.setEmissionDate(newEmissionDate);
         });
 
-        repo.saveAll(purchaseList.stream().map(PurchaseMapper::toEntity).toList());
+        repo.saveAll(purchaseList.stream().map(SaleMapper::toEntity).toList());
 //
 //        List<Product> products = new ArrayList<>();
 //
 //        Map<Long, Product> productMap = productRepo.findAll().stream().collect(Collectors.toMap(Product::getId, product -> product));
 //
-//        for (PurchaseDto purchase : purchaseList) {
+//        for (SaleDto purchase : purchaseList) {
 //            Product product = productMap.get(purchase.getIdProduct());
 //            product.setNumberOfElements(product.getNumberOfElements() - purchase.getNumberOfElements());
 //            products.add(product);
@@ -88,24 +88,23 @@ public class ISaleService implements SaleService {
         return "ok";
     }
 
-
     public ResponseEntity<byte[]> generateExcelReport(String startDate, String endDate) {
 
         // Obtener las facturas desde el servicio
-        HashMap<Long, PurchaseDto> dataMap = new HashMap<>();
+        HashMap<Long, SaleDto> saleByIdProduct = new HashMap<>();
 
-        getSalesBetweenDates(startDate, endDate).forEach(purchase -> {
-            Long id = purchase.getIdProduct();
-            if (dataMap.get(id) == null) {
-                dataMap.put(id, purchase);
+        getSalesBetweenDates(startDate, endDate).forEach(sale -> {
+            Long id = sale.getIdProduct();
+            if (saleByIdProduct.get(id) == null) {
+                saleByIdProduct.put(id, sale);
             } else {
-                PurchaseDto p = dataMap.get(id);
-                p.setNumberOfElements(purchase.getNumberOfElements() + p.getNumberOfElements());
-                dataMap.put(id, p);
+                SaleDto saleDto = saleByIdProduct.get(id);
+                saleDto.setNumberOfElements(sale.getNumberOfElements() + saleDto.getNumberOfElements());
+                saleByIdProduct.put(id, saleDto);
             }
         });
 
-        List<PurchaseDto> data = new ArrayList<>(dataMap.values());
+        List<SaleDto> data = new ArrayList<>(dataMap.values());
 
         // Crear un libro de trabajo de Excel
         Workbook workbook = new HSSFWorkbook();
@@ -133,7 +132,7 @@ public class ISaleService implements SaleService {
 
         // Llenar la hoja de trabajo con los datos
         int rowNum = 1;
-        for (PurchaseDto purchase : data) {
+        for (SaleDto purchase : data) {
             var excelRow = sheet.createRow(rowNum++);
             excelRow.createCell(0).setCellValue(purchase.getName());
             excelRow.createCell(1).setCellValue(purchase.getShoeType());

@@ -1,6 +1,6 @@
 package com.sales.controller;
 
-import com.sales.dto.PurchaseDto;
+import com.sales.dto.SaleDto;
 import com.sales.service.impl.ISaleService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -11,33 +11,32 @@ import java.util.List;
 @RestController
 @RequestMapping("api/public/purchase")
 @AllArgsConstructor
-public class PurchaseController {
+public class SaleController {
 
-	ISaleService purchaseService;
+	ISaleService iSaleService;
 	
     @GetMapping("/get_facturas")
-    public List<PurchaseDto> getAllPurchases(){
-        return purchaseService.getAllPurchases();
+    public List<SaleDto> getAllPurchases(){
+        return iSaleService.getAllSales();
     };
 
     @GetMapping("/get_facturas_between")
-    public List<PurchaseDto> getPurchasesBetween(@RequestParam("fecha_desde") String firstDate, @RequestParam("fecha_hasta") String endDate) {
-        return purchaseService.getPurchasesBetween(firstDate, endDate);
+    public List<SaleDto> getPurchasesBetween(@RequestParam("fecha_desde") String firstDate, @RequestParam("fecha_hasta") String endDate) {
+        return iSaleService.getSalesBetweenDates(firstDate, endDate);
     }
 
 
     @PostMapping("/add_purchase")
-    public String savePurchase(@RequestBody List<PurchaseDto> purchaseList){
-        return purchaseService.savePurchase(purchaseList);
+    public String savePurchase(@RequestBody List<SaleDto> purchaseList){
+        return iSaleService.saveSales(purchaseList);
     }
-
 
     @GetMapping("/get_excel")
     public ResponseEntity<byte[]> getExcel(
             @RequestParam(value = "fecha_desde", required = false) String fechaDesde,
             @RequestParam(value = "fecha_hasta", required = false) String fechaHasta){
     	
-    		return purchaseService.getExcel(fechaDesde, fechaHasta);
+    		return iSaleService.generateExcelReport(fechaDesde, fechaHasta);
     }
 
 }
