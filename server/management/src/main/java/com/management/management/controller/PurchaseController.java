@@ -15,12 +15,13 @@ import com.management.management.service.impl.IPurchaseService;
 import lombok.AllArgsConstructor;
 
 @RestController
-@RequestMapping("api/public/purchase")
+@RequestMapping("api/public/purchase_deprecated")
 @AllArgsConstructor
+@Deprecated
 public class PurchaseController {
 
 	IPurchaseService purchaseService;
-	
+
     @GetMapping("/get_facturas")
     public List<PurchaseDto> getAllPurchases(){
         return purchaseService.getAllPurchases();
@@ -31,12 +32,10 @@ public class PurchaseController {
         return purchaseService.getPurchasesBetween(firstDate, endDate);
     }
 
-
     @PostMapping("/add_purchase")
     public String savePurchase(@RequestBody List<PurchaseDto> purchaseList){
         return purchaseService.savePurchase(purchaseList);
     }
-
 
     @GetMapping("/get_excel")
     public ResponseEntity<byte[]> getExcel(

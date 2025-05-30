@@ -16,8 +16,8 @@ import java.util.List;
 @NoArgsConstructor
 public class ExcelUtils {
 
-    private final Path filePathHombre = Paths.get("D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK HOMBRE.xlsx");
-    private final Path filePathDama = Paths.get("D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK DAMA.xlsx");
+    private final Path filePathHombre = Paths.get("D:\\Documentos\\GitHub\\management-system\\server\\management\\src\\main\\resources\\STOCK HOMBRE.xlsx");
+    private final Path filePathDama = Paths.get("D:\\Documentos\\GitHub\\management-system\\server\\management\\src\\main\\resources\\STOCK DAMA.xlsx");
     private Path filePath;
 
     public ExcelUtils(Boolean gender){

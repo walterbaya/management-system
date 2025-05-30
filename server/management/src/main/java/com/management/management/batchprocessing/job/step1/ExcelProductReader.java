@@ -23,17 +23,15 @@ public class ExcelProductReader implements ItemReader<Product> {
     private List<Product> productList;
     private int nextProductIndex;
     private static final Logger log = LoggerFactory.getLogger(ExcelProductReader.class);
+    private final Path filePathHombre = Paths.get("D:\\Documentos\\GitHub\\management-system\\server\\management\\src\\main\\resources\\STOCK HOMBRE.xlsx");
+    private final Path filePathDama = Paths.get("D:\\Documentos\\GitHub\\management-system\\server\\management\\src\\main\\resources\\STOCK DAMA.xlsx");
+
 
     public void resetReader() {
         this.productList = readExcelFile(filePathHombre);  // Recarga el archivo cada vez
         this.productList.addAll(readExcelFile(filePathDama));
         this.nextProductIndex = 0;  // Reinicia el índice de productos;
     }
-
-    private final Path filePathHombre = Paths.get("D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK HOMBRE.xlsx");
-    private final Path filePathDama = Paths.get("D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK DAMA.xlsx");
-    //private final Path filePathHombre = Paths.get("D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK HOMBRE.xlsx");
-    //private final Path filePathDama = Paths.get("D:\\Documentos\\GitHub\\palma-store\\server\\management\\src\\main\\resources\\STOCK DAMA.xlsx");
     
     public ExcelProductReader() {
         this.productList = readExcelFile(filePathHombre);

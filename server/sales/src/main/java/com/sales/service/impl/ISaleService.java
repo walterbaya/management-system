@@ -34,7 +34,7 @@ public class ISaleService implements SaleService {
     SalesRepo repo;
 
     public List<SaleDto> getAllSales(){
-        return repo.findAll().stream().map(SaleMapper::toDto).toList();
+        return repo.findAll().stream().map(saleMapper::toDto).toList();
     };
 
     public List<SaleDto> getSalesBetweenDates(String startDate, String endDate) {
@@ -50,7 +50,7 @@ public class ISaleService implements SaleService {
         ZonedDateTime end = endDateLocal.atTime(23, 59, 59).atZone(ZoneId.of("America/Argentina/Buenos_Aires"));
 
         // Aquí llamas al repositorio con las fechas ajustadas
-        return repo.getSalesBetween(start, end).stream().map(SaleMapper::toDto).toList();
+        return repo.getSalesBetween(start, end).stream().map(saleMapper::toDto).toList();
     }
 
 

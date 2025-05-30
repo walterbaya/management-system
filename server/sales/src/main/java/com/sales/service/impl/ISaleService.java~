@@ -34,7 +34,7 @@ public class ISaleService implements SaleService {
     SalesRepo repo;
 
     public List<SaleDto> getAllSales(){
-        return repo.findAll().stream().map(SaleMapper::toDto).toList();
+        return repo.findAll().stream().map(saleMapper::toDto).toList();
     };
 
     public List<SaleDto> getSalesBetweenDates(String startDate, String endDate) {
@@ -63,7 +63,7 @@ public class ISaleService implements SaleService {
 
         List<Sale> entities = salesList.stream()
                 .map(dto -> {
-                    Sale sale = SaleMapper.toEntity(dto, jdbcTime);
+                    Sale sale = saleMapper.toEntity(dto, jdbcTime);
                     return sale;
                 })
                 .toList();

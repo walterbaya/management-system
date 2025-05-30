@@ -62,7 +62,7 @@ public class ExcelUpdateService {
 
 	private synchronized void updateExcelStockAux(String filePath, List<Product> products, Boolean gender) {
     	if (!excelUpdateWatcherManager.isAppUpdatingFile()) {
-            excelUpdateWatcherManager.setAppUpdatingFile(true);
+            //excelUpdateWatcherManager.setAppUpdatingFile(true);
             try (FileInputStream fis = new FileInputStream(filePath)) {
                 
                Workbook workbook = new XSSFWorkbook(fis);
@@ -185,7 +185,7 @@ public class ExcelUpdateService {
 				log.error("Error de tipo I/O, causado al intentar actualizar archivos excel desde el sistema.");
 				e.printStackTrace();
 			} finally{
-            	excelUpdateWatcherManager.setAppUpdatingFile(false);
+            	//excelUpdateWatcherManager.setAppUpdatingFile(false);
             }
            }
     	}
@@ -204,7 +204,7 @@ public class ExcelUpdateService {
 
 	private synchronized void updateExcelVentasAux(String filePath, List<Purchase> purchases, Boolean gender) {
 		if (!excelUpdateWatcherManager.isAppUpdatingFile()) {
-			excelUpdateWatcherManager.setAppUpdatingFile(true);
+			//excelUpdateWatcherManager.setAppUpdatingFile(true);
 			try (FileInputStream fis = new FileInputStream(filePath);
 				 Workbook workbook = new XSSFWorkbook(fis)) {
 
@@ -250,7 +250,7 @@ public class ExcelUpdateService {
 			} catch (IOException e) {
 				log.error("Error de tipo I/O al intentar actualizar el archivo Excel: {}", filePath, e);
 			} finally {
-				excelUpdateWatcherManager.setAppUpdatingFile(false);
+				//excelUpdateWatcherManager.setAppUpdatingFile(false);
 			}
 		}
 	}
