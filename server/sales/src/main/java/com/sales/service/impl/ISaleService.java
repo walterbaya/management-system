@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -26,7 +27,11 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class ISaleService implements SaleService {
-	
+
+
+    private static final ZoneId ZONE_ARG = ZoneId.of("America/Argentina/Buenos_Aires");
+    private static final Duration MYSQL_OFFSET = Duration.ofHours(-3);
+
     SalesRepo repo;
 
     public List<SaleDto> getAllSales(){
@@ -49,40 +54,41 @@ public class ISaleService implements SaleService {
         return repo.getSalesBetween(start, end).stream().map(SaleMapper::toDto).toList();
     }
 
-    public String saveSales(List<SaleDto> purchaseList){
-        purchaseList.forEach(purchase -> {
-            ZonedDateTime emissionDate = purchase.getEmissionDate();
+    public String saveSales(List<SaleDto> salesList){
+
+        // Obtener la hora actual en Buenos Aires hubo que ajustarlo a 3 horas antes ya que el formato de mysql lo toma como 3 horas despues.
+        ZonedDateTime nowInBuenosAires = ZonedDateTime.now(ZONE_ARG).minus(MYSQL_OFFSET);
+
+        salesList.forEach(sale -> {
+            ZonedDateTime emissionDate = sale.getEmissionDate();
 
             // Extraer día, mes y año
             int day = emissionDate.getDayOfMonth();
             int month = emissionDate.getMonthValue();
             int year = emissionDate.getYear();
 
-            // Obtener la hora actual en Buenos Aires hubo que ajustarlo a 3 horas antes ya que el formato de mysql lo toma como 3 horas despues.
-            ZonedDateTime nowInBuenosAires = ZonedDateTime.now(ZoneId.of("America/Argentina/Buenos_Aires")).minusHours(3);
-
             // Crear un nuevo ZonedDateTime combinando la fecha y la hora actual
             ZonedDateTime newEmissionDate = ZonedDateTime.of(year, month, day, nowInBuenosAires.getHour(),
                     nowInBuenosAires.getMinute(), nowInBuenosAires.getSecond(), nowInBuenosAires.getNano(),
-                    ZoneId.of("America/Argentina/Buenos_Aires"));
+                    ZONE_ARG);
 
             // Establecer la nueva fecha de emisión en la entidad Sale
-            purchase.setEmissionDate(newEmissionDate);
+            sale.setEmissionDate(newEmissionDate);
         });
 
-        repo.saveAll(purchaseList.stream().map(SaleMapper::toEntity).toList());
-//
-//        List<Product> products = new ArrayList<>();
-//
-//        Map<Long, Product> productMap = productRepo.findAll().stream().collect(Collectors.toMap(Product::getId, product -> product));
-//
-//        for (SaleDto purchase : purchaseList) {
-//            Product product = productMap.get(purchase.getIdProduct());
-//            product.setNumberOfElements(product.getNumberOfElements() - purchase.getNumberOfElements());
-//            products.add(product);
-//        }
-//
-//        productRepo.saveAll(products);
+        repo.saveAll(salesList.stream().map(SaleMapper::toEntity).toList());
+
+/*        List<Product> products = new ArrayList<>();
+
+        Map<Long, Product> productMap = productRepo.findAll().stream().collect(Collectors.toMap(Product::getId, product -> product));
+
+        for (SaleDto purchase : purchaseList) {
+            Product product = productMap.get(purchase.getIdProduct());
+            product.setNumberOfElements(product.getNumberOfElements() - purchase.getNumberOfElements());
+            products.add(product);
+        }
+
+        productRepo.saveAll(products);*/
 
        
         return "ok";
