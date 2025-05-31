@@ -207,6 +207,8 @@ class Registrar extends Component {
   async cargar_factura() {
     const { carrito } = this.state;
 
+    console.log(carrito.products)
+
     try {
       this.setState({ isSubmitting: true });
 
