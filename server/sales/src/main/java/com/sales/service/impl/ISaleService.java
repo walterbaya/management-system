@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
+import org.slf4j.Logger;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +31,8 @@ public class ISaleService implements SaleService {
 
     private final DateTimeConfig dateTimeConfig;
     private final SaleMapper saleMapper;
+
+    private final Logger logger = org.slf4j.LoggerFactory.getLogger(ISaleService.class);
 
     SalesRepo repo;
 
@@ -63,6 +66,10 @@ public class ISaleService implements SaleService {
 
         List<Sale> entities = salesList.stream()
                 .map(dto -> {
+
+                    logger.info("SaleDto: {}", dto);
+
+
                     Sale sale = saleMapper.toEntity(dto, jdbcTime);
                     return sale;
                 })

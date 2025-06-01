@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
+import org.slf4j.Logger;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,8 @@ public class ISaleService implements SaleService {
     private final DateTimeConfig dateTimeConfig;
     private final SaleMapper saleMapper;
 
+    private final Logger logger = org.slf4j.LoggerFactory.getLogger(ISaleService.class);
+
     SalesRepo repo;
 
     public List<SaleDto> getAllSales(){
@@ -50,7 +53,7 @@ public class ISaleService implements SaleService {
         ZonedDateTime end = endDateLocal.atTime(23, 59, 59).atZone(ZoneId.of("America/Argentina/Buenos_Aires"));
 
         // Aquí llamas al repositorio con las fechas ajustadas
-        return repo.getSalesBetween(start, end).stream().map(SaleMapper::toDto).toList();
+        return repo.getSalesBetween(start, end).stream().map(saleMapper::toDto).toList();
     }
 
 
@@ -63,6 +66,8 @@ public class ISaleService implements SaleService {
 
         List<Sale> entities = salesList.stream()
                 .map(dto -> {
+
+
                     Sale sale = saleMapper.toEntity(dto, jdbcTime);
                     return sale;
                 })

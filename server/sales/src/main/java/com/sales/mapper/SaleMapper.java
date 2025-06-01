@@ -1,6 +1,5 @@
 package com.sales.mapper;
 
-import com.sales.config.DateTimeConfig;
 import com.sales.dto.SaleDto;
 import com.sales.model.Sale;
 import lombok.AllArgsConstructor;
@@ -11,12 +10,12 @@ import java.time.ZonedDateTime;
 @Component
 public class SaleMapper {
 
-    private final DateTimeConfig dateTimeConfig;
-
     public SaleDto toDto(Sale sale) {
         SaleDto saleDto = new SaleDto();
         // Convertir Sale a SaleDto
         saleDto.setColor(sale.getColor());
+        saleDto.setName(sale.getName());
+        saleDto.setNumberOfElements(sale.getNumberOfElements());
         saleDto.setEmissionDate(sale.getEmissionDate());
         saleDto.setClientDni(sale.getClientDni());
         saleDto.setClientNameAndSurname(sale.getClientNameAndSurname());
@@ -33,6 +32,8 @@ public class SaleMapper {
         Sale sale = new Sale();
         // Convertir SaleDto a Sale
         sale.setColor(saleDto.getColor());
+        sale.setName(sale.getName());
+        sale.setNumberOfElements(saleDto.getNumberOfElements());
         sale.setEmissionDate(jdbcTime);
         sale.setClientDni(saleDto.getClientDni());
         sale.setClientNameAndSurname(saleDto.getClientNameAndSurname());
