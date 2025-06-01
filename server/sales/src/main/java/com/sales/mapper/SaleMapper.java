@@ -1,6 +1,6 @@
 package com.sales.mapper;
 
-import com.sales.dto.SaleDto;
+import com.sales.dto.SaleDTO;
 import com.sales.model.Sale;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -10,9 +10,9 @@ import java.time.ZonedDateTime;
 @Component
 public class SaleMapper {
 
-    public SaleDto toDto(Sale sale) {
-        SaleDto saleDto = new SaleDto();
-        // Convertir Sale a SaleDto
+    public SaleDTO toDto(Sale sale) {
+        SaleDTO saleDto = new SaleDTO();
+        // Convertir Sale a SaleDTO
         saleDto.setId(sale.getId());
         saleDto.setIdProduct(sale.getIdProduct());
         saleDto.setColor(sale.getColor());
@@ -26,13 +26,13 @@ public class SaleMapper {
         saleDto.setPrice(sale.getPrice());
         saleDto.setShoeType(sale.getShoeType());
         saleDto.setSize(sale.getSize());
-        return saleDto; // Implementa la conversión de Sale a SaleDto
+        return saleDto; // Implementa la conversión de Sale a SaleDTO
     }
 
-    public Sale toEntity(SaleDto saleDto, ZonedDateTime jdbcTime) {
+    public Sale toEntity(SaleDTO saleDto, ZonedDateTime jdbcTime) {
 
         Sale sale = new Sale();
-        // Convertir SaleDto a Sale
+        // Convertir SaleDTO a Sale
         sale.setId(saleDto.getId());
         sale.setIdProduct(saleDto.getIdProduct());
         sale.setColor(saleDto.getColor());
@@ -46,7 +46,7 @@ public class SaleMapper {
         sale.setPrice(saleDto.getPrice());
         sale.setShoeType(saleDto.getShoeType());
         sale.setSize(saleDto.getSize());
-        return sale; // Implementa la conversión de SaleDto a Sale
+        return sale; // Implementa la conversión de SaleDTO a Sale
     }
 
 }

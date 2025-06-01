@@ -1,7 +1,8 @@
 package com.sales.service.impl;
 
 import com.sales.config.DateTimeConfig;
-import com.sales.dto.SaleDto;
+import com.sales.dto.SaleDTO;
+import com.sales.dto.external.ProductStockDTO;
 import com.sales.mapper.SaleMapper;
 import com.sales.model.Sale;
 import com.sales.repository.SalesRepo;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,23 +26,27 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class ISaleService implements SaleService {
 
     private final DateTimeConfig dateTimeConfig;
+    private final RestTemplate restTemplate;
     private final SaleMapper saleMapper;
+    private final String productsBaseUrl = "http://localhost:8080/api/productos";
+
 
     private final Logger logger = org.slf4j.LoggerFactory.getLogger(ISaleService.class);
 
     SalesRepo repo;
 
-    public List<SaleDto> getAllSales(){
+    public List<SaleDTO> getAllSales(){
         return repo.findAll().stream().map(saleMapper::toDto).toList();
     };
 
-    public List<SaleDto> getSalesBetweenDates(String startDate, String endDate) {
+    public List<SaleDTO> getSalesBetweenDates(String startDate, String endDate) {
         // Crear un formateador para la fecha
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -58,7 +64,33 @@ public class ISaleService implements SaleService {
 
 
     @Transactional
-    public String saveSales(List<SaleDto> salesList) {
+    public String saveSales(List<SaleDTO> salesList) {
+
+        List<ProductStockDTO> updatedProducts = salesList.stream()
+                .map(saleDto -> new ProductStockDTO(saleDto.getIdProduct(), saleDto.getNumberOfElements()))
+                .collect(Collectors.toList());
+
+        String url = String.format("%s/%d/updateStock", productsBaseUrl);
+
+        try {
+            // 3) Hacer la petición PUT al microservicio de Productos
+            restTemplate.put(url, updatedProducts);
+        } catch (HttpClientErrorException ex) {
+            // Manejar errores 4xx/5xx arrojados por Productos
+            if (ex.getStatusCode() == HttpStatus.BAD_REQUEST) {
+                // Por ejemplo, stock insuficiente
+                throw new RuntimeException("Stock insuficiente para el producto " + idProducto);
+            }
+            if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
+                // Producto no existe
+                throw new RuntimeException("Producto " + idProducto + " no encontrado");
+            }
+            // Cualquier otro error
+            throw new RuntimeException("Error al llamar a Productos: " + ex.getStatusCode());
+        }
+
+
+
         // Obtengo la hora local corregida según configuración
         ZonedDateTime jdbcTime = ZonedDateTime
                 .now(dateTimeConfig.getZone())
@@ -67,7 +99,7 @@ public class ISaleService implements SaleService {
         List<Sale> entities = salesList.stream()
                 .map(dto -> {
 
-                    logger.info("SaleDto: {}", dto);
+                    logger.info("SaleDTO: {}", dto);
 
 
                     Sale sale = saleMapper.toEntity(dto, jdbcTime);
@@ -84,20 +116,20 @@ public class ISaleService implements SaleService {
     public ResponseEntity<byte[]> generateExcelReport(String startDate, String endDate) {
 
         // Obtener las facturas desde el servicio
-        HashMap<Long, SaleDto> saleByIdProduct = new HashMap<>();
+        HashMap<Long, SaleDTO> saleByIdProduct = new HashMap<>();
 
         getSalesBetweenDates(startDate, endDate).forEach(sale -> {
             Long id = sale.getIdProduct();
             if (saleByIdProduct.get(id) == null) {
                 saleByIdProduct.put(id, sale);
             } else {
-                SaleDto saleDto = saleByIdProduct.get(id);
+                SaleDTO saleDto = saleByIdProduct.get(id);
                 saleDto.setNumberOfElements(sale.getNumberOfElements() + saleDto.getNumberOfElements());
                 saleByIdProduct.put(id, saleDto);
             }
         });
 
-        List<SaleDto> data = new ArrayList<>(saleByIdProduct.values());
+        List<SaleDTO> data = new ArrayList<>(saleByIdProduct.values());
 
         // Crear un libro de trabajo de Excel
         Workbook workbook = new HSSFWorkbook();
@@ -125,7 +157,7 @@ public class ISaleService implements SaleService {
 
         // Llenar la hoja de trabajo con los datos
         int rowNum = 1;
-        for (SaleDto purchase : data) {
+        for (SaleDTO purchase : data) {
             var excelRow = sheet.createRow(rowNum++);
             excelRow.createCell(0).setCellValue(purchase.getName());
             excelRow.createCell(1).setCellValue(purchase.getShoeType());

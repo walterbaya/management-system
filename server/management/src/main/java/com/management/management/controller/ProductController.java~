@@ -2,6 +2,7 @@ package com.management.management.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.management.management.dto.ProductDto;
+import com.management.management.dto.external.ProductStockDTO;
 import com.management.management.model.Product;
 import com.management.management.repository.ProductRepo;
 import com.management.management.service.ExcelUpdateService;
@@ -32,7 +33,31 @@ import java.util.Map;
 public class ProductController {
 
     IProductService iProductService;
-    
+
+    @DeleteMapping("/delete_product")
+    public void deleteProduct(@RequestParam("id") Long id) {
+        iProductService.deleteProduct(id);
+    }
+
+    private String validate(ProductDto product) {
+        System.out.println(product);
+        if (product.getName() == null) {
+            return "Error, se debe ingresar el nombre del articulo";
+        }
+
+        if (product.getNumberOfElements() == null || product.getNumberOfElements() <= 0) {
+            return "Error, se debe ingresar la cantidad y debe ser mayor a 0";
+        }
+        if (product.getSize() == null || product.getSize() <= 0) {
+            return "Error, se debe ingresar el talle y debe ser mayor a 0";
+        }
+        if (product.getColor().isEmpty()) {
+            return "Error, se debe ingresar el color ";
+        }
+
+        return "ok";
+    }
+
     @GetMapping("/get_products")
     public List<ProductDto> getProducts() {
         return iProductService.getProducts();
@@ -65,28 +90,12 @@ public class ProductController {
         return "ok";
     }
 
-    @DeleteMapping("/delete_product")
-    public void deleteProduct(@RequestParam("id") Long id) {
-        iProductService.deleteProduct(id);
-    }
-
-    private String validate(ProductDto product) {
-        System.out.println(product);
-        if (product.getName() == null) {
-            return "Error, se debe ingresar el nombre del articulo";
+    @PutMapping("/api/productos/stock")
+    public ResponseEntity<Void> actualizarStock(@RequestBody List<ProductStockDTO> productos) {
+        for (ProductStockDTO producto : productos) {
+            productoService.restarStock(producto.getIdProducto(), producto.getCantidad());
         }
-
-        if (product.getNumberOfElements() == null || product.getNumberOfElements() <= 0) {
-            return "Error, se debe ingresar la cantidad y debe ser mayor a 0";
-        }
-        if (product.getSize() == null || product.getSize() <= 0) {
-            return "Error, se debe ingresar el talle y debe ser mayor a 0";
-        }
-        if (product.getColor().isEmpty()) {
-            return "Error, se debe ingresar el color ";
-        }
-
-        return "ok";
+        return ResponseEntity.ok().build();
     }
 
 

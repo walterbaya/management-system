@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.ZonedDateTime;
 
 @Data
-public class SaleDto {
+public class SaleDTO {
 	private Long id;
     private ZonedDateTime emissionDate;
     private String clientNameAndSurname;

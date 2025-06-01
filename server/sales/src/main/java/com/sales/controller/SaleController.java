@@ -1,6 +1,6 @@
 package com.sales.controller;
 
-import com.sales.dto.SaleDto;
+import com.sales.dto.SaleDTO;
 import com.sales.service.impl.ISaleService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,18 +16,18 @@ public class SaleController {
 	ISaleService iSaleService;
 	
     @GetMapping("/get_facturas")
-    public List<SaleDto> getAllPurchases(){
+    public List<SaleDTO> getAllPurchases(){
         return iSaleService.getAllSales();
     };
 
     @GetMapping("/get_facturas_between")
-    public List<SaleDto> getPurchasesBetween(@RequestParam("fecha_desde") String firstDate, @RequestParam("fecha_hasta") String endDate) {
+    public List<SaleDTO> getPurchasesBetween(@RequestParam("fecha_desde") String firstDate, @RequestParam("fecha_hasta") String endDate) {
         return iSaleService.getSalesBetweenDates(firstDate, endDate);
     }
 
 
     @PostMapping("/add_purchase")
-    public String savePurchase(@RequestBody List<SaleDto> purchaseList){
+    public String savePurchase(@RequestBody List<SaleDTO> purchaseList){
         return iSaleService.saveSales(purchaseList);
     }
 
