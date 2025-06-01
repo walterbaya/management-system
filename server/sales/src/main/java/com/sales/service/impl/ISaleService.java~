@@ -67,6 +67,8 @@ public class ISaleService implements SaleService {
         List<Sale> entities = salesList.stream()
                 .map(dto -> {
 
+                    logger.info("SaleDto: {}", dto);
+
 
                     Sale sale = saleMapper.toEntity(dto, jdbcTime);
                     return sale;

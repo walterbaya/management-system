@@ -13,6 +13,8 @@ public class SaleMapper {
     public SaleDto toDto(Sale sale) {
         SaleDto saleDto = new SaleDto();
         // Convertir Sale a SaleDto
+        saleDto.setId(sale.getId());
+        saleDto.setIdProduct(sale.getIdProduct());
         saleDto.setColor(sale.getColor());
         saleDto.setName(sale.getName());
         saleDto.setNumberOfElements(sale.getNumberOfElements());
@@ -31,8 +33,10 @@ public class SaleMapper {
 
         Sale sale = new Sale();
         // Convertir SaleDto a Sale
+        sale.setId(saleDto.getId());
+        sale.setIdProduct(saleDto.getIdProduct());
         sale.setColor(saleDto.getColor());
-        sale.setName(sale.getName());
+        sale.setName(saleDto.getName());
         sale.setNumberOfElements(saleDto.getNumberOfElements());
         sale.setEmissionDate(jdbcTime);
         sale.setClientDni(saleDto.getClientDni());

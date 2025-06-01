@@ -71,6 +71,8 @@ public class ISaleService implements SaleService {
 
 
                     Sale sale = saleMapper.toEntity(dto, jdbcTime);
+
+                    logger.info("Sale: {}", sale);
                     return sale;
                 })
                 .toList();
