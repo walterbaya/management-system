@@ -3,6 +3,7 @@ package com.management.management.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.management.management.dto.ProductDto;
+import com.management.management.dto.external.ProductStockDTO;
 import com.management.management.mapper.ProductMapper;
 import com.management.management.model.Product;
 import com.management.management.repository.ProductRepo;
@@ -14,6 +15,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -29,6 +31,7 @@ import java.util.NoSuchElementException;
 public class IProductService implements ProductService {
 
 
+    private final ProductRepo productRepo;
     ProductRepo repo;
     ExcelUpdateService excelUpdateService;
     ExcelUpdateWatcherManager excelUpdateWatcherManager;
@@ -142,5 +145,20 @@ public class IProductService implements ProductService {
         return true;
     }
 
+    @Transactional
+    public ResponseEntity<String> updateNumberOfElements(List<ProductStockDTO> productStockDTOS) {
+        ResponseEntity<String> res = new ResponseEntity<String>("ok", HttpStatus.OK);
 
+        //Validaciones
+        productStockDTOS.stream().map(productStockDTO -> {
+            if(productStockDTO.getIdProduct() == null) {
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El id del producto es requerido");
+            }
+            if(productStockDTO.getSoldElements() == null) {
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La cantidad es requerida");
+            });
+
+
+        productRepo.updateNumberOfElementsById(productStockDTO.getIdProduct(), productStockDTO.getSoldElements());
+    }
 }

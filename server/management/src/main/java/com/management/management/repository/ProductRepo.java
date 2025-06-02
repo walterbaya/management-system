@@ -47,4 +47,12 @@ public interface ProductRepo extends JpaRepository<Product, Long> {
     @Query("UPDATE Product p SET p.factoryPrice = :factoryPrice WHERE p.name = :name")
     void updateProductPriceByName(@Param("name") Integer name, @Param("factoryPrice") Double price);
 
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Product p SET p.numberOfElements = :cantidad WHERE p.id = :id")
+    void updateNumberOfElementsById(@Param("id") Long id,
+                                   @Param("cantidad") Integer cantidad);
+
+
 }

@@ -4,7 +4,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import com.management.management.dto.PurchaseDto;
 
-
+@Deprecated
 public interface PurchaseService {
 
     List<PurchaseDto> getAllPurchases();

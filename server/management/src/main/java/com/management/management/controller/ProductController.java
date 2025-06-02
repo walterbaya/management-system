@@ -93,7 +93,9 @@ public class ProductController {
     @PutMapping("/api/productos/stock")
     public ResponseEntity<Void> actualizarStock(@RequestBody List<ProductStockDTO> productos) {
         for (ProductStockDTO producto : productos) {
-            //productoService.restarStock(producto.getIdProducto(), producto.getCantidad());
+
+
+            productService.restarStock(producto.getIdProducto(), producto.getCantidad());
         }
         return ResponseEntity.ok().build();
     }
