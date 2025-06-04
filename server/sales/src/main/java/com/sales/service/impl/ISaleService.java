@@ -62,7 +62,7 @@ public class ISaleService implements SaleService {
 
 
     @Transactional
-    public String saveSales(List<SaleDTO> salesList) {
+    public void saveSales(List<SaleDTO> salesList) {
         //Transformar SaleDTO a ProductStockDTO
         List<ProductStockDTO> updatedProducts = salesList.stream()
                 .map(saleDto -> new ProductStockDTO(
@@ -103,7 +103,6 @@ public class ISaleService implements SaleService {
                 .toList();
 
         repo.saveAll(entities);
-        return "ok";
     }
 
 

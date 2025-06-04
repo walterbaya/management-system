@@ -12,7 +12,7 @@ public interface SaleService {
 
     List<SaleDTO> getSalesBetweenDates(String startDate, String endDate);
 
-    String saveSales(List<SaleDTO> salesList);
+    void saveSales(List<SaleDTO> salesList);
 
     ResponseEntity<byte[]> generateExcelReport(String startDate, String endDate);
 
