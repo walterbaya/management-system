@@ -26,8 +26,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 				)
 		),
 		externalDocs = @ExternalDocumentation(
-				description = "Management-System Sales microservice REST API Documentation",
-				url = ""
+				description = "EazyBank Cards microservice REST API Documentation",
+				url = "https://www.eazybytes.com/swagger-ui.html"
 		)
 )
 @SpringBootApplication
