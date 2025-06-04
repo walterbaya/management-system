@@ -147,9 +147,11 @@ public class IProductService implements ProductService {
 
     @Transactional
     public void updateNumberOfElements(List<ProductStockDTO> productStockDTOS) {
+
         productStockDTOS.forEach(dto ->
                 productRepo.updateNumberOfElementsById(dto.getIdProduct(), dto.getSoldElements())
         );
+
     }
 
 }

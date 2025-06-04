@@ -2,6 +2,7 @@ package com.management.management.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.management.management.dto.ProductDto;
+import com.management.management.dto.external.ProductStockDTO;
 import com.management.management.model.Product;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
@@ -27,5 +28,6 @@ public interface ProductService {
 
     ResponseEntity<String> guardarJson(List<Map<String, Object>> jsonData);
 
+    void updateNumberOfElements(List<ProductStockDTO> productStockDTOS);
 
 }

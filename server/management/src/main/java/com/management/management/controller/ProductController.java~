@@ -82,24 +82,20 @@ public class ProductController {
 
         for (ProductStockDTO dto : productsDTOS) {
             if (dto.getIdProduct() == null) {
-                return ResponseEntity
-                        .badRequest()
-                        .body("El id de producto " + dto + " es requerido y no se encontró");
+                return ResponseEntity.badRequest().body("El id de producto " + dto + " es requerido y no se encontró");
             }
             if (dto.getSoldElements() == null) {
-                return ResponseEntity
-                        .badRequest()
-                        .body("La cantidad es requerida: " + dto);
+                return ResponseEntity."La cantidad es requerida: " + dto;
             }
         }
 
-        // 2. Actualizo el stock a través del servicio
+        // 2. Actualizo el stock
         iProductService.updateNumberOfElements(productsDTOS);
 
         // 3. Devuelvo OK
         return ResponseEntity.ok("ok");
-    }
 
+    }
 
 
 }

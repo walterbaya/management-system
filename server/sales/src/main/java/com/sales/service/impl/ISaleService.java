@@ -12,11 +12,10 @@ import lombok.AllArgsConstructor;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.slf4j.Logger;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.ByteArrayOutputStream;
@@ -65,53 +64,68 @@ public class ISaleService implements SaleService {
 
     @Transactional
     public String saveSales(List<SaleDTO> salesList) {
-
+        // 1) Transformar SaleDTO a ProductStockDTO
         List<ProductStockDTO> updatedProducts = salesList.stream()
-                .map(saleDto -> new ProductStockDTO(saleDto.getIdProduct(), saleDto.getNumberOfElements()))
+                .map(saleDto -> new ProductStockDTO(
+                        saleDto.getIdProduct(),
+                        saleDto.getNumberOfElements()))
                 .collect(Collectors.toList());
 
-        String url = String.format("%s/%d/updateStock", productsBaseUrl);
+        // 2) Construir URL
+        String url = String.format("%s/updateStock", productsBaseUrl);
 
         try {
-            // 3) Hacer la petición PUT al microservicio de Productos
-            restTemplate.put(url, updatedProducts);
+            // 3) Usar exchange para capturar la respuesta
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<List<ProductStockDTO>> requestEntity = new HttpEntity<>(updatedProducts, headers);
+
+            ResponseEntity<String> responseEntity = restTemplate.exchange(
+                    url,
+                    HttpMethod.PUT,
+                    requestEntity,
+                    String.class);
+
+            // 4) Verificar el código de estado devuelto
+            if (responseEntity.getStatusCode() == HttpStatus.OK) {
+                String mensajeOK = responseEntity.getBody();
+                logger.info("Productos actualizados con éxito: {}", mensajeOK);
+            } else {
+                // Si es 4xx o 5xx, quizás lancemos excepción o devolvamos error
+                throw new RuntimeException("Error al actualizar stock en Productos: "
+                        + responseEntity.getStatusCode()
+                        + " - " + responseEntity.getBody());
+            }
         } catch (HttpClientErrorException ex) {
-            // Manejar errores 4xx/5xx arrojados por Productos
+            // En caso de 4xx/5xx capturados aún antes de exchange()
             if (ex.getStatusCode() == HttpStatus.BAD_REQUEST) {
                 // Por ejemplo, stock insuficiente
-                throw new RuntimeException("Stock insuficiente para el producto " + idProducto);
+                String cuerpo = ex.getResponseBodyAsString();
+                throw new RuntimeException("Stock insuficiente: " + cuerpo);
             }
             if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
                 // Producto no existe
-                throw new RuntimeException("Producto " + idProducto + " no encontrado");
+                String cuerpo = ex.getResponseBodyAsString();
+                throw new RuntimeException("Recurso no encontrado en Productos: " + cuerpo);
             }
-            // Cualquier otro error
-            throw new RuntimeException("Error al llamar a Productos: " + ex.getStatusCode());
+            // Cualquier otro error 4xx/5xx
+            throw new RuntimeException("Error al llamar a Productos: "
+                    + ex.getStatusCode() + " - " + ex.getResponseBodyAsString());
         }
 
-
-
-        // Obtengo la hora local corregida según configuración
+        // 5) Si llegamos aquí, la llamada PUT fue exitosa: guardamos las ventas
         ZonedDateTime jdbcTime = ZonedDateTime
                 .now(dateTimeConfig.getZone())
                 .minus(dateTimeConfig.getMysqlOffset());
 
         List<Sale> entities = salesList.stream()
-                .map(dto -> {
-
-                    logger.info("SaleDTO: {}", dto);
-
-
-                    Sale sale = saleMapper.toEntity(dto, jdbcTime);
-
-                    logger.info("Sale: {}", sale);
-                    return sale;
-                })
+                .map(dto -> saleMapper.toEntity(dto, jdbcTime))
                 .toList();
 
         repo.saveAll(entities);
         return "ok";
     }
+
 
     public ResponseEntity<byte[]> generateExcelReport(String startDate, String endDate) {
 
