@@ -227,7 +227,7 @@ class Registrar extends Component {
         carrito.products
       );
 
-      if (response.status === 200) {
+      if (response.status === 201) {
         this.setState({
           exito: "Venta registrada exitosamente!",
           error: null,
