@@ -71,7 +71,7 @@ public class ISaleService implements SaleService {
                 .collect(Collectors.toList());
 
         //Construir URL
-        String url = String.format("%s/update_stock", productsBaseUrl);
+        String url = String.format("%s/updateStock", productsBaseUrl);
 
         //Usar exchange para capturar la respuesta
         HttpHeaders headers = new HttpHeaders();

@@ -77,7 +77,7 @@ public class ProductController {
         return "ok";
     }
 
-    @PutMapping("/api/productos/stock")
+    @PutMapping("/update_stock")
     public ResponseEntity<String> updateStock(@RequestBody List<ProductStockDTO> productsDTOS) {
 
         for (ProductStockDTO dto : productsDTOS) {
@@ -93,10 +93,8 @@ public class ProductController {
             }
         }
 
-        // 2. Actualizo el stock a través del servicio
         iProductService.updateNumberOfElements(productsDTOS);
 
-        // 3. Devuelvo OK
         return ResponseEntity.ok("ok");
     }
 
