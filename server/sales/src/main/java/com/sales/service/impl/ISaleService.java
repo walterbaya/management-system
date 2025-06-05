@@ -3,6 +3,7 @@ package com.sales.service.impl;
 import com.sales.config.DateTimeConfig;
 import com.sales.dto.SaleDTO;
 import com.sales.dto.external.ProductStockDTO;
+import com.sales.exception.ExcelGeneratorException;
 import com.sales.mapper.SaleMapper;
 import com.sales.model.Sale;
 import com.sales.repository.SalesRepo;
@@ -184,8 +185,7 @@ public class ISaleService implements SaleService {
             return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
         } catch (IOException e) {
             // Manejo de errores
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ExcelGeneratorException("Error when generating Excel " + e.getMessage());
         }
     }
 
