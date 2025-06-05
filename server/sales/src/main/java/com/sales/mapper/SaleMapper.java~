@@ -4,6 +4,8 @@ import com.sales.dto.SaleDTO;
 import com.sales.model.Sale;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 @AllArgsConstructor
@@ -29,7 +31,7 @@ public class SaleMapper {
         return saleDto; // Implementa la conversión de Sale a SaleDTO
     }
 
-    public Sale toEntity(SaleDTO saleDto, ZonedDateTime jdbcTime) {
+    public Sale toEntity(SaleDTO saleDto, LocalDateTime jdbcTime) {
 
         Sale sale = new Sale();
         // Convertir SaleDTO a Sale
