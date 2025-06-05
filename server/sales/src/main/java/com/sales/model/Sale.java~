@@ -33,6 +33,8 @@ public class Sale extends BaseEntity{
     private Boolean gender;
     @Column(name = "precio")
     private Double price;
+    @Column(name = "fecha")
+    private ZonedDateTime emissionDate;
     @Column(name = "nombre_y_apellido")
     private String clientNameAndSurname;
     @Column(name = "dni_cliente")

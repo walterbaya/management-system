@@ -95,9 +95,9 @@ public class ISaleService implements SaleService {
         }
 
         //Si llegamos aquí, la llamada PUT fue exitosa: guardamos las ventas
-        ZonedDateTime jdbcTime = ZonedDateTime
+        LocalDateTime jdbcTime = ZonedDateTime
                 .now(dateTimeConfig.getZone())
-                .minus(dateTimeConfig.getMysqlOffset());
+                .minus(dateTimeConfig.getMysqlOffset()).toLocalDateTime();
 
         List<Sale> entities = salesList.stream()
                 .map(dto -> saleMapper.toEntity(dto, jdbcTime))
