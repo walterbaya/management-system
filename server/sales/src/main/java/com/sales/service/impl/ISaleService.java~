@@ -58,7 +58,7 @@ public class ISaleService implements SaleService {
         ZonedDateTime end = endDateLocal.atTime(23, 59, 59).atZone(ZoneId.of("America/Argentina/Buenos_Aires"));
 
         // Aquí llamas al repositorio con las fechas ajustadas
-        return repo.getSalesBetween(start.toLocalDateTime(), end.toLocalDateTime()).stream().map(saleMapper::toDto).toList();
+        return repo.getSalesBetween(start.toLocalDate(), end.toLocalDate()).stream().map(saleMapper::toDto).toList();
     }
 
 

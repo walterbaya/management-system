@@ -31,7 +31,7 @@ public class BaseEntity {
 
     @LastModifiedDate
     @Column(name = "modificado_en", insertable = false)
-    private LocalDateTime modifiedDate;
+    private LocalDateTime modifieDate;
 
     @LastModifiedBy
     @Column(name = "modificado_por", insertable = false)
